@@ -7,6 +7,14 @@ import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
 import { downloadProtectedFile } from '../utils/ContentProtection';
 import { getLibraryBookIds } from '../lib/libraryService';
+import { formattedAuthor } from '../utils/formatters';
+import EditIcon from '@mui/icons-material/Edit';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import DownloadIcon from '@mui/icons-material/Download';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
 const PRESET_AVATARS = [
   '/avatars/royal-user.png',
@@ -74,7 +82,7 @@ const ProfilePage = () => {
             return {
               _id: fullId,
               title: resp.data.volumeInfo.title,
-              author: resp.data.volumeInfo.authors?.[0] || 'كاتب موقر',
+              author: formattedAuthor(resp.data.volumeInfo.authors?.[0]) || 'كاتب موقر',
               coverImage: resp.data.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:'),
               price: "مملوك",
               rating: resp.data.volumeInfo.averageRating || 4.5
@@ -84,7 +92,7 @@ const ProfilePage = () => {
             return {
               _id: fullId,
               title: resp.data.title,
-              author: resp.data.authors?.[0]?.name || 'مؤلف كلاسيكي',
+              author: formattedAuthor(resp.data.authors?.[0]?.name) || 'مؤلف كلاسيكي',
               coverImage: `https://www.gutenberg.org/cache/epub/${realId}/pg${realId}.cover.medium.jpg`,
               price: "مملوك",
               rating: 4.8
@@ -94,7 +102,7 @@ const ProfilePage = () => {
             return {
               _id: fullId,
               title: resp.data.metadata.title,
-              author: resp.data.metadata.creator || 'كاتب مجهول',
+              author: formattedAuthor(resp.data.metadata.creator) || 'كاتب مجهول',
               coverImage: `https://archive.org/services/img/${realId}`,
               price: "مملوك",
               rating: 4.7
@@ -131,12 +139,12 @@ const ProfilePage = () => {
              
              <div className="flex flex-col md:flex-row-reverse items-center gap-8">
                 <div className="w-32 h-32 rounded-full border-4 border-gold-500/30 p-1 shadow-2xl relative group cursor-pointer" onClick={() => setShowAvatarModal(true)}>
-                   <img src={user.avatar} alt="Avatar" className="w-full h-full rounded-full bg-surface-container-low object-cover" />
+                   <img src={user.avatar} alt="صورة المستخدم الشخصية" loading="lazy" className="w-full h-full rounded-full bg-surface-container-low object-cover" />
                    <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="material-icons text-gold-500">edit</span>
+                      <EditIcon className="text-gold-500" />
                    </div>
                    <div className="absolute -bottom-2 -right-2 bg-gold-500 w-10 h-10 rounded-full flex items-center justify-center border-4 border-surface shadow-lg">
-                      <span className="material-icons text-surface text-xl">verified</span>
+                      <VerifiedIcon className="text-surface text-xl" />
                    </div>
                 </div>
                 <div className="text-center md:text-right">
@@ -178,7 +186,7 @@ const ProfilePage = () => {
                  ))
               ) : ownedBooks.length === 0 ? (
                 <div className="col-span-full py-32 text-center opacity-30">
-                   <span className="material-icons text-8xl mb-6">inventory_2</span>
+                   <Inventory2Icon className="text-8xl mb-6" />
                    <p className="text-3xl font-amiri font-black">خزانتك لا تزال بانتظر كنوزها الأولى</p>
                    <button onClick={() => navigate('/search')} className="mt-8 text-gold-500 font-black border-b border-gold-500 pb-1">ابدأ الاقتناء الآن</button>
                 </div>
@@ -196,7 +204,7 @@ const ProfilePage = () => {
                       onClick={() => handleDownload(book.title)}
                       className="absolute bottom-24 left-8 right-8 bg-surface/90 backdrop-blur-xl border border-gold-500/30 py-3 rounded-2xl text-gold-500 font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 shadow-2xl flex items-center justify-center gap-2 hover:bg-gold-500 hover:text-surface"
                     >
-                      <span className="material-icons text-sm">download</span>
+                      <DownloadIcon className="text-sm" />
                       تحميل النسخة الملكية
                     </button>
                   </motion.div>
@@ -237,8 +245,8 @@ const ProfilePage = () => {
             >
               <div className="flex flex-row-reverse items-center justify-between mb-8">
                 <h2 className="text-3xl font-amiri font-black gold-text">تغيير صورة البروفيل</h2>
-                <button onClick={() => { setShowAvatarModal(false); setUploadPreview(null); }} className="w-10 h-10 rounded-full bg-surface flex items-center justify-center hover:bg-gold-500/10 transition-colors">
-                  <span className="material-icons text-slate-400">close</span>
+                <button aria-label="إغلاق النافذة" onClick={() => { setShowAvatarModal(false); setUploadPreview(null); }} className="w-10 h-10 rounded-full bg-surface flex items-center justify-center hover:bg-gold-500/10 transition-colors">
+                  <CloseIcon className="text-slate-400" />
                 </button>
               </div>
 
@@ -247,13 +255,13 @@ const ProfilePage = () => {
                 <p className="text-slate-400 font-bold mb-4 text-right">رفع صورة من جهازك</p>
                 {uploadPreview ? (
                   <div className="flex flex-col items-center gap-4">
-                    <img src={uploadPreview} alt="preview" className="w-24 h-24 rounded-full object-cover border-4 border-gold-500/50 shadow-xl" />
+                    <img src={uploadPreview} alt="معاينة الصورة" loading="lazy" className="w-24 h-24 rounded-full object-cover border-4 border-gold-500/50 shadow-xl" />
                     <div className="flex gap-3">
                       <button
                         onClick={() => applyAvatar(uploadPreview)}
                         className="gold-button px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2"
                       >
-                        <span className="material-icons text-lg">check_circle</span>
+                        <CheckCircleIcon className="text-lg" />
                         تطبيق هذه الصورة
                       </button>
                       <button
@@ -269,7 +277,7 @@ const ProfilePage = () => {
                     onClick={() => fileInputRef.current?.click()}
                     className="w-full border-2 border-dashed border-gold-900/30 hover:border-gold-500/50 rounded-3xl py-8 flex flex-col items-center gap-3 transition-all hover:bg-gold-500/5 group"
                   >
-                    <span className="material-icons text-4xl text-gold-900/50 group-hover:text-gold-500 transition-colors">add_photo_alternate</span>
+                    <AddPhotoAlternateIcon className="text-4xl text-gold-900/50 group-hover:text-gold-500 transition-colors" />
                     <span className="text-slate-500 font-bold">اضغط لرفع صورة</span>
                     <span className="text-slate-600 text-xs">JPG, PNG, GIF مقبولة</span>
                   </button>
@@ -288,7 +296,7 @@ const ProfilePage = () => {
                         userAvatar === src ? 'border-gold-500 shadow-[0_0_12px_rgba(212,175,55,0.5)]' : 'border-gold-900/20 hover:border-gold-500/50'
                       }`}
                     >
-                      <img src={src} alt={`avatar-${i}`} className="w-full h-full object-cover bg-surface-container-lowest" />
+                      <img src={src} alt={`صورة رمزية مستعارة ${i}`} loading="lazy" className="w-full h-full object-cover bg-surface-container-lowest" />
                     </button>
                   ))}
                 </div>

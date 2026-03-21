@@ -2,6 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import DiamondIcon from '@mui/icons-material/Diamond';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 
 const Subscriptions: React.FC = () => {
   const tiers = [
@@ -12,7 +16,7 @@ const Subscriptions: React.FC = () => {
       features: ['الوصول لـ 500 كتاب تاريخي', 'تحميل بصيغة PDF', 'دعم فني ملكي'],
       color: 'from-emerald-900/40 to-emerald-600/20',
       border: 'border-emerald-500/30',
-      icon: 'auto_stories'
+      icon: AutoStoriesIcon
     },
     {
       name: 'العضوية الياقوتية',
@@ -21,7 +25,7 @@ const Subscriptions: React.FC = () => {
       features: ['وصول غير محدود للخزانة', 'معاينة الفصول قبل الجميع', 'بدون إعلانات نهائياً', 'العلامة المائية الشخصية'],
       color: 'from-gold-900/40 to-gold-600/20',
       border: 'border-gold-500/50',
-      icon: 'diamond',
+      icon: DiamondIcon,
       recommended: true
     },
     {
@@ -31,7 +35,7 @@ const Subscriptions: React.FC = () => {
       features: ['كل مزايا الياقوتية', 'نسخ مطبوعة فاخرة اختيارياً', 'لقاءات مع المؤلفين الموقرين', 'شهادة عضوية ذهبية'],
       color: 'from-blue-900/40 to-blue-600/20',
       border: 'border-blue-500/30',
-      icon: 'workspace_premium'
+      icon: WorkspacePremiumIcon
     }
   ];
 
@@ -71,7 +75,7 @@ const Subscriptions: React.FC = () => {
               )}
 
               <div className="relative z-10">
-                <span className="material-icons text-5xl gold-text mb-6">{tier.icon}</span>
+                <tier.icon className="text-5xl gold-text mb-6" />
                 <h3 className="text-3xl font-amiri font-black text-white mb-2">{tier.name}</h3>
                 <div className="flex items-baseline gap-2 mb-10">
                   <span className="text-5xl font-black gold-text">${tier.price}</span>
@@ -81,7 +85,7 @@ const Subscriptions: React.FC = () => {
                 <ul className="space-y-6 mb-12">
                   {tier.features.map(feature => (
                     <li key={feature} className="flex items-center gap-4 text-slate-300 font-bold">
-                      <span className="material-icons text-gold-500 text-lg">check_circle</span>
+                      <CheckCircleIcon className="text-gold-500 text-lg" />
                       {feature}
                     </li>
                   ))}

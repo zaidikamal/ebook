@@ -1,0 +1,6 @@
+# public/robots.txt
+User-agent: *
+Allow: /
+
+# تحديد موقع خريطة الموقع
+Sitemap: https://ebook-mgv9.vercel.app/sitemap.xml

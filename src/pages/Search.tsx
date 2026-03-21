@@ -4,6 +4,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
+import PublicIcon from '@mui/icons-material/Public';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import { formattedAuthor } from '../utils/formatters';
+import SearchIcon from '@mui/icons-material/Search';
+import SearchOffIcon from '@mui/icons-material/SearchOff';
 
 type SearchSource = 'google' | 'gutenberg' | 'archive';
 
@@ -13,6 +19,11 @@ const SearchPage = () => {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+
+  // Filters
+  const [filterCategory, setFilterCategory] = useState('الكل');
+  const [filterPrice, setFilterPrice] = useState('الكل');
+  const [filterRating, setFilterRating] = useState('الكل');
 
   useEffect(() => {
     fetchTrending();
@@ -42,29 +53,42 @@ const SearchPage = () => {
   const formatGoogleBooks = (items: any[]) => items?.map(item => ({
     _id: `gb:${item.id}`,
     title: item.volumeInfo.title,
-    author: item.volumeInfo.authors?.[0] || 'كاتب موقر',
+    author: formattedAuthor(item.volumeInfo.authors?.[0]) || 'كاتب موقر',
     price: 19.99 + (Math.random() * 15),
     coverImage: item.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400',
-    rating: item.volumeInfo.averageRating || 4.2
+    rating: item.volumeInfo.averageRating || 4.2,
+    categories: item.volumeInfo.categories || ['عام']
   })) || [];
 
   const formatGutenbergBooks = (items: any[]) => items?.map(item => ({
     _id: `pg:${item.id}`,
     title: item.title,
-    author: item.authors?.[0]?.name || 'مؤلف كلاسيكي',
+    author: formattedAuthor(item.authors?.[0]?.name) || 'مؤلف كلاسيكي',
     price: 0, // Gutenberg is free
     coverImage: `https://www.gutenberg.org/cache/epub/${item.id}/pg${item.id}.cover.medium.jpg`,
-    rating: 4.5
+    rating: 4.5,
+    categories: item.subjects || ['Public Domain']
   })) || [];
 
   const formatArchiveBooks = (items: any[]) => items?.map((item: any) => ({
     _id: `ia:${item.identifier}`,
     title: item.title || 'مخطوطة نادرة',
-    author: item.creator?.[0] || 'كاتب مجهول',
+    author: formattedAuthor(item.creator?.[0]) || 'كاتب مجهول',
     price: 0, // Archive is free
     coverImage: `https://archive.org/services/img/${item.identifier}`,
-    rating: 4.7
+    rating: 4.7,
+    categories: item.subject ? (Array.isArray(item.subject) ? item.subject : [item.subject]) : ['Archive']
   })) || [];
+
+  const filteredResults = results.filter(book => {
+    if (filterCategory !== 'الكل' && !book.categories?.some((c: string) => c.includes(filterCategory))) return false;
+    if (filterPrice !== 'الكل') {
+      if (filterPrice === 'مجاني' && book.price > 0) return false;
+      if (filterPrice === 'مدفوع' && book.price === 0) return false;
+    }
+    if (filterRating !== 'الكل' && book.rating < parseFloat(filterRating)) return false;
+    return true;
+  });
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -103,9 +127,9 @@ const SearchPage = () => {
           {/* Source Selector */}
           <div className="flex justify-center gap-4 mb-10 overflow-x-auto pb-4">
             {[
-              { id: 'google', name: 'Google Books', icon: 'public' },
-              { id: 'gutenberg', name: 'Gutenberg', icon: 'history_edu' },
-              { id: 'archive', name: 'Archive.org', icon: 'account_balance' },
+              { id: 'google', name: 'Google Books', icon: PublicIcon },
+              { id: 'gutenberg', name: 'Gutenberg', icon: HistoryEduIcon },
+              { id: 'archive', name: 'Archive.org', icon: AccountBalanceIcon },
             ].map((src) => (
               <button
                 key={src.id}
@@ -116,7 +140,7 @@ const SearchPage = () => {
                   : 'border-gold-900/10 bg-surface-container-low text-slate-500 hover:border-gold-500/30'
                 }`}
               >
-                <span className="material-icons text-xl">{src.icon}</span>
+                <src.icon className="text-xl" />
                 {src.name}
               </button>
             ))}
@@ -132,11 +156,45 @@ const SearchPage = () => {
             />
             <button 
               type="submit"
+              aria-label="ابحث الآن"
               className="absolute left-6 top-1/2 -translate-y-1/2 gold-button w-16 h-16 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
             >
-              <span className="material-icons text-3xl">search</span>
+              <SearchIcon className="text-3xl" />
             </button>
           </form>
+
+          {/* Filters Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="bg-surface border border-gold-900/30 rounded-xl px-4 py-2 text-white outline-none focus:border-gold-500 font-bold"
+            >
+              <option value="الكل">كل التصنيفات</option>
+              <option value="fiction">خيال / روايات</option>
+              <option value="history">تاريخ</option>
+              <option value="science">علوم</option>
+              <option value="philosophy">فلسفة</option>
+            </select>
+            <select
+              value={filterPrice}
+              onChange={(e) => setFilterPrice(e.target.value)}
+              className="bg-surface border border-gold-900/30 rounded-xl px-4 py-2 text-white outline-none focus:border-gold-500 font-bold"
+            >
+              <option value="الكل">السعر (الكل)</option>
+              <option value="مجاني">مجاني</option>
+              <option value="مدفوع">مدفوع الملكي</option>
+            </select>
+            <select
+              value={filterRating}
+              onChange={(e) => setFilterRating(e.target.value)}
+              className="bg-surface border border-gold-900/30 rounded-xl px-4 py-2 text-white outline-none focus:border-gold-500 font-bold"
+            >
+              <option value="الكل">كل التقييمات</option>
+              <option value="4">+4 درجات ملكية</option>
+              <option value="4.5">+4.5 درجات ملكية</option>
+            </select>
+          </div>
         </div>
 
         {/* Results Grid */}
@@ -146,7 +204,7 @@ const SearchPage = () => {
                {searched ? `نتائج البحث عن "${query}"` : 'المجلدات الشائعة حالياً'}
              </h2>
              <span className="text-gold-500/60 font-black tracking-widest uppercase text-xs">
-               {results.length} كتاب من {source}
+               {filteredResults.length} كتاب من {source}
              </span>
           </div>
 
@@ -163,7 +221,7 @@ const SearchPage = () => {
                    />
                  ))
               ) : (
-                results.map((book) => (
+                filteredResults.map((book) => (
                   <motion.div
                     key={book._id}
                     layout
@@ -181,7 +239,7 @@ const SearchPage = () => {
           
           {!loading && results.length === 0 && searched && (
             <div className="text-center py-20 opacity-40">
-               <span className="material-icons text-8xl mb-4">search_off</span>
+               <SearchOffIcon className="text-8xl mb-4" />
                <p className="text-3xl font-amiri font-black">لم نعثر على هذا المجلد الموقر في {source}</p>
             </div>
           )}

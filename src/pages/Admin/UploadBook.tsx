@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import SyncIcon from '@mui/icons-material/Sync';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 const UploadBook: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -62,7 +67,7 @@ const UploadBook: React.FC = () => {
                     <div className="space-y-4">
                       <label className="text-xl font-black gold-text block">ملف الكتاب (PDF / ePub)</label>
                       <div className="border-2 border-dashed border-gold-900/30 rounded-3xl p-12 text-center hover:border-gold-500/50 transition-all group relative cursor-pointer">
-                        <span className="material-icons text-6xl text-gold-900 group-hover:text-gold-500 transition-colors mb-4">upload_file</span>
+                        <UploadFileIcon className="text-6xl text-gold-900 group-hover:text-gold-500 transition-colors mb-4" />
                         <p className="text-slate-400 font-bold">اسحب الملف هنا أو انقر للإختيار</p>
                         <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
                       </div>
@@ -70,7 +75,7 @@ const UploadBook: React.FC = () => {
                     <div className="space-y-4">
                       <label className="text-xl font-black gold-text block">غلاف المجلد (عالي الدقة)</label>
                       <div className="border-2 border-dashed border-gold-900/30 rounded-3xl p-12 text-center hover:border-gold-500/50 transition-all group relative cursor-pointer">
-                        <span className="material-icons text-6xl text-gold-900 group-hover:text-gold-500 transition-colors mb-4">add_photo_alternate</span>
+                        <AddPhotoAlternateIcon className="text-6xl text-gold-900 group-hover:text-gold-500 transition-colors mb-4" />
                         <p className="text-slate-400 font-bold">يفضل أبعاد 3:4 للمظهر الملكي</p>
                         <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
                       </div>
@@ -119,7 +124,7 @@ const UploadBook: React.FC = () => {
                          disabled={aiLoading || !formData.title}
                          className="flex items-center gap-2 text-gold-500 font-black hover:text-gold-400 transition-all disabled:opacity-30"
                        >
-                         <span className="material-icons text-lg">{aiLoading ? 'sync' : 'auto_awesome'}</span>
+                         {aiLoading ? <SyncIcon className="text-lg" /> : <AutoAwesomeIcon className="text-lg" />}
                          {aiLoading ? 'جاري التوليد...' : 'توليد بالذكاء الاصطناعي'}
                        </button>
                     </div>
@@ -183,7 +188,7 @@ const UploadBook: React.FC = () => {
                   className="space-y-12 text-center"
                 >
                    <div className="w-32 h-32 bg-gold-600/10 rounded-full flex items-center justify-center mx-auto mb-10 ring-2 ring-gold-500/20">
-                     <span className="material-icons text-7xl text-gold-500">task_alt</span>
+                     <TaskAltIcon className="text-7xl text-gold-500" />
                    </div>
                    <h2 className="text-4xl font-amiri font-black text-white">تحقق أخير من المخطوطة</h2>
                    <div className="bg-surface-container-lowest/50 border border-gold-900/10 p-10 rounded-[3rem] text-right space-y-6 max-w-2xl mx-auto">

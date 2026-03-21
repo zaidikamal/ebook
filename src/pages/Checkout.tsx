@@ -5,6 +5,7 @@ import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { addBookToLibrary } from '../lib/libraryService';
+import { formattedAuthor } from '../utils/formatters';
 
 const Checkout = () => {
   const { id } = useParams();
@@ -29,7 +30,7 @@ const Checkout = () => {
           bookData = {
             _id: id,
             title: item.volumeInfo.title,
-            author: item.volumeInfo.authors?.[0] || 'كاتب موقر',
+            author: formattedAuthor(item.volumeInfo.authors?.[0]) || 'كاتب موقر',
             price: 24.99,
             coverImage: item.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400'
           };
@@ -39,7 +40,7 @@ const Checkout = () => {
           bookData = {
             _id: id,
             title: item.title,
-            author: item.authors?.[0]?.name || 'مؤلف كلاسيكي',
+            author: formattedAuthor(item.authors?.[0]?.name) || 'مؤلف كلاسيكي',
             price: 0,
             coverImage: `https://www.gutenberg.org/cache/epub/${realId}/pg${realId}.cover.medium.jpg`
           };
@@ -49,7 +50,7 @@ const Checkout = () => {
           bookData = {
             _id: id,
             title: item.metadata.title,
-            author: item.metadata.creator || 'كاتب مجهول',
+            author: formattedAuthor(item.metadata.creator) || 'كاتب مجهول',
             price: 0,
             coverImage: `https://archive.org/services/img/${realId}`
           };

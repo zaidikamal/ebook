@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -64,7 +67,7 @@ const LoginPage = () => {
 
           {error && (
             <div className="bg-red-950/20 border border-gold-600/30 text-gold-400 p-6 rounded-2xl text-sm mb-10 flex items-center gap-4 animate-shake shadow-lg">
-              <span className="material-icons text-2xl text-gold-500">error_outline</span>
+              <ErrorOutlineIcon className="text-2xl text-gold-500" />
               <div className="flex-1">
                 <p className="font-amiri font-black text-lg leading-tight mb-1">تنبيه ملكي</p>
                 <p className="font-bold opacity-80">{error}</p>
@@ -85,7 +88,7 @@ const LoginPage = () => {
                   onChange={handleChange}
                   className="w-full bg-surface-container-lowest border border-gold-900/10 rounded-2xl py-5 px-8 pr-16 focus:outline-none focus:border-gold-500 transition-all text-lg shadow-inner"
                 />
-                <span className="material-icons absolute right-6 top-1/2 -translate-y-1/2 text-gold-900/60">email</span>
+                <EmailIcon className="absolute right-6 top-1/2 -translate-y-1/2 text-gold-900/60" />
               </div>
             </div>
 
@@ -101,7 +104,7 @@ const LoginPage = () => {
                   onChange={handleChange}
                   className="w-full bg-surface-container-lowest border border-gold-900/10 rounded-2xl py-5 px-8 pr-16 focus:outline-none focus:border-gold-500 transition-all text-lg shadow-inner tracking-[0.2em]"
                 />
-                <span className="material-icons absolute right-6 top-1/2 -translate-y-1/2 text-gold-900/60">lock</span>
+                <LockIcon className="absolute right-6 top-1/2 -translate-y-1/2 text-gold-900/60" />
               </div>
               <div className="text-left pt-2">
                 <Link to="/forgot-password" title="نسيت كلمة المرور؟" className="text-xs text-gold-500/60 hover:text-gold-400 font-bold transition-colors">نسيت كلمة المرور؟</Link>

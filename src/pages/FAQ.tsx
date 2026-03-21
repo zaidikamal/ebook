@@ -1,5 +1,7 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const faqs = [
   { q: 'كيف أشتري كتاباً؟', a: 'ابحث عن الكتاب، اضغط على "اقتناء النسخة الملكية"، ثم أتمّ الدفع عبر PayPal. يُضاف الكتاب فوراً إلى مكتبتك.' },
@@ -17,7 +19,7 @@ const FAQ = () => (
     <Navbar />
     <main className="container mx-auto px-6 pt-40 pb-24 max-w-4xl">
       <div className="text-center mb-20">
-        <span className="material-icons text-6xl text-gold-500 mb-6 block">help_center</span>
+        <HelpCenterIcon className="text-6xl text-gold-500 mb-6 block" />
         <h1 className="text-6xl font-amiri font-black gold-text mb-4">الأسئلة الشائعة</h1>
         <p className="text-slate-400 text-xl">إجابات لأكثر الأسئلة التي يطرحها قراؤنا الموقرون</p>
       </div>
@@ -26,7 +28,7 @@ const FAQ = () => (
           <details key={i} className="bg-surface-container-low border border-gold-900/20 rounded-3xl p-8 group cursor-pointer">
             <summary className="flex flex-row-reverse items-center justify-between font-black text-xl text-slate-200 list-none gap-4">
               <span className="flex-1 text-right">{faq.q}</span>
-              <span className="material-icons text-gold-500 group-open:rotate-180 transition-transform">expand_more</span>
+              <ExpandMoreIcon className="text-gold-500 group-open:rotate-180 transition-transform" />
             </summary>
             <p className="mt-6 text-slate-400 text-lg leading-relaxed text-right border-t border-gold-900/10 pt-6">{faq.a}</p>
           </details>

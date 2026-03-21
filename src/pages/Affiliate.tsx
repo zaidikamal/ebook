@@ -1,13 +1,17 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import BoltIcon from '@mui/icons-material/Bolt';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import GroupsIcon from '@mui/icons-material/Groups';
 
 const AffiliatePage: React.FC = () => {
   const stats = [
-    { label: 'إجمالي الأرباح', value: '$2,450.00', icon: 'payments' },
-    { label: 'النقرات الملكية', value: '15,200', icon: 'bolt' },
-    { label: 'معدل التحويل', value: '3.5%', icon: 'track_changes' },
-    { label: 'المسوقون الموقرون', value: '124', icon: 'groups' },
+    { label: 'إجمالي الأرباح', value: '$2,450.00', icon: PaymentsIcon },
+    { label: 'النقرات الملكية', value: '15,200', icon: BoltIcon },
+    { label: 'معدل التحويل', value: '3.5%', icon: TrackChangesIcon },
+    { label: 'المسوقون الموقرون', value: '124', icon: GroupsIcon },
   ];
 
   return (
@@ -27,7 +31,7 @@ const AffiliatePage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
            {stats.map(stat => (
              <div key={stat.label} className="bg-surface-container-low p-8 rounded-[2.5rem] border border-gold-900/10 shadow-xl text-right">
-                <span className="material-icons text-4xl gold-text mb-6">{stat.icon}</span>
+                <stat.icon className="text-4xl gold-text mb-6" />
                 <p className="text-slate-500 text-xs font-black uppercase mb-1">{stat.label}</p>
                 <p className="text-3xl font-amiri font-black text-white">{stat.value}</p>
              </div>

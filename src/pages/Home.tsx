@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
+import { Link } from 'react-router-dom';
+import { formattedAuthor } from '../utils/formatters';
 
 const KUTUBI_ORIGINALS = [
   { id: 'original-1', title: 'مقدمة ابن خلدون', author: 'ابن خلدون', coverImage: 'https://images.unsplash.com/photo-1589998059171-d88d664a2a0f?auto=format&fit=crop&q=80&w=400', rating: 5.0, price: 45.00 },
@@ -50,11 +52,11 @@ const HomePage = () => {
         const formatBooks = (items: any[], prefix = 'gb') => items?.map(item => ({
           _id: `${prefix}:${item.id}`,
           title: item.volumeInfo?.title || item.title || 'عنوان ملكي',
-          author: item.volumeInfo?.authors?.[0] || item.authors?.[0]?.name || item.metadata?.creator || 'مؤلف موقر',
+          author: formattedAuthor(item.volumeInfo?.authors?.[0] || item.authors?.[0]?.name || item.metadata?.creator) || 'مؤلف موقر',
           price: prefix === 'gb' ? (15.99 + Math.random() * 20) : 0, 
           coverImage: item.volumeInfo?.imageLinks?.thumbnail?.replace('http:', 'https:') || 
-                      (prefix === 'pg' ? `https://www.gutenberg.org/cache/epub/${item.id}/pg${item.id}.cover.medium.jpg` : 
-                       prefix === 'ia' ? `https://archive.org/services/img/${item.id}` :
+                      (prefix === 'pg' ? `https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400` : 
+                       prefix === 'ia' ? `https://images.unsplash.com/photo-1532012197367-6849412a52cd?auto=format&fit=crop&q=80&w=400` :
                        '/placeholder.png'),
           rating: item.volumeInfo?.averageRating || 4.5
         })) || [];
@@ -80,9 +82,9 @@ const HomePage = () => {
              setNewArrivals(prev => [...prev.filter(b => b._id.startsWith('ko')), ...iaResp.data.response.docs.slice(0, 4).map((item: any) => ({
                 _id: `ia:${item.identifier}`,
                 title: item.title,
-                author: item.creator || 'مؤرخ مجهول',
+                author: formattedAuthor(item.creator) || 'مؤرخ مجهول',
                 price: 0,
-                coverImage: `https://archive.org/services/img/${item.identifier}`,
+                coverImage: `https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400`,
                 rating: 4.5
              }))]);
           }
@@ -122,12 +124,16 @@ const HomePage = () => {
               اكتشف خبايا المعرفة في أفخم منصة عربية للكتب الإلكترونية. اختر من بين ملايين العناوين العالمية والمحلية.
             </p>
             <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-6">
-              <button className="gold-button px-12 py-6 rounded-3xl font-black text-xl shadow-2xl transform hover:scale-105 transition-all">
-                ابدأ رحلتك المعرفية
-              </button>
-              <button className="bg-surface-container-low border border-gold-900/20 px-12 py-6 rounded-3xl font-bold text-xl hover:bg-gold-500/5 transition-all">
-                أحدث الإضافات
-              </button>
+              <Link to="/search">
+                <button className="gold-button px-12 py-6 rounded-3xl font-black text-xl shadow-2xl transform hover:scale-105 transition-all">
+                  ابدأ رحلتك المعرفية
+                </button>
+              </Link>
+              <Link to="/search?sort=newest">
+                <button className="bg-surface-container-low border border-gold-900/20 px-12 py-6 rounded-3xl font-bold text-xl hover:bg-gold-500/5 transition-all">
+                  أحدث الإضافات
+                </button>
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -141,7 +147,9 @@ const HomePage = () => {
                <h2 className="text-4xl md:text-5xl font-amiri font-black gold-text mb-4">كنوز الأدب العربي</h2>
                <p className="text-slate-500 font-bold tracking-widest uppercase text-xs">مختارات حصرية من أرقى المجموعات</p>
              </div>
-             <button className="hidden md:block text-gold-400 font-black hover:text-gold-300 transition-colors">عرض الكل ←</button>
+             <Link to="/search">
+               <button className="hidden md:block text-gold-400 font-black hover:text-gold-300 transition-colors">عرض الكل ←</button>
+             </Link>
           </div>
 
           {loading ? (

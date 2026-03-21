@@ -2,13 +2,32 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import GroupIcon from '@mui/icons-material/Group';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import PaidIcon from '@mui/icons-material/Paid';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import PeopleIcon from '@mui/icons-material/People';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import SaveIcon from '@mui/icons-material/Save';
 
 /* ===================== DATA ===================== */
 const stats = [
-  { label: 'إجمالي المبيعات الملكية', value: '$124,500', icon: 'payments', color: 'from-gold-700 to-gold-400' },
-  { label: 'الأعضاء الموقرون', value: '1,250', icon: 'group', color: 'from-blue-600 to-indigo-400' },
-  { label: 'الكتب في الخزانة', value: '450', icon: 'menu_book', color: 'from-gold-600 to-gold-300' },
-  { label: 'معدل القراءة اليومي', value: '+15%', icon: 'trending_up', color: 'from-emerald-600 to-teal-400' },
+  { label: 'إجمالي المبيعات الملكية', value: '$124,500', icon: PaymentsIcon, color: 'from-gold-700 to-gold-400' },
+  { label: 'الأعضاء الموقرون', value: '1,250', icon: GroupIcon, color: 'from-blue-600 to-indigo-400' },
+  { label: 'الكتب في الخزانة', value: '450', icon: MenuBookIcon, color: 'from-gold-600 to-gold-300' },
+  { label: 'معدل القراءة اليومي', value: '+15%', icon: TrendingUpIcon, color: 'from-emerald-600 to-teal-400' },
 ];
 
 const recentSales = [
@@ -101,7 +120,7 @@ const BooksSection = ({ onAdd }: { onAdd: () => void }) => {
             className="bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-6 py-3 text-white font-bold text-sm focus:outline-none focus:border-gold-500/50 w-56 text-right"
           />
           <button onClick={onAdd} className="gold-button px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2">
-            <span className="material-icons text-lg">add</span> إضافة كتاب
+            <AddIcon className="text-lg" /> إضافة كتاب
           </button>
         </div>
       </div>
@@ -129,8 +148,8 @@ const BooksSection = ({ onAdd }: { onAdd: () => void }) => {
                 </td>
                 <td className="py-5 pl-4">
                   <div className="flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-2 hover:text-gold-500 transition-colors"><span className="material-icons text-base">edit</span></button>
-                    <button className="p-2 hover:text-rose-500 transition-colors"><span className="material-icons text-base">delete</span></button>
+                    <button aria-label="تعديل" className="p-2 hover:text-gold-500 transition-colors"><EditIcon className="text-base" /></button>
+                    <button aria-label="حذف" className="p-2 hover:text-rose-500 transition-colors"><DeleteIcon className="text-base" /></button>
                   </div>
                 </td>
               </tr>
@@ -213,13 +232,13 @@ const ReportsSection = () => {
 
       <div className="grid grid-cols-3 gap-6">
         {[
-          { label: 'الإيرادات الكلية', value: `$${totalRevenue.toLocaleString()}`, icon: 'paid', trend: '+22%' },
-          { label: 'متوسط قيمة الطلب', value: '$16.50', icon: 'receipt_long', trend: '+8%' },
-          { label: 'معدل التحويل', value: '3.4%', icon: 'conversion_path', trend: '+1.2%' },
+          { label: 'الإيرادات الكلية', value: `$${totalRevenue.toLocaleString()}`, icon: PaidIcon, trend: '+22%' },
+          { label: 'متوسط قيمة الطلب', value: '$16.50', icon: ReceiptLongIcon, trend: '+8%' },
+          { label: 'معدل التحويل', value: '3.4%', icon: TimelineIcon, trend: '+1.2%' },
         ].map(kpi => (
           <div key={kpi.label} className="bg-surface-container-lowest p-6 rounded-3xl border border-gold-900/10 text-right">
             <div className="flex flex-row-reverse items-start justify-between mb-4">
-              <span className="material-icons text-gold-500 text-2xl">{kpi.icon}</span>
+              <kpi.icon className="text-gold-500 text-2xl" />
               <span className="text-emerald-400 text-xs font-black bg-emerald-900/20 px-3 py-1 rounded-full">{kpi.trend}</span>
             </div>
             <p className="text-3xl font-amiri font-black text-white mb-1">{kpi.value}</p>
@@ -352,7 +371,7 @@ const SettingsSection = () => {
           onClick={handleSave}
           className={`gold-button px-10 py-4 rounded-2xl font-black text-lg flex items-center gap-2 transition-all ${saved ? 'bg-emerald-500 text-white shadow-emerald-500/30' : ''}`}
         >
-          <span className="material-icons">{saved ? 'check_circle' : 'save'}</span>
+          {saved ? <CheckCircleIcon /> : <SaveIcon />}
           {saved ? 'تم الحفظ بنجاح!' : 'حفظ الإعدادات'}
         </button>
       </div>
@@ -366,12 +385,12 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const navItems = [
-    { id: 'overview', label: 'نظرة عامة', icon: 'dashboard' },
-    { id: 'upload', label: 'إضافة كتاب', icon: 'add_to_photos' },
-    { id: 'books', label: 'إدارة الكتب', icon: 'library_books' },
-    { id: 'users', label: 'الأعضاء', icon: 'people' },
-    { id: 'reports', label: 'التقارير المالية', icon: 'analytics' },
-    { id: 'settings', label: 'الإعدادات الملكية', icon: 'settings' },
+    { id: 'overview', label: 'نظرة عامة', icon: DashboardIcon },
+    { id: 'upload', label: 'إضافة كتاب', icon: AddToPhotosIcon },
+    { id: 'books', label: 'إدارة الكتب', icon: LibraryBooksIcon },
+    { id: 'users', label: 'الأعضاء', icon: PeopleIcon },
+    { id: 'reports', label: 'التقارير المالية', icon: AnalyticsIcon },
+    { id: 'settings', label: 'الإعدادات الملكية', icon: SettingsIcon },
   ];
 
   const handleNav = (id: string) => {
@@ -401,7 +420,7 @@ const AdminDashboard: React.FC = () => {
                     onClick={() => handleNav(item.id)}
                     className={`w-full flex flex-row-reverse items-center gap-4 p-5 rounded-2xl transition-all font-black text-lg ${activeTab === item.id ? 'bg-gold-500 text-slate-950 shadow-[0_0_20px_rgba(212,175,55,0.2)]' : 'bg-surface-container-lowest text-slate-400 hover:text-gold-400 hover:bg-gold-500/5'}`}
                   >
-                    <span className="material-icons">{item.icon}</span>
+                    <item.icon />
                     <span className="flex-1 text-right">{item.label}</span>
                   </button>
                 ))}
@@ -410,7 +429,7 @@ const AdminDashboard: React.FC = () => {
 
             <div className="bg-gradient-to-br from-gold-900/20 to-surface-container-low p-8 rounded-[3rem] border border-gold-900/20 text-center">
               <div className="w-16 h-16 bg-gold-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <span className="material-icons text-gold-500 text-3xl">verified_user</span>
+                <VerifiedUserIcon className="text-gold-500 text-3xl" />
               </div>
               <p className="text-sm font-bold text-slate-400 mb-4">أنت الآن في المنطقة الآمنة</p>
               <button onClick={() => navigate('/login')} className="text-gold-500 hover:underline font-black">تسجيل الخروج</button>
@@ -424,7 +443,7 @@ const AdminDashboard: React.FC = () => {
               {stats.map(stat => (
                 <div key={stat.label} className="bg-surface-container-low p-8 rounded-[2.5rem] border border-gold-900/10 shadow-xl group hover:border-gold-500/30 transition-all">
                   <div className={`w-14 h-14 bg-gradient-to-tr ${stat.color} rounded-2xl flex items-center justify-center text-slate-900 mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
-                    <span className="material-icons text-3xl">{stat.icon}</span>
+                    <stat.icon className="text-3xl" />
                   </div>
                   <div className="text-right">
                     <p className="text-slate-500 text-xs font-black uppercase tracking-widest mb-1">{stat.label}</p>

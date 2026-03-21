@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -47,11 +52,11 @@ const RegisterPage = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-end gap-4 text-gold-400">
                 <span className="font-black">وصول حصري لأقدم المخطوطات</span>
-                <span className="material-icons">auto_awesome</span>
+                <AutoAwesomeIcon />
               </div>
               <div className="flex items-center justify-end gap-4 text-gold-400">
                 <span className="font-black">تجربة قراءة سينمائية فريدة</span>
-                <span className="material-icons">menu_book</span>
+                <MenuBookIcon />
               </div>
             </div>
           </div>
@@ -76,7 +81,7 @@ const RegisterPage = () => {
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                     />
-                    <span className="material-icons absolute right-4 top-1/2 -translate-y-1/2 text-gold-900/60">person</span>
+                    <PersonIcon className="absolute right-4 top-1/2 -translate-y-1/2 text-gold-900/60" />
                   </div>
                 </div>
 
@@ -91,7 +96,7 @@ const RegisterPage = () => {
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                     />
-                    <span className="material-icons absolute right-4 top-1/2 -translate-y-1/2 text-gold-900/60">email</span>
+                    <EmailIcon className="absolute right-4 top-1/2 -translate-y-1/2 text-gold-900/60" />
                   </div>
                 </div>
 
@@ -106,7 +111,7 @@ const RegisterPage = () => {
                       value={formData.password}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
                     />
-                    <span className="material-icons absolute right-4 top-1/2 -translate-y-1/2 text-gold-900/60">lock</span>
+                    <LockIcon className="absolute right-4 top-1/2 -translate-y-1/2 text-gold-900/60" />
                   </div>
                 </div>
 

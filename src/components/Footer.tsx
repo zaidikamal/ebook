@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import SendIcon from '@mui/icons-material/Send';
 
 const Footer = () => {
   return (
@@ -18,7 +19,7 @@ const Footer = () => {
           <div>
             <h3 className="font-amiri font-black text-white mb-8 text-xl border-b border-gold-900/10 pb-2 inline-block">روابط سريعة</h3>
             <ul className="space-y-5 text-gold-500/50 font-bold text-lg">
-              <li><Link to="/" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">عن المنصة</Link></li>
+              <li><Link to="/about" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">عن المنصة</Link></li>
               <li><Link to="/search" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">قائمة الكتب</Link></li>
               <li><Link to="/search?sort=bestseller" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">الأكثر مبيعاً</Link></li>
               <li><Link to="/affiliate" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">برنامج الإحالة</Link></li>
@@ -33,6 +34,7 @@ const Footer = () => {
               <li><Link to="/privacy" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">سياسة الخصوصية</Link></li>
               <li><Link to="/terms" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">شروط الاستخدام</Link></li>
               <li><Link to="/payment" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">طرق الدفع</Link></li>
+              <li><Link to="/contact" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">اتصل بنا</Link></li>
             </ul>
           </div>
 
@@ -45,8 +47,8 @@ const Footer = () => {
                 placeholder="بريدك الإلكتروني الموقر" 
                 className="bg-surface border border-gold-900/20 rounded-2xl px-6 py-4 flex-1 focus:border-gold-500 transition-all outline-none text-right font-bold text-white placeholder:text-gold-900/40 shadow-inner" 
               />
-              <button className="gold-button w-14 h-14 rounded-2xl flex items-center justify-center transform hover:scale-110 active:scale-95 transition-all shadow-xl">
-                <span className="material-icons text-2xl">send</span>
+              <button aria-label="الاشتراك بالنشرة البريدية" className="gold-button w-14 h-14 rounded-2xl flex items-center justify-center transform hover:scale-110 active:scale-95 transition-all shadow-xl">
+                <SendIcon className="text-2xl" />
               </button>
             </div>
           </div>
@@ -56,19 +58,19 @@ const Footer = () => {
           <p className="text-gold-900/60 text-sm font-black tracking-widest uppercase">© 2026 منصة كتبي الرقمية. صُنعت بعناية للمثقفين.</p>
           <div className="flex gap-8 items-center">
             {/* Facebook */}
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-125 transform transition-all duration-200">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="فيسبوك" className="hover:scale-125 transform transition-all duration-200">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#1877F2">
                 <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
               </svg>
             </a>
             {/* X (Twitter) */}
-            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-125 transform transition-all duration-200">
+            <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="تويتر / إكس" className="hover:scale-125 transform transition-all duration-200">
               <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 300 300" fill="white">
                 <path d="M178.57 127.15L290.27 0h-26.46l-97.03 110.38L89.34 0H0l117.13 166.93L0 300.25h26.46l102.4-116.59 81.8 116.59H300zm-36.3 41.23l-11.87-16.57L36.16 19.36h40.61l76.18 106.47 11.87 16.57 99.05 138.32h-40.61z"/>
               </svg>
             </a>
             {/* Instagram */}
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-125 transform transition-all duration-200">
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="انستغرام" className="hover:scale-125 transform transition-all duration-200">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
                 <defs>
                   <radialGradient id="ig-grad" cx="30%" cy="107%" r="150%">

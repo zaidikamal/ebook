@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import StarIcon from '@mui/icons-material/Star';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 interface Book {
   _id: string;
@@ -29,7 +31,10 @@ const BookCard = ({ book }: { book: Book }) => {
 
         <img 
           src={book.coverImage} 
-          alt={book.title} 
+          alt={`غلاف كتاب ${book.title} للمؤلف ${book.author}`} 
+          loading="lazy"
+          width="400"
+          height="600"
           onError={(e) => {
             (e.target as HTMLImageElement).src = '/placeholder.png';
           }}
@@ -42,28 +47,29 @@ const BookCard = ({ book }: { book: Book }) => {
         {/* Quick Info */}
         <div className="absolute bottom-6 left-6 right-6 text-right">
            <div className="flex flex-row-reverse items-center gap-1 text-gold-500 mb-2">
-              <span className="material-icons text-xs">star</span>
+              <StarIcon className="text-xs" />
               <span className="text-xs font-black">{book.rating}</span>
            </div>
            <h3 className="text-xl font-amiri font-black text-white line-clamp-1 group-hover:gold-text transition-colors mb-1">{book.title}</h3>
-           <p className="text-slate-400 text-xs font-bold truncate">الموقر {book.author}</p>
+           <p className="text-slate-400 text-xs font-bold truncate">{book.author ? `بواسطة: ${book.author}` : 'مؤلف غير معروف'}</p>
         </div>
       </div>
 
       <div className="mt-5 flex flex-row-reverse justify-between items-center px-2">
-         <div className="flex flex-col items-end">
+         <div className="price flex flex-col items-end">
             {originalPrice && book.price > 0 && (
-              <span className="text-slate-500 text-[10px] line-through font-bold mb-[-4px]">${originalPrice}</span>
+              <del className="text-gray-400">${originalPrice}</del>
             )}
-            <span className="text-2xl font-amiri font-black gold-text">
+            <span className="text-red-600 font-bold text-2xl font-amiri">
               {book.price === 0 ? 'مجانًا' : `$${book.price.toFixed(2)}`}
             </span>
          </div>
          <motion.button 
            whileTap={{ scale: 0.9 }}
+           aria-label={`أضف كتاب ${book.title} إلى سلة المشتريات`}
            className="w-10 h-10 rounded-full border border-gold-900/30 flex items-center justify-center text-gold-500 hover:bg-gold-500 hover:text-surface transition-all"
          >
-           <span className="material-icons text-xl">add_shopping_cart</span>
+           <AddShoppingCartIcon className="text-xl" />
          </motion.button>
       </div>
     </Link>
