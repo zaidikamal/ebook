@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import SecurityIcon from '@mui/icons-material/Security';
 import SearchIcon from '@mui/icons-material/Search';
@@ -30,9 +30,9 @@ const Navbar = () => {
           </Link>
           
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/" className="text-slate-400 hover:text-white transition-colors font-bold">الرئيسية</Link>
-            <Link to="/search" className="text-slate-400 hover:text-white transition-colors font-bold">تصفح الكتب</Link>
-            <Link to="/profile" className="text-slate-400 hover:text-white transition-colors font-bold">مكتبتي</Link>
+            <NavLink to="/" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>الرئيسية</NavLink>
+            <NavLink to="/search" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>تصفح الكتب</NavLink>
+            <NavLink to="/profile" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>مكتبتي</NavLink>
             {/* Admin Dashboard Link */}
             <Link to="/admin" className="text-gold-500/40 hover:text-gold-500 font-bold transition-colors flex items-center gap-2">
               <SecurityIcon className="text-sm" />

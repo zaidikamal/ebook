@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as Sentry from '@sentry/react'
 
 Sentry.init({
-  dsn: "https://0bf6fb977e846f4cc83c5ae51dbec0ca@o4511084450611200.ingest.us.sentry.io/4511084731105280",
+  dsn: import.meta.env.VITE_SENTRY_DSN || "https://0bf6fb977e846f4cc83c5ae51dbec0ca@o4511084450611200.ingest.us.sentry.io/4511084731105280",
   sendDefaultPii: true,
   integrations: [
     Sentry.browserTracingIntegration(),
