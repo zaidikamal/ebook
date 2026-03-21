@@ -348,7 +348,10 @@ const BookDetails = () => {
                     {book.price === 0 ? 'اقتناء مجاني الآن' : `اقتناء النسخة الملكية - $${book.price}`}
                   </motion.button>
                   
-                  <button className="flex-1 bg-surface-container-low border border-gold-900/20 py-6 rounded-2xl text-gold-500 font-black text-xl flex items-center justify-center gap-3 hover:bg-gold-500/5 transition-all">
+                  <button 
+                    onClick={() => alert("سيتم افتتاح الجناح الخاص بالقراءة المدمجة قريباً. ترقبوا التحديث الملكي القادم!")}
+                    className="flex-1 bg-surface-container-low border border-gold-900/20 py-6 rounded-2xl text-gold-500 font-black text-xl flex items-center justify-center gap-3 hover:bg-gold-500/5 transition-all"
+                  >
                     <MenuBookIcon />
                     قراءة الفصل الأول مجاناً
                   </button>
@@ -364,7 +367,17 @@ const BookDetails = () => {
                          <h4 className="text-white font-bold leading-tight">أضف "تاريخ العرب" + "الأدب الأندلسي"</h4>
                       </div>
                    </div>
-                   <button className="bg-emerald-500 text-emerald-950 px-6 py-3 rounded-xl font-black text-sm whitespace-nowrap">أضف للمجموعة</button>
+                   <button 
+                     onClick={() => {
+                       const owned = JSON.parse(localStorage.getItem('ownedBooks') || '[]');
+                       localStorage.setItem('ownedBooks', JSON.stringify([...new Set([...owned, 'ko:history-arabs', 'ko:andalusian-lit'])]));
+                       alert("تمت إضافة الحزمة الملكية (تاريخ العرب + الأدب الأندلسي) لمكتبتك بنجاح!");
+                       navigate('/profile');
+                     }}
+                     className="bg-emerald-500 text-emerald-950 px-6 py-3 rounded-xl font-black text-sm whitespace-nowrap hover:bg-emerald-400 transition-colors"
+                   >
+                     أضف للمجموعة
+                   </button>
                 </div>
               </div>
             </div>
