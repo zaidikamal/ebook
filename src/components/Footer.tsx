@@ -19,22 +19,22 @@ const Footer = () => {
           <div>
             <h3 className="font-amiri font-black text-white mb-8 text-xl border-b border-gold-900/10 pb-2 inline-block">روابط سريعة</h3>
             <ul className="space-y-5 text-gold-500/50 font-bold text-lg">
-              <li><Link to="/about" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">عن المنصة</Link></li>
-              <li><Link to="/search" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">قائمة الكتب</Link></li>
-              <li><Link to="/search?sort=bestseller" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">الأكثر مبيعاً</Link></li>
-              <li><Link to="/affiliate" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">برنامج الإحالة</Link></li>
-              <li><Link to="/subscriptions" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">العضويات</Link></li>
+              <li><Link to="/about" className="footer-link">عن المنصة</Link></li>
+              <li><Link to="/search" className="footer-link">قائمة الكتب</Link></li>
+              <li><Link to="/search?sort=bestseller" className="footer-link">الأكثر مبيعاً</Link></li>
+              <li><Link to="/affiliate" className="footer-link">برنامج الإحالة</Link></li>
+              <li><Link to="/subscriptions" className="footer-link">العضويات</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-amiri font-black text-white mb-8 text-xl border-b border-gold-900/10 pb-2 inline-block">الدعم الفني</h3>
             <ul className="space-y-5 text-gold-500/50 font-bold text-lg">
-              <li><Link to="/faq" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">الأسئلة الشائعة</Link></li>
-              <li><Link to="/privacy" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">سياسة الخصوصية</Link></li>
-              <li><Link to="/terms" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">شروط الاستخدام</Link></li>
-              <li><Link to="/payment" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">طرق الدفع</Link></li>
-              <li><Link to="/contact" className="hover:text-gold-400 transition-all hover:translate-x-[-8px] inline-block">اتصل بنا</Link></li>
+              <li><Link to="/faq" className="footer-link">الأسئلة الشائعة</Link></li>
+              <li><Link to="/privacy" className="footer-link">سياسة الخصوصية</Link></li>
+              <li><Link to="/terms" className="footer-link">شروط الاستخدام</Link></li>
+              <li><Link to="/payment" className="footer-link">طرق الدفع</Link></li>
+              <li><Link to="/contact" className="footer-link">اتصل بنا</Link></li>
             </ul>
           </div>
 
@@ -42,12 +42,14 @@ const Footer = () => {
             <h3 className="font-amiri font-black text-white mb-8 text-xl border-b border-gold-900/10 pb-2 inline-block">النشرة الملكية</h3>
             <p className="text-gold-500/60 font-bold text-lg mb-6">اشترك ليصلك جديد المجلدات والعروض الخاصة بالصفوة.</p>
             <div className="flex flex-row-reverse gap-3">
-              <input 
-                type="email" 
-                placeholder="بريدك الإلكتروني الموقر" 
-                className="bg-surface border border-gold-900/20 rounded-2xl px-6 py-4 flex-1 focus:border-gold-500 transition-all outline-none text-right font-bold text-white placeholder:text-gold-900/40 shadow-inner" 
-              />
-              <button aria-label="الاشتراك بالنشرة البريدية" className="gold-button w-14 h-14 rounded-2xl flex items-center justify-center transform hover:scale-110 active:scale-95 transition-all shadow-xl">
+              <div className="flex-1">
+                <input 
+                  type="email" 
+                  placeholder="بريدك الإلكتروني الموقر" 
+                  className="newsletter-input text-right font-bold" 
+                />
+              </div>
+              <button aria-label="الاشتراك بالنشرة البريدية" className="newsletter-btn w-14 h-14 !px-0 shadow-xl">
                 <SendIcon className="text-2xl" />
               </button>
             </div>

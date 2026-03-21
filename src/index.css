@@ -68,5 +68,28 @@
   .nav-item {
     padding: 0.75rem 1.25rem; /* مسافات أوسع */
   }
+
+  /* تحسين التباين والوضوح للنشرة البريدية */
+  .newsletter-input {
+    @apply bg-gray-800 text-white border border-amber-500/30 rounded-lg px-4 py-3 w-full focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 placeholder-gray-400;
+  }
+
+  .newsletter-btn {
+    @apply bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-lg hover:from-amber-400 hover:to-amber-500 transition-all duration-300 active:scale-95 flex items-center justify-center;
+  }
+
+  /* روابط التذييل (Footer) */
+  .footer-link {
+    @apply text-gray-300 hover:text-amber-400 transition-colors duration-200 relative inline-block;
+  }
+
+  .footer-link::after {
+    content: '';
+    @apply absolute bottom-0 right-0 w-0 h-0.5 bg-amber-400 transition-all duration-300;
+  }
+
+  .footer-link:hover::after {
+    @apply w-full right-auto left-0;
+  }
 }
 
