@@ -91,5 +91,12 @@
   .footer-link:hover::after {
     @apply w-full right-auto left-0;
   }
+
+  /* عنواين الكتب */
+  .book-title {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    line-height: 1.4; /* لتحسين قراءة الأسطر المتعددة */
+    @apply font-amiri font-black text-white; /* دمج مع التنسيق المسبق */
+  }
 }
 

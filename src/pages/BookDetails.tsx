@@ -299,7 +299,7 @@ const BookDetails = () => {
                     <span className="font-black text-lg">{book.rating}</span>
                  </div>
               </div>
-              <h1 className="text-6xl md:text-8xl font-amiri font-black leading-tight gold-text">{book.title}</h1>
+              <h1 className="book-title text-6xl md:text-8xl leading-tight gold-text">{book.title}</h1>
               <p className="text-3xl font-amiri font-black text-slate-300">{book.author ? `بواسطة: ${book.author}` : 'مؤلف غير معروف'}</p>
             </motion.div>
 

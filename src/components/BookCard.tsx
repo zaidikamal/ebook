@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import StarIcon from '@mui/icons-material/Star';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 interface Book {
@@ -46,12 +46,16 @@ const BookCard = ({ book }: { book: Book }) => {
         
         {/* Quick Info */}
         <div className="absolute bottom-6 left-6 right-6 text-right">
-           <div className="flex flex-row-reverse items-center gap-1 text-gold-500 mb-2">
-              <StarIcon className="text-xs" />
-              <span className="text-xs font-black">{book.rating}</span>
-           </div>
-           <h3 className="text-xl font-amiri font-black text-white line-clamp-1 group-hover:gold-text transition-colors mb-1">{book.title}</h3>
-           <p className="text-slate-400 text-xs font-bold truncate">{book.author ? `بواسطة: ${book.author}` : 'مؤلف غير معروف'}</p>
+           <div className="absolute top-4 right-4 bg-gold-500 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-lg">
+          {book.rating} ★
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 p-6 flex items-end justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+          <div className="flex-1">
+            <h3 className="book-title text-xl mb-1 line-clamp-2">{book.title}</h3>
+            <p className="text-gold-200 text-sm font-bold opacity-80">{book.author}</p>
+          </div>
+        </div>
         </div>
       </div>
 
