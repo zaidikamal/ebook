@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -40,6 +40,12 @@ const UploadDashboard: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const { showToast } = useToast();
 
+  useEffect(() => {
+    // Merge MOCK_UPLOADS with localStorage data
+    const savedBooks = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
+    setBooks([...savedBooks, ...MOCK_UPLOADS]);
+  }, []);
+
   const filtered = filterStatus === 'all' ? books : books.filter(b => b.status === filterStatus);
 
   const stats = {
@@ -50,7 +56,14 @@ const UploadDashboard: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    setBooks(prev => prev.filter(b => b.id !== id));
+    const updatedBooks = books.filter(b => b.id !== id);
+    setBooks(updatedBooks);
+    
+    // Also remove from localStorage if it exists there
+    const savedBooks = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
+    const filteredSaved = savedBooks.filter((b: any) => b.id !== id);
+    localStorage.setItem('royal_uploads', JSON.stringify(filteredSaved));
+    
     showToast('تم حذف المجلد بنجاح', 'info');
   };
 
