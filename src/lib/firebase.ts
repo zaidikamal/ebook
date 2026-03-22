@@ -13,10 +13,17 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
+// Guard against missing environment variables during build or initial deploy
+const isConfigValid = !!import.meta.env.VITE_FIREBASE_API_KEY;
+
+if (!isConfigValid) {
+  console.error("⚠️ Firebase API Key is missing. Please check your .env file or Vercel Environment Variables.");
+}
+
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+const app = isConfigValid ? initializeApp(firebaseConfig) : null;
+export const auth = app ? getAuth(app) : null as any;
+export const db = app ? getFirestore(app) : null as any;
+export const storage = app ? getStorage(app) : null as any;
 
 export default app;

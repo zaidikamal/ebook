@@ -134,7 +134,7 @@ const HomePage = () => {
         {/* Cinematic Backdrop */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/C:/Users/EZ-ZAIDI/.gemini/antigravity/brain/4af9e354-49c4-4d63-b3d6-ab6f35f76016/royal_library_hero_bg_1774208611671.png" 
+            src="/royal-hero.png" 
             alt="Royal Library" 
             className="w-full h-full object-cover scale-110 animate-subtle-zoom"
           />
