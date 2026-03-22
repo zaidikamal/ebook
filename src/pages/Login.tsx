@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { auth, db } from '../lib/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -22,31 +24,24 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
 
-    // Demo Credentials Fallback
-    if (formData.email === 'admin@royal.com' && formData.password === 'royal123') {
-      setTimeout(() => {
-        const demoUser = { id: 'admin-1', name: 'المدير العام الموقر', email: formData.email, role: 'admin' };
-        localStorage.setItem('token', 'demo-token-royal-123');
-        localStorage.setItem('user', JSON.stringify(demoUser));
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
+
+      // Fetch user role from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userData = userDoc.data();
+
+      if (userData) {
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', await user.getIdToken());
         setLoading(false);
         navigate('/profile');
-      }, 1000);
-      return;
-    }
-
-    try {
-      // In a real app, this would be your production API
-      const response = await axios.post('https://api.freeapi.app/api/v1/users/login', {
-        username: formData.email.split('@')[0], // FreeAPI uses username
-        password: formData.password
-      });
-      
-      const { token, user } = response.data.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      setLoading(false);
-      navigate('/profile');
+      } else {
+        throw new Error('لم يتم العثور على بيانات المستخدم الموقر.');
+      }
     } catch (err: any) {
+      console.error(err);
       setLoading(false);
       setError('خطأ في البريد الإلكتروني أو كلمة المرور الموقرة. حاول مرة أخرى.');
     }

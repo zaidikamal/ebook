@@ -8,8 +8,10 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
+import { db } from '../../lib/firebase';
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
 interface UploadedBook {
   id: string;
@@ -21,14 +23,6 @@ interface UploadedBook {
   price: number;
 }
 
-const MOCK_UPLOADS: UploadedBook[] = [
-  { id: '1', title: 'مقدمة ابن خلدون', author: 'ابن خلدون', category: 'تاريخ', status: 'approved', uploadDate: '2026-03-20', price: 45.00 },
-  { id: '2', title: 'ألف ليلة وليلة', author: 'تراث شعبي', category: 'أدب', status: 'approved', uploadDate: '2026-03-19', price: 29.99 },
-  { id: '3', title: 'تفسير الطبري', author: 'ابن جرير الطبري', category: 'علوم القرآن والحديث', status: 'pending', uploadDate: '2026-03-22', price: 55.00 },
-  { id: '4', title: 'رسالة الغفران', author: 'أبو العلاء المعري', category: 'أدب', status: 'pending', uploadDate: '2026-03-21', price: 27.50 },
-  { id: '5', title: 'مخطوطة الفلك القديم', author: 'مجهول', category: 'المخطوطات النادرة', status: 'rejected', uploadDate: '2026-03-18', price: 0 },
-];
-
 const statusConfig = {
   pending: { label: 'قيد المراجعة', icon: PendingActionsIcon, color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
   approved: { label: 'تم النشر', icon: CheckCircleIcon, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
@@ -36,48 +30,60 @@ const statusConfig = {
 };
 
 const UploadDashboard: React.FC = () => {
-  const [books, setBooks] = useState<UploadedBook[]>(MOCK_UPLOADS);
+  const [books, setBooks] = useState<UploadedBook[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const { showToast } = useToast();
+  const navigate = useNavigate();
+  
+  // Get user role from localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userRole = user.role;
 
   useEffect(() => {
-    // Merge MOCK_UPLOADS with localStorage data
-    const savedBooks = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
-    setBooks([...savedBooks, ...MOCK_UPLOADS]);
+    if (userRole !== 'admin') {
+      showToast('تحذير: هذه المنطقة مخصصة للإدارة الملكية فقط. 🔐', 'error');
+      navigate('/profile');
+      return;
+    }
+
+    // Real-time listener from Firestore
+    const q = query(collection(db, 'uploads'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as UploadedBook[];
+      setBooks(docs);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const filtered = filterStatus === 'all' ? books : books.filter(b => b.status === filterStatus);
 
   const stats = {
     total: books.length,
-    pending: books.filter(b => b.status === 'pending').length,
-    approved: books.filter(b => b.status === 'approved').length,
-    rejected: books.filter(b => b.status === 'rejected').length,
+    pending: books.filter((b: any) => b.status === 'pending').length,
+    approved: books.filter((b: any) => b.status === 'approved').length,
+    rejected: books.filter((b: any) => b.status === 'rejected').length,
   };
 
-  const handleDelete = (id: string) => {
-    const updatedBooks = books.filter(b => b.id !== id);
-    setBooks(updatedBooks);
-    
-    // Also remove from localStorage if it exists there
-    const savedBooks = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
-    const filteredSaved = savedBooks.filter((b: any) => b.id !== id);
-    localStorage.setItem('royal_uploads', JSON.stringify(filteredSaved));
-    
-    showToast('تم حذف المجلد بنجاح', 'info');
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'uploads', id));
+      showToast('تم حذف المجلد بنجاح', 'info');
+    } catch (error) {
+      showToast('حدث خطأ أثناء الحذف', 'error');
+    }
   };
 
-  const handleApprove = (id: string) => {
-    // Update local state
-    const updatedBooks = books.map(b => b.id === id ? { ...b, status: 'approved' as const } : b);
-    setBooks(updatedBooks);
-
-    // Update localStorage
-    const savedBooks = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
-    const updatedSaved = savedBooks.map((b: any) => b.id === id ? { ...b, status: 'approved' } : b);
-    localStorage.setItem('royal_uploads', JSON.stringify(updatedSaved));
-
-    showToast('تمت الموافقة الملكية على المجلد! سيظهر الآن في الموقع. 👑', 'success');
+  const handleApprove = async (id: string) => {
+    try {
+      await updateDoc(doc(db, 'uploads', id), { status: 'approved' });
+      showToast('تمت الموافقة الملكية على المجلد! سيظهر الآن في الموقع. 👑', 'success');
+    } catch (error) {
+      showToast('حدث خطأ أثناء الموافقة', 'error');
+    }
   };
 
   return (
@@ -155,8 +161,8 @@ const UploadDashboard: React.FC = () => {
           {filtered.length === 0 ? (
             <div className="p-16 text-center text-slate-500 font-bold">لا توجد مجلدات في هذا التصنيف</div>
           ) : (
-            filtered.map((book, index) => {
-              const cfg = statusConfig[book.status];
+            filtered.map((book: any, index: number) => {
+              const cfg = (statusConfig as any)[book.status];
               return (
                 <motion.div
                   key={book.id}
@@ -191,7 +197,7 @@ const UploadDashboard: React.FC = () => {
 
                   {/* Actions */}
                   <div className="col-span-2 flex gap-3">
-                    {book.status === 'pending' && (
+                    {userRole === 'admin' && book.status === 'pending' && (
                       <button 
                         onClick={() => handleApprove(book.id)}
                         title="موافقة ملكية"
@@ -203,12 +209,14 @@ const UploadDashboard: React.FC = () => {
                     <button className="w-9 h-9 rounded-xl border border-gold-900/20 flex items-center justify-center text-slate-400 hover:text-gold-500 hover:border-gold-500/30 transition-all">
                       <VisibilityIcon className="text-lg" />
                     </button>
-                    <button
-                      onClick={() => handleDelete(book.id)}
-                      className="w-9 h-9 rounded-xl border border-gold-900/20 flex items-center justify-center text-slate-400 hover:text-red-400 hover:border-red-500/30 transition-all"
-                    >
-                      <DeleteOutlineIcon className="text-lg" />
-                    </button>
+                    {userRole === 'admin' && (
+                      <button
+                        onClick={() => handleDelete(book.id)}
+                        className="w-9 h-9 rounded-xl border border-gold-900/20 flex items-center justify-center text-slate-400 hover:text-red-400 hover:border-red-500/30 transition-all"
+                      >
+                        <DeleteOutlineIcon className="text-lg" />
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               );

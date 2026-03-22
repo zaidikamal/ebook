@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { db } from '../lib/firebase';
+import { collection, query as firestoreQuery, where, getDocs } from 'firebase/firestore';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -25,18 +27,27 @@ const SearchPage = () => {
   const [filterPrice, setFilterPrice] = useState('الكل');
   const [filterRating, setFilterRating] = useState('الكل');
 
-  const getApprovedRoyalBooks = () => {
-    const saved = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
-    return saved.filter((b: any) => b.status === 'approved').map((b: any) => ({
-      _id: `royal:${b.id}`,
-      title: b.title,
-      author: b.author,
-      price: b.price,
-      coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
-      rating: 5.0,
-      categories: [b.category || 'عام'],
-      isRoyal: true
-    }));
+  const getApprovedRoyalBooks = async () => {
+    try {
+      const q = firestoreQuery(collection(db, 'uploads'), where('status', '==', 'approved'));
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data() as any;
+        return {
+          _id: `royal:${doc.id}`,
+          title: data.title,
+          author: data.author,
+          price: data.price,
+          coverImage: data.coverUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
+          rating: 5.0,
+          categories: [data.category || 'عام'],
+          isRoyal: true
+        };
+      });
+    } catch (error) {
+      console.error("Error fetching royal books:", error);
+      return [];
+    }
   };
 
   useEffect(() => {
@@ -58,7 +69,7 @@ const SearchPage = () => {
         setResults(formatArchiveBooks(response.data.response.docs));
       }
       
-      const royalBooks = getApprovedRoyalBooks();
+      const royalBooks = await getApprovedRoyalBooks();
       setResults(prev => [...royalBooks, ...prev]);
     } catch (err) {
       console.error(err);
@@ -129,7 +140,7 @@ const SearchPage = () => {
         setResults(formatArchiveBooks(response.data.response.docs));
       }
 
-      const royalBooks = getApprovedRoyalBooks();
+      const royalBooks = await getApprovedRoyalBooks();
       const matchedRoyal = query 
         ? royalBooks.filter((b: any) => b.title.toLowerCase().includes(query.toLowerCase()) || b.author.toLowerCase().includes(query.toLowerCase()))
         : royalBooks;

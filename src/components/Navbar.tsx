@@ -18,7 +18,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#081425]/70 backdrop-blur-xl border-b border-white/5 h-20">
+    <nav className="glass-header h-20">
       <div className="container mx-auto px-6 h-full flex items-center justify-between">
         {/* Right side: Logo & Primary Nav (Arabic RTL Support) */}
         <div className="flex items-center gap-10">
@@ -56,7 +56,9 @@ const Navbar = () => {
             <div className="w-8 h-8 rounded-full border border-gold-500/30 overflow-hidden">
                <img src={avatar} alt="صورة المستخدم" loading="lazy" className="w-full h-full object-cover" />
             </div>
-            <span className="text-slate-400 group-hover:text-gold-500 font-black text-sm transition-colors">القارئ الملكي</span>
+            <span className="text-slate-400 group-hover:text-gold-500 font-black text-sm transition-colors">
+              {JSON.parse(localStorage.getItem('user') || '{}').name || "القارئ الملكي"}
+            </span>
           </Link>
           
           <Link to="/login" className="flex items-center gap-2 bg-gold-900/20 text-gold-500 px-4 py-2.5 rounded-xl font-black hover:bg-gold-500 hover:text-slate-950 transition-all border border-gold-500/10 text-xs">

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -61,17 +63,25 @@ const HomePage = () => {
           rating: item.volumeInfo?.averageRating || 4.5
         })) || [];
 
-        // 4. Fetch Approved Books from localStorage
-        const savedBooks = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
-        const approvedRoyal = savedBooks.filter((b: any) => b.status === 'approved').map((b: any) => ({
-          _id: `royal:${b.id}`,
-          title: b.title,
-          author: b.author,
-          price: b.price,
-          coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400', // Default royal cover
-          rating: 5.0,
-          isRoyal: true
-        }));
+        // 4. Fetch Approved Books from Firestore
+        const q = query(
+          collection(db, 'uploads'), 
+          where('status', '==', 'approved'),
+          limit(8)
+        );
+        const querySnapshot = await getDocs(q);
+        const approvedRoyal = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            _id: `royal:${doc.id}`,
+            title: data.title,
+            author: data.author,
+            price: data.price,
+            coverImage: data.coverUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
+            rating: 5.0,
+            isRoyal: true
+          };
+        });
 
         if (resp1?.data?.items) {
            setMustReads(formatBooks(resp1.data.items, 'gb'));
@@ -120,38 +130,54 @@ const HomePage = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative pt-48 pb-32 px-6">
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-gold-600/10 rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-gold-600/5 rounded-full blur-[100px]"></div>
+      <section className="relative min-h-[90vh] flex items-center justify-center px-6 overflow-hidden">
+        {/* Cinematic Backdrop */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/C:/Users/EZ-ZAIDI/.gemini/antigravity/brain/4af9e354-49c4-4d63-b3d6-ab6f35f76016/royal_library_hero_bg_1774208611671.png" 
+            alt="Royal Library" 
+            className="w-full h-full object-cover scale-110 animate-subtle-zoom"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-surface/20 via-surface/60 to-surface"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-surface opacity-40"></div>
         </div>
 
-        <div className="container mx-auto text-center relative z-10">
+        <div className="container mx-auto text-center relative z-10 pt-20">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1, ease: "easeOut" }}
           >
-            <h1 className="text-6xl md:text-8xl font-amiri font-black mb-8 leading-tight">
-              <span className="block gold-text">مكتبة المستقبل</span>
-              <span className="text-white">بين يديك الآن</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-black uppercase tracking-[0.3em] mb-8 animate-fade-in">
+              <span className="w-2 h-2 rounded-full bg-gold-400 animate-pulse"></span>
+              المكان الأرقى للمعرفة
+            </div>
+            <h1 className="text-7xl md:text-9xl font-amiri font-black mb-10 leading-[1.1] text-white">
+              <span className="block opacity-90">مكتبة</span>
+              <span className="gold-text">المستقبل</span>
             </h1>
-            <p className="max-w-2xl mx-auto text-slate-400 text-xl md:text-2xl leading-relaxed mb-12 font-medium">
-              اكتشف خبايا المعرفة في أفخم منصة عربية للكتب الإلكترونية. اختر من بين ملايين العناوين العالمية والمحلية.
+            <p className="max-w-3xl mx-auto text-on-surface-variant text-xl md:text-2xl leading-relaxed mb-16 font-medium bg-surface/10 backdrop-blur-sm rounded-3xl p-6">
+              اكتشف خبايا المعرفة في أفخم منصة عربية للكتب الإلكترونية. اختر من بين ملايين العناوين العالمية والمحلية برؤية ملكية فريدة.
             </p>
-            <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-6">
+            <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-8">
               <Link to="/search">
-                <button className="gold-button px-12 py-6 rounded-3xl font-black text-xl shadow-2xl transform hover:scale-105 transition-all">
+                <button className="gold-button">
                   ابدأ رحلتك المعرفية
                 </button>
               </Link>
               <Link to="/search?sort=newest">
-                <button className="bg-surface-container-low border border-gold-900/20 px-12 py-6 rounded-3xl font-bold text-xl hover:bg-gold-500/5 transition-all">
-                  أحدث الإضافات
+                <button className="px-12 py-5 rounded-2xl font-black text-xl text-white border border-gold-500/20 hover:bg-gold-500/5 transition-all backdrop-blur-md">
+                   أحدث الإضافات
                 </button>
               </Link>
             </div>
           </motion.div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gold-500/40">
+           <span className="text-[10px] font-black uppercase tracking-[0.2em]">اسحب للأسفل</span>
+           <div className="w-[1px] h-12 bg-gradient-to-b from-gold-500/50 to-transparent"></div>
         </div>
       </section>
 

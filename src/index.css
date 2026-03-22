@@ -5,98 +5,72 @@
 
 @layer base {
   body {
-    @apply bg-surface text-slate-100 font-jakarta;
+    @apply bg-surface text-slate-100 font-arabic;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-amiri;
   }
-
-  /* RTL Support for Arabic */
-  [dir="rtl"] {
-    @apply font-arabic;
-  }
 }
 
 @layer components {
   .glass-header {
-    @apply sticky top-0 z-50 bg-surface/70 backdrop-blur-xl border-b border-outline-variant;
+    @apply sticky top-4 z-50 mx-auto w-[95%] max-w-7xl bg-surface/40 backdrop-blur-2xl border border-gold-500/10 rounded-[2.5rem] shadow-2xl transition-all duration-500;
   }
 
-  .primary-gradient {
-    @apply bg-gradient-to-br from-primary to-primary-container;
-  }
-
-  /* The "No-Line" Rule Depth Utility */
-  .card-depth {
-    @apply bg-surface-container border border-outline-variant hover:border-indigo-500/30 transition-all duration-300;
-  }
-
-  /* Smooth Transitions */
-  .transition-default {
-    @apply transition-all duration-300 ease-in-out;
+  .floating-glass {
+    @apply bg-surface/30 backdrop-blur-xl border border-gold-500/10 rounded-[2rem] shadow-2xl;
   }
 
   .gold-text {
-    @apply text-transparent bg-clip-text bg-gradient-to-tr from-gold-600 via-gold-400 to-gold-200;
+    @apply text-transparent bg-clip-text bg-gradient-to-tr from-gold-600 via-gold-400 to-gold-200 animate-shine;
   }
 
   .gold-button {
-    @apply bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 text-slate-950 font-black shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all;
+    @apply relative overflow-hidden bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 text-slate-950 font-black shadow-[0_4px_20px_rgba(212,175,55,0.3)] hover:shadow-[0_8px_30px_rgba(212,175,55,0.5)] hover:scale-[1.03] active:scale-95 transition-all duration-300 px-8 py-4 rounded-2xl;
   }
 
-  /* تحسين التباين */
-  .nav-text {
-    color: #E5E7EB; /* رمادي فاتح جداً بدلاً من الرمادي الداكن */
-    transition: color 0.3s ease;
-  }
-
-  .nav-text:hover {
-    color: #FBBF24; /* ذهبي عند التمرير */
-  }
-
-  /* الحالة النشطة */
-  .nav-active {
-    color: #FBBF24;
-    border-bottom: 2px solid #FBBF24;
-    padding-bottom: 2px;
-  }
-
-  /* المسافات */
-  .nav-item {
-    padding: 0.75rem 1.25rem; /* مسافات أوسع */
-  }
-
-  /* تحسين التباين والوضوح للنشرة البريدية */
-  .newsletter-input {
-    @apply bg-gray-800 text-white border border-amber-500/30 rounded-lg px-4 py-3 w-full focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 placeholder-gray-400;
-  }
-
-  .newsletter-btn {
-    @apply bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-lg hover:from-amber-400 hover:to-amber-500 transition-all duration-300 active:scale-95 flex items-center justify-center;
-  }
-
-  /* روابط التذييل (Footer) */
-  .footer-link {
-    @apply text-gray-300 hover:text-amber-400 transition-colors duration-200 relative inline-block;
-  }
-
-  .footer-link::after {
+  .gold-button::after {
     content: '';
-    @apply absolute bottom-0 right-0 w-0 h-0.5 bg-amber-400 transition-all duration-300;
+    @apply absolute inset-0 bg-white/20 translate-x-[-100%] skew-x-[-20deg] transition-transform duration-700;
   }
 
-  .footer-link:hover::after {
-    @apply w-full right-auto left-0;
+  .gold-button:hover::after {
+    @apply translate-x-[150%];
   }
 
-  /* عنواين الكتب */
-  .book-title {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    line-height: 1.4; /* لتحسين قراءة الأسطر المتعددة */
-    @apply font-amiri font-black text-white; /* دمج مع التنسيق المسبق */
+  .card-premium {
+    @apply bg-surface-container/50 backdrop-blur-md border border-gold-500/5 rounded-[2rem] hover:border-gold-500/20 hover:bg-surface-container/80 transition-all duration-500 shadow-xl;
   }
+
+  .royal-input {
+    @apply bg-surface-container-lowest border border-gold-500/10 rounded-2xl py-4 px-6 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 transition-all text-right;
+  }
+}
+
+@keyframes shine {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-shine {
+  background-size: 200% auto;
+  animation: shine 6s linear infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-surface;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gold-900/40 rounded-full hover:bg-gold-800/60 transition-colors;
 }
 

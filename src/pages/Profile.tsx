@@ -7,6 +7,8 @@ import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
 import { downloadProtectedFile } from '../utils/ContentProtection';
 import { getLibraryBookIds } from '../lib/libraryService';
+import { auth } from '../lib/firebase';
+import { signOut } from 'firebase/auth';
 import { formattedAuthor } from '../utils/formatters';
 import EditIcon from '@mui/icons-material/Edit';
 import VerifiedIcon from '@mui/icons-material/Verified';
@@ -40,11 +42,23 @@ const ProfilePage = () => {
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
   const user = {
-    name: "القارئ الملكي",
-    email: "reader@royal.com",
+    name: storedUser.name || "القارئ الملكي",
+    email: storedUser.email || "reader@royal.com",
     avatar: userAvatar,
-    tier: "عضوية الصفوة"
+    tier: storedUser.role === 'admin' ? "الإدارة الملكية" : "عضوية الصفوة"
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const applyAvatar = (src: string) => {
@@ -138,6 +152,13 @@ const ProfilePage = () => {
              <div className="absolute top-0 right-0 w-64 h-64 bg-gold-600/5 rounded-full blur-[100px] pointer-events-none"></div>
              
              <div className="flex flex-col md:flex-row-reverse items-center gap-8">
+                {/* Logout Button */}
+                <button 
+                  onClick={handleLogout}
+                  className="absolute top-8 left-8 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-4 py-2 rounded-xl border border-red-500/20 transition-all font-black text-xs"
+                >
+                  تسجيل الخروج
+                </button>
                 <div className="w-32 h-32 rounded-full border-4 border-gold-500/30 p-1 shadow-2xl relative group cursor-pointer" onClick={() => setShowAvatarModal(true)}>
                    <img src={user.avatar} alt="صورة المستخدم الشخصية" loading="lazy" className="w-full h-full rounded-full bg-surface-container-low object-cover" />
                    <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

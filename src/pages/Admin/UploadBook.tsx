@@ -4,6 +4,9 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useToast } from '../../components/Toast';
 import { useNavigate } from 'react-router-dom';
+import { storage, db } from '../../lib/firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -28,6 +31,8 @@ const UploadBook: React.FC = () => {
   const [aiLoading, setAiLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedCover, setSelectedCover] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const generateAIContent = () => {
     setAiLoading(true);
@@ -238,24 +243,57 @@ const UploadBook: React.FC = () => {
 
                    <div className="flex gap-6 pt-12">
                     <button onClick={prevStep} className="flex-1 bg-surface-container-lowest border border-gold-900/20 py-5 rounded-2xl font-black text-slate-400 hover:text-gold-500 transition-all">تعديل البيانات</button>
-                    <button onClick={() => {
-                      // Save to localStorage for persistence in this demo
-                      const newUpload = {
-                        id: Math.random().toString(36).substr(2, 9),
-                        title: formData.title,
-                        author: formData.author,
-                        category: formData.category || 'أدب',
-                        status: 'pending',
-                        uploadDate: new Date().toISOString().split('T')[0],
-                        price: parseFloat(formData.price) || 0
-                      };
-                      
-                      const existingUploads = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
-                      localStorage.setItem('royal_uploads', JSON.stringify([newUpload, ...existingUploads]));
+                    <button 
+                      disabled={isUploading || !selectedFile || !selectedCover}
+                      onClick={async () => {
+                        setIsUploading(true);
+                        try {
+                          // 1. Upload Cover
+                          const coverRef = ref(storage, `covers/${Date.now()}_${selectedCover?.name}`);
+                          const coverUpload = await uploadBytesResumable(coverRef, selectedCover!);
+                          const coverUrl = await getDownloadURL(coverUpload.ref);
 
-                      showToast('تم إرسال المجلد للمراجعة الملكية بنجاح! 👑', 'success', 5000);
-                      setTimeout(() => navigate('/admin/uploads'), 1500);
-                    }} className="flex-[2] gold-button py-5 rounded-2xl font-black text-xl shadow-xl">إتمام النشر الملكي 👑</button>
+                          // 2. Upload PDF
+                          const fileRef = ref(storage, `books/${Date.now()}_${selectedFile?.name}`);
+                          const uploadTask = uploadBytesResumable(fileRef, selectedFile!);
+
+                          uploadTask.on('state_changed', 
+                            (snapshot) => {
+                              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                              setUploadProgress(progress);
+                            }, 
+                            (error) => {
+                              throw error;
+                            }, 
+                            async () => {
+                              const fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
+
+                              // 3. Save Metadata to Firestore
+                              await addDoc(collection(db, 'uploads'), {
+                                ...formData,
+                                coverUrl,
+                                fileUrl,
+                                status: 'pending',
+                                uploadDate: new Date().toISOString().split('T')[0],
+                                createdAt: serverTimestamp(),
+                                price: parseFloat(formData.price) || 0
+                              });
+
+                              showToast('تم رفع المجلد للمراجعة الملكية بنجاح! 👑', 'success', 5000);
+                              setIsUploading(false);
+                              navigate('/admin/uploads');
+                            }
+                          );
+                        } catch (error: any) {
+                          console.error(error);
+                          showToast('حدث خطأ أثناء الرفع الملكي: ' + error.message, 'error');
+                          setIsUploading(false);
+                        }
+                      }} 
+                      className="flex-[2] gold-button py-5 rounded-2xl font-black text-xl shadow-xl disabled:opacity-50"
+                    >
+                      {isUploading ? `جاري الرفع... ${Math.round(uploadProgress)}%` : 'إتمام النشر الملكي 👑'}
+                    </button>
                    </div>
                 </motion.div>
               )}

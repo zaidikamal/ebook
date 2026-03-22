@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { auth, db } from '../lib/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useToast } from '../components/Toast';
@@ -19,10 +22,35 @@ const RegisterPage = () => {
     confirmPassword: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast('تم إنشاء الحساب الملكي بنجاح! مرحباً بك في عالم كتبي. 👑', 'success');
-    navigate('/login');
+    if (formData.password !== formData.confirmPassword) {
+      showToast('كلمتا المرور غير متطابقتين!', 'error');
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
+
+      // Update display name
+      await updateProfile(user, { displayName: formData.name });
+
+      // Save to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        name: formData.name,
+        email: formData.email,
+        role: 'user', // Default role
+        createdAt: new Date().toISOString()
+      });
+
+      showToast('تم إنشاء الحساب الملكي بنجاح! مرحباً بك في عالم كتبي. 👑', 'success');
+      navigate('/login');
+    } catch (error: any) {
+      console.error(error);
+      showToast(error.message || 'حدث خطأ أثناء إنشاء الحساب الموقر.', 'error');
+    }
   };
 
   return (
