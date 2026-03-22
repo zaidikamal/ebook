@@ -22,6 +22,8 @@ const UploadBook: React.FC = () => {
   });
 
   const [aiLoading, setAiLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedCover, setSelectedCover] = useState<File | null>(null);
 
   const generateAIContent = () => {
     setAiLoading(true);
@@ -66,18 +68,32 @@ const UploadBook: React.FC = () => {
                   <div className="grid md:grid-cols-2 gap-10">
                     <div className="space-y-4">
                       <label className="text-xl font-black gold-text block">ملف الكتاب (PDF / ePub)</label>
-                      <div className="border-2 border-dashed border-gold-900/30 rounded-3xl p-12 text-center hover:border-gold-500/50 transition-all group relative cursor-pointer">
-                        <UploadFileIcon className="text-6xl text-gold-900 group-hover:text-gold-500 transition-colors mb-4" />
-                        <p className="text-slate-400 font-bold">اسحب الملف هنا أو انقر للإختيار</p>
-                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+                      <div className={`border-2 border-dashed ${selectedFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-gold-900/30'} rounded-3xl p-12 text-center hover:border-gold-500/50 transition-all group relative cursor-pointer`}>
+                        <UploadFileIcon className={`text-6xl ${selectedFile ? 'text-emerald-500' : 'text-gold-900 group-hover:text-gold-500'} transition-colors mb-4`} />
+                        <p className={`font-bold ${selectedFile ? 'text-emerald-400' : 'text-slate-400'}`}>
+                          {selectedFile ? selectedFile.name : 'اسحب الملف هنا أو انقر للإختيار'}
+                        </p>
+                        <input 
+                          type="file" 
+                          accept=".pdf,.epub"
+                          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                          className="absolute inset-0 opacity-0 cursor-pointer" 
+                        />
                       </div>
                     </div>
                     <div className="space-y-4">
                       <label className="text-xl font-black gold-text block">غلاف المجلد (عالي الدقة)</label>
-                      <div className="border-2 border-dashed border-gold-900/30 rounded-3xl p-12 text-center hover:border-gold-500/50 transition-all group relative cursor-pointer">
-                        <AddPhotoAlternateIcon className="text-6xl text-gold-900 group-hover:text-gold-500 transition-colors mb-4" />
-                        <p className="text-slate-400 font-bold">يفضل أبعاد 3:4 للمظهر الملكي</p>
-                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+                      <div className={`border-2 border-dashed ${selectedCover ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-gold-900/30'} rounded-3xl p-12 text-center hover:border-gold-500/50 transition-all group relative cursor-pointer`}>
+                        <AddPhotoAlternateIcon className={`text-6xl ${selectedCover ? 'text-emerald-500' : 'text-gold-900 group-hover:text-gold-500'} transition-colors mb-4`} />
+                        <p className={`font-bold ${selectedCover ? 'text-emerald-400' : 'text-slate-400'}`}>
+                          {selectedCover ? selectedCover.name : 'يفضل أبعاد 3:4 للمظهر الملكي'}
+                        </p>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={(e) => setSelectedCover(e.target.files?.[0] || null)}
+                          className="absolute inset-0 opacity-0 cursor-pointer" 
+                        />
                       </div>
                     </div>
                   </div>
@@ -147,7 +163,16 @@ const UploadBook: React.FC = () => {
                          <option>تاريخ</option>
                          <option>أدب</option>
                          <option>فلسفة</option>
-                         <option>رواية</option>
+                         <option>رواية / خيال</option>
+                         <option>السير والتراجم</option>
+                         <option>العلوم الطبيعية</option>
+                         <option>الفنون والعمارة</option>
+                         <option>الدين والفكر</option>
+                         <option>علوم القرآن والحديث</option>
+                         <option>المخطوطات النادرة</option>
+                         <option>السياسة والاقتصاد</option>
+                         <option>تطوير الذات</option>
+                         <option>الشعر</option>
                       </select>
                     </div>
                     <div className="space-y-4">

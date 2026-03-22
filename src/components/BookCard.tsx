@@ -12,7 +12,7 @@ interface Book {
   rating: number;
 }
 
-const BookCard = ({ book }: { book: Book }) => {
+const BookCard = ({ book, isPriority = false }: { book: Book, isPriority?: boolean }) => {
   const originalPrice = book.price > 0 ? (book.price * 1.4).toFixed(2) : null;
   const isTrending = Math.random() > 0.7;
 
@@ -32,7 +32,8 @@ const BookCard = ({ book }: { book: Book }) => {
         <img 
           src={book.coverImage} 
           alt={`غلاف كتاب ${book.title} للمؤلف ${book.author}`} 
-          loading="lazy"
+          loading={isPriority ? "eager" : "lazy"}
+          {...(isPriority ? { fetchPriority: "high" } as any : {})}
           width="400"
           height="600"
           onError={(e) => {

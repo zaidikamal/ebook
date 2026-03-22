@@ -81,7 +81,10 @@ const SearchPage = () => {
   })) || [];
 
   const filteredResults = results.filter(book => {
-    if (filterCategory !== 'الكل' && !book.categories?.some((c: string) => c.includes(filterCategory))) return false;
+    if (filterCategory !== 'الكل') {
+      const match = book.categories?.some((c: string) => c.toLowerCase().includes(filterCategory.toLowerCase()));
+      if (!match) return false;
+    }
     if (filterPrice !== 'الكل') {
       if (filterPrice === 'مجاني' && book.price > 0) return false;
       if (filterPrice === 'مدفوع' && book.price === 0) return false;
@@ -171,10 +174,19 @@ const SearchPage = () => {
               className="bg-surface border border-gold-900/30 rounded-xl px-4 py-2 text-white outline-none focus:border-gold-500 font-bold"
             >
               <option value="الكل">كل التصنيفات</option>
+              <option value="literature">أدب</option>
               <option value="fiction">خيال / روايات</option>
               <option value="history">تاريخ</option>
-              <option value="science">علوم</option>
               <option value="philosophy">فلسفة</option>
+              <option value="biography">السير والتراجم</option>
+              <option value="science">العلوم الطبيعية</option>
+              <option value="art">الفنون والعمارة</option>
+              <option value="religion">الدين والفكر</option>
+              <option value="quran">علوم القرآن والحديث</option>
+              <option value="manuscripts">المخطوطات النادرة</option>
+              <option value="politics">السياسة والاقتصاد</option>
+              <option value="self-help">تطوير الذات</option>
+              <option value="poetry">الشعر</option>
             </select>
             <select
               value={filterPrice}

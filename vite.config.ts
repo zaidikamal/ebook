@@ -6,5 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     sourcemap: true,
+    target: 'esnext', // Optimizes away legacy polyfills
+    minify: 'esbuild',
   }
 })
