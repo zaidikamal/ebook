@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="preload" as="image" href="/royal-hero.png" fetchpriority="high" />
     
     <!-- Optimized Font Loading with Preload & Swap to eliminate Render-Blocking -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=IBM+Plex+Sans+Arabic:wght@100..700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
@@ -17,6 +18,12 @@
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=IBM+Plex+Sans+Arabic:wght@100..700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
     </noscript>
+    
+    <style>
+      :root { --surface: #040810; --gold-500: #d4af37; }
+      body { background-color: var(--surface); color: #f1f5f9; margin: 0; font-family: 'IBM Plex Sans Arabic', sans-serif; }
+      .gold-text { background: linear-gradient(to tr, #b8860b, #d4af37, #f9e897); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
     
     <!-- Primary Meta Tags -->
     <title>منصة كتبي الملكية | مكتبة المخطوطات والكتب النادرة</title>

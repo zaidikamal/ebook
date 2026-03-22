@@ -13,7 +13,8 @@ interface Book {
 
 const BookCard = ({ book, isPriority = false }: { book: Book, isPriority?: boolean }) => {
   const originalPrice = book.price > 0 ? (book.price * 1.4).toFixed(2) : null;
-  const isTrending = Math.random() > 0.7;
+  // Stable "trending" state derived from ID to avoid re-render performance hits
+  const isTrending = book._id.length % 3 === 0;
 
   return (
     <motion.div 

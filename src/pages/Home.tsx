@@ -136,6 +136,8 @@ const HomePage = () => {
           <img 
             src="/royal-hero.png" 
             alt="Royal Library" 
+            fetchPriority="high"
+            loading="eager"
             className="w-full h-full object-cover scale-110 animate-subtle-zoom"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-surface/20 via-surface/60 to-surface"></div>
