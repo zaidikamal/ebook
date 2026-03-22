@@ -25,6 +25,20 @@ const SearchPage = () => {
   const [filterPrice, setFilterPrice] = useState('الكل');
   const [filterRating, setFilterRating] = useState('الكل');
 
+  const getApprovedRoyalBooks = () => {
+    const saved = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
+    return saved.filter((b: any) => b.status === 'approved').map((b: any) => ({
+      _id: `royal:${b.id}`,
+      title: b.title,
+      author: b.author,
+      price: b.price,
+      coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
+      rating: 5.0,
+      categories: [b.category || 'عام'],
+      isRoyal: true
+    }));
+  };
+
   useEffect(() => {
     fetchTrending();
   }, [source]);
@@ -43,6 +57,9 @@ const SearchPage = () => {
         response = await axios.get('https://archive.org/advancedsearch.php?q=mediatype:texts+AND+collection:additional_collections&rows=10&output=json');
         setResults(formatArchiveBooks(response.data.response.docs));
       }
+      
+      const royalBooks = getApprovedRoyalBooks();
+      setResults(prev => [...royalBooks, ...prev]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -111,6 +128,13 @@ const SearchPage = () => {
         response = await axios.get(`https://archive.org/advancedsearch.php?q=title:(${query})+AND+mediatype:texts&rows=20&output=json`);
         setResults(formatArchiveBooks(response.data.response.docs));
       }
+
+      const royalBooks = getApprovedRoyalBooks();
+      const matchedRoyal = query 
+        ? royalBooks.filter((b: any) => b.title.toLowerCase().includes(query.toLowerCase()) || b.author.toLowerCase().includes(query.toLowerCase()))
+        : royalBooks;
+        
+      setResults(prev => [...matchedRoyal, ...prev]);
     } catch (err) {
       console.error(err);
     } finally {

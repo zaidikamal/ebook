@@ -67,6 +67,19 @@ const UploadDashboard: React.FC = () => {
     showToast('تم حذف المجلد بنجاح', 'info');
   };
 
+  const handleApprove = (id: string) => {
+    // Update local state
+    const updatedBooks = books.map(b => b.id === id ? { ...b, status: 'approved' as const } : b);
+    setBooks(updatedBooks);
+
+    // Update localStorage
+    const savedBooks = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
+    const updatedSaved = savedBooks.map((b: any) => b.id === id ? { ...b, status: 'approved' } : b);
+    localStorage.setItem('royal_uploads', JSON.stringify(updatedSaved));
+
+    showToast('تمت الموافقة الملكية على المجلد! سيظهر الآن في الموقع. 👑', 'success');
+  };
+
   return (
     <div className="min-h-screen bg-surface text-slate-100 font-jakarta rtl" dir="rtl">
       <Navbar />
@@ -178,6 +191,15 @@ const UploadDashboard: React.FC = () => {
 
                   {/* Actions */}
                   <div className="col-span-2 flex gap-3">
+                    {book.status === 'pending' && (
+                      <button 
+                        onClick={() => handleApprove(book.id)}
+                        title="موافقة ملكية"
+                        className="w-9 h-9 rounded-xl border border-emerald-900/20 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/10 transition-all"
+                      >
+                        <CheckCircleIcon className="text-lg" />
+                      </button>
+                    )}
                     <button className="w-9 h-9 rounded-xl border border-gold-900/20 flex items-center justify-center text-slate-400 hover:text-gold-500 hover:border-gold-500/30 transition-all">
                       <VisibilityIcon className="text-lg" />
                     </button>

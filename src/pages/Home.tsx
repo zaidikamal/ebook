@@ -61,11 +61,27 @@ const HomePage = () => {
           rating: item.volumeInfo?.averageRating || 4.5
         })) || [];
 
+        // 4. Fetch Approved Books from localStorage
+        const savedBooks = JSON.parse(localStorage.getItem('royal_uploads') || '[]');
+        const approvedRoyal = savedBooks.filter((b: any) => b.status === 'approved').map((b: any) => ({
+          _id: `royal:${b.id}`,
+          title: b.title,
+          author: b.author,
+          price: b.price,
+          coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400', // Default royal cover
+          rating: 5.0,
+          isRoyal: true
+        }));
+
         if (resp1?.data?.items) {
            setMustReads(formatBooks(resp1.data.items, 'gb'));
         }
         if (resp2?.data?.items) {
-           setNewArrivals(formatBooks(resp2.data.items, 'gb'));
+           // Prepend approved royal books to new arrivals
+           const formattedGB = formatBooks(resp2.data.items, 'gb');
+           setNewArrivals([...approvedRoyal, ...formattedGB]);
+        } else if (approvedRoyal.length > 0) {
+           setNewArrivals(prev => [...approvedRoyal, ...prev]);
         }
 
         // If Google failed, augment with Gutenberg/Archive but don't clear originals if they are better
