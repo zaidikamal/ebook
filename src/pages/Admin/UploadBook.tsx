@@ -246,7 +246,14 @@ const UploadBook: React.FC = () => {
                     <button 
                       disabled={isUploading || !selectedFile || !selectedCover}
                       onClick={async () => {
+                        if (!storage || !db) {
+                          showToast('⚠️ لم يتم تهيئة خدمات التخزين. يرجى التأكد من إضافة مفاتيح Firebase في Vercel.', 'error', 7000);
+                          return;
+                        }
+
                         setIsUploading(true);
+                        setUploadProgress(0);
+
                         try {
                           // 1. Upload Cover
                           const coverRef = ref(storage, `covers/${Date.now()}_${selectedCover?.name}`);
@@ -257,33 +264,34 @@ const UploadBook: React.FC = () => {
                           const fileRef = ref(storage, `books/${Date.now()}_${selectedFile?.name}`);
                           const uploadTask = uploadBytesResumable(fileRef, selectedFile!);
 
-                          uploadTask.on('state_changed', 
-                            (snapshot) => {
-                              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                              setUploadProgress(progress);
-                            }, 
-                            (error) => {
-                              throw error;
-                            }, 
-                            async () => {
-                              const fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                          // Promise wrapper for progress and completion
+                          await new Promise<void>((resolve, reject) => {
+                            uploadTask.on('state_changed', 
+                              (snapshot) => {
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                setUploadProgress(progress);
+                              }, 
+                              (error) => reject(error), 
+                              () => resolve()
+                            );
+                          });
 
-                              // 3. Save Metadata to Firestore
-                              await addDoc(collection(db, 'uploads'), {
-                                ...formData,
-                                coverUrl,
-                                fileUrl,
-                                status: 'pending',
-                                uploadDate: new Date().toISOString().split('T')[0],
-                                createdAt: serverTimestamp(),
-                                price: parseFloat(formData.price) || 0
-                              });
+                          const fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
 
-                              showToast('تم رفع المجلد للمراجعة الملكية بنجاح! 👑', 'success', 5000);
-                              setIsUploading(false);
-                              navigate('/admin/uploads');
-                            }
-                          );
+                          // 3. Save Metadata to Firestore
+                          await addDoc(collection(db, 'uploads'), {
+                            ...formData,
+                            coverUrl,
+                            fileUrl,
+                            status: 'pending',
+                            uploadDate: new Date().toISOString().split('T')[0],
+                            createdAt: serverTimestamp(),
+                            price: parseFloat(formData.price) || 0
+                          });
+
+                          showToast('تم رفع المجلد للمراجعة الملكية بنجاح! 👑', 'success', 5000);
+                          setIsUploading(false);
+                          navigate('/admin/uploads');
                         } catch (error: any) {
                           console.error(error);
                           showToast('حدث خطأ أثناء الرفع الملكي: ' + error.message, 'error');
