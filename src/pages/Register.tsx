@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useToast } from '../components/Toast';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PersonIcon from '@mui/icons-material/Person';
@@ -10,6 +11,7 @@ import LockIcon from '@mui/icons-material/Lock';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,8 +21,7 @@ const RegisterPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Success simulation
-    alert('تم إنشاء الحساب الملكي بنجاح! مرحباً بك في عالم كتبي.');
+    showToast('تم إنشاء الحساب الملكي بنجاح! مرحباً بك في عالم كتبي. 👑', 'success');
     navigate('/login');
   };
 

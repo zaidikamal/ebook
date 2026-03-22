@@ -10,6 +10,7 @@ const ProfilePage = lazy(() => import('./pages/Profile'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const UploadBook = lazy(() => import('./pages/Admin/UploadBook'));
+const UploadDashboard = lazy(() => import('./pages/Admin/UploadDashboard'));
 const Subscriptions = lazy(() => import('./pages/Subscriptions'));
 const AffiliatePage = lazy(() => import('./pages/Affiliate'));
 const FAQ = lazy(() => import('./pages/FAQ'));
@@ -34,6 +35,7 @@ function App() {
             <Route path="/checkout/:id" element={<Checkout />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/upload" element={<UploadBook />} />
+            <Route path="/admin/uploads" element={<UploadDashboard />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/affiliate" element={<AffiliatePage />} />
             <Route path="/faq" element={<FAQ />} />

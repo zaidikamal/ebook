@@ -8,6 +8,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
 import { formattedAuthor } from '../utils/formatters';
+import { useToast } from '../components/Toast';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import EventIcon from '@mui/icons-material/Event';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -20,6 +21,7 @@ import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 const BookDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [isOwned, setIsOwned] = useState(false);
   const [timeLeft, setTimeLeft] = useState(3600 * 3 + 45 * 60); // 3h 45m dummy timer
 
@@ -349,7 +351,7 @@ const BookDetails = () => {
                   </motion.button>
                   
                   <button 
-                    onClick={() => alert("سيتم افتتاح الجناح الخاص بالقراءة المدمجة قريباً. ترقبوا التحديث الملكي القادم!")}
+                    onClick={() => showToast('سيتم افتتاح الجناح الخاص بالقراءة المدمجة قريباً. ترقبوا التحديث الملكي القادم!', 'info')}
                     className="flex-1 bg-surface-container-low border border-gold-900/20 py-6 rounded-2xl text-gold-500 font-black text-xl flex items-center justify-center gap-3 hover:bg-gold-500/5 transition-all"
                   >
                     <MenuBookIcon />
@@ -371,7 +373,7 @@ const BookDetails = () => {
                      onClick={() => {
                        const owned = JSON.parse(localStorage.getItem('ownedBooks') || '[]');
                        localStorage.setItem('ownedBooks', JSON.stringify([...new Set([...owned, 'ko:history-arabs', 'ko:andalusian-lit'])]));
-                       alert("تمت إضافة الحزمة الملكية (تاريخ العرب + الأدب الأندلسي) لمكتبتك بنجاح!");
+                       showToast('تمت إضافة الحزمة الملكية (تاريخ العرب + الأدب الأندلسي) لمكتبتك بنجاح!', 'success');
                        navigate('/profile');
                      }}
                      className="bg-emerald-500 text-emerald-950 px-6 py-3 rounded-xl font-black text-sm whitespace-nowrap hover:bg-emerald-400 transition-colors"

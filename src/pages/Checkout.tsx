@@ -6,10 +6,12 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { addBookToLibrary } from '../lib/libraryService';
 import { formattedAuthor } from '../utils/formatters';
+import { useToast } from '../components/Toast';
 
 const Checkout = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [book, setBook] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -74,7 +76,7 @@ const Checkout = () => {
 
   const handlePaymentSuccess = async (details: any) => {
     await addBookToLibrary(id as string);
-    alert(`شكراً لك ${details.payer.name.given_name}! تمت عملية الاستحواذ الملكية بنجاح.`);
+    showToast(`شكراً لك ${details.payer.name.given_name}! تمت عملية الاستحواذ الملكية بنجاح. 👑`, 'success', 6000);
     navigate('/profile');
   };
 

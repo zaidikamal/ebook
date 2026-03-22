@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { useToast } from '../../components/Toast';
+import { useNavigate } from 'react-router-dom';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -10,6 +12,8 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 const UploadBook: React.FC = () => {
   const [step, setStep] = useState(1);
+  const { showToast } = useToast();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -234,7 +238,10 @@ const UploadBook: React.FC = () => {
 
                    <div className="flex gap-6 pt-12">
                     <button onClick={prevStep} className="flex-1 bg-surface-container-lowest border border-gold-900/20 py-5 rounded-2xl font-black text-slate-400 hover:text-gold-500 transition-all">تعديل البيانات</button>
-                    <button onClick={() => alert('تم إرسال المجلد للمراجعة الملكية!')} className="flex-[2] gold-button py-5 rounded-2xl font-black text-xl shadow-xl">إتمام النشر الملكي 👑</button>
+                    <button onClick={() => {
+                      showToast('تم إرسال المجلد للمراجعة الملكية بنجاح! 👑', 'success', 5000);
+                      setTimeout(() => navigate('/admin/uploads'), 1500);
+                    }} className="flex-[2] gold-button py-5 rounded-2xl font-black text-xl shadow-xl">إتمام النشر الملكي 👑</button>
                    </div>
                 </motion.div>
               )}

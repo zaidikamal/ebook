@@ -2,9 +2,11 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useToast } from '../components/Toast';
 import EmailIcon from '@mui/icons-material/Email';
 
 const Contact = () => {
+  const { showToast } = useToast();
   return (
     <>
       <Helmet>
@@ -25,7 +27,7 @@ const Contact = () => {
                  <p className="text-slate-400 font-bold text-lg">نحن هنا لخدمتك والإجابة عن جميع استفساراتك الموقرة.</p>
               </div>
 
-              <form className="flex flex-col gap-6 relative z-10" onSubmit={(e) => { e.preventDefault(); alert("تم إرسال رسالتك الملكية بنجاح! وسنرد عليها في أقرب وقت."); }}>
+              <form className="flex flex-col gap-6 relative z-10" onSubmit={(e) => { e.preventDefault(); showToast('تم إرسال رسالتك الملكية بنجاح! وسنرد عليها في أقرب وقت.', 'success'); }}>
                  <div>
                     <label className="block text-gold-500 font-black mb-2">اسمك الكريم</label>
                     <input type="text" className="w-full bg-surface border border-gold-900/20 rounded-2xl p-4 text-white focus:border-gold-500 transition-colors outline-none" required />
