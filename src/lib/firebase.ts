@@ -17,7 +17,11 @@ const firebaseConfig = {
 const isConfigValid = !!import.meta.env.VITE_FIREBASE_API_KEY;
 
 if (!isConfigValid) {
-  console.error("⚠️ Firebase API Key is missing. Please check your .env file or Vercel Environment Variables.");
+  console.error("⚠️ Firebase API Key is missing.");
+  console.warn("Possible reasons:");
+  console.warn("1. Env variables not added to Vercel Settings.");
+  console.warn("2. Forgot to 'Redeploy' after adding variables.");
+  console.warn("3. Missing 'VITE_' prefix in the variable name.");
 }
 
 // Initialize Firebase
