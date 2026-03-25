@@ -51,9 +51,16 @@ const LoginPage = () => {
         navigate(fallbackUser.role === 'admin' ? '/admin' : '/profile');
       }
     } catch (err: any) {
-      console.error(err);
+      console.error('Login error:', err.code, err.message);
       setLoading(false);
-      setError('خطأ في البريد الإلكتروني أو كلمة المرور الموقرة. حاول مرة أخرى.');
+      
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        setError('خطأ في البريد الإلكتروني أو كلمة المرور الموقرة. إذا لم تكن قد سجلت بعد، يرجى إنشاء حساب جديد.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('تم حظر المحاولات مؤقتاً بسبب كثرة الطلبات. حاول مجدداً لاحقاً.');
+      } else {
+        setError('حدث خطأ غير متوقع في البوابة الملكية. حاول مرة أخرى.');
+      }
     }
   };
 
@@ -128,8 +135,8 @@ const LoginPage = () => {
           </form>
           
           <div className="mt-10 p-4 bg-gold-900/5 rounded-2xl border border-gold-900/10 text-center">
-            <p className="text-xs text-gold-600 font-black uppercase tracking-tighter mb-1">بيانات الدخول التجريبية</p>
-            <p className="text-sm text-slate-400">admin@royal.com / royal123</p>
+            <p className="text-xs text-gold-600 font-black uppercase tracking-tighter mb-1">بيانات الدخول الإدارية</p>
+            <p className="text-sm text-slate-400 font-sans">admin@kutubi.com / *كلمة المرور الخاصة بك*</p>
           </div>
 
           <div className="mt-12 text-center relative z-10">
