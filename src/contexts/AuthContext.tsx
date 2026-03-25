@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../lib/firebase';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
 interface AuthContextType {
@@ -29,9 +29,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
            };
            setUser(syncedUser);
            localStorage.setItem('user', JSON.stringify(syncedUser));
+           console.log("Auth sync success:", syncedUser);
          } catch (e) {
-           console.error("Auth sync error:", e);
-           setUser({ uid: firebaseUser.uid, email: firebaseUser.email, role: 'user' });
+           console.error("Auth sync error (Firestore likely not ready):", e);
+           const fallback = { 
+             uid: firebaseUser.uid, 
+             email: firebaseUser.email, 
+             role: firebaseUser.email === 'admin@kutubi.com' ? 'admin' : 'user',
+             name: firebaseUser.displayName || 'مستخدم ملكي'
+           };
+           setUser(fallback);
+           localStorage.setItem('user', JSON.stringify(fallback));
          }
       } else {
         setUser(null);

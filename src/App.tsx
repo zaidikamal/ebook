@@ -19,6 +19,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Payment = lazy(() => import('./pages/Payment'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="/payment" element={<Payment />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </Suspense>
       </div>

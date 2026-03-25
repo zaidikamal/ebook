@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import SecurityIcon from '@mui/icons-material/Security';
 import SearchIcon from '@mui/icons-material/Search';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
+import { useAuth } from '../contexts/AuthContext';
+import { auth } from '../lib/firebase';
+import { signOut } from 'firebase/auth';
 
 const Navbar = () => {
-  const [avatar, setAvatar] = useState(localStorage.getItem('userAvatar') || '/avatars/royal-user.png');
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Listen for avatar changes in other tabs/windows or local updates
-    const handleStorage = () => {
-      setAvatar(localStorage.getItem('userAvatar') || '/avatars/royal-user.png');
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate('/login');
+  };
 
   return (
     <nav className="glass-header h-20">
@@ -32,12 +32,15 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-8">
             <NavLink to="/" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>الرئيسية</NavLink>
             <NavLink to="/search" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>تصفح الكتب</NavLink>
-            <NavLink to="/profile" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>مكتبتي</NavLink>
-            {/* Admin Dashboard Link */}
-            <Link to="/admin" className="text-gold-500/40 hover:text-gold-500 font-bold transition-colors flex items-center gap-2">
-              <SecurityIcon className="text-sm" />
-              التحكم الملكي
-            </Link>
+            {user && <NavLink to="/profile" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>مكتبتي</NavLink>}
+            
+            {/* Admin Dashboard Link - Only show if likely admin */}
+            {(user?.role === 'admin' || !user) && (
+              <Link to="/admin" className="text-gold-500/40 hover:text-gold-500 font-bold transition-colors flex items-center gap-2">
+                <SecurityIcon className="text-sm" />
+                التحكم الملكي
+              </Link>
+            )}
           </div>
         </div>
 
@@ -52,18 +55,33 @@ const Navbar = () => {
             />
           </div>
           
-          <Link to="/profile" className="flex items-center gap-3 bg-surface-container-low border border-gold-900/10 px-4 py-2 rounded-2xl hover:border-gold-500/30 transition-all group">
-            <div className="w-8 h-8 rounded-full border border-gold-500/30 overflow-hidden">
-               <img src={avatar} alt="صورة المستخدم" loading="lazy" className="w-full h-full object-cover" />
-            </div>
-            <span className="text-slate-400 group-hover:text-gold-500 font-black text-sm transition-colors">
-              {JSON.parse(localStorage.getItem('user') || '{}').name || "القارئ الملكي"}
-            </span>
-          </Link>
-          
-          <Link to="/login" className="flex items-center gap-2 bg-gold-900/20 text-gold-500 px-4 py-2.5 rounded-xl font-black hover:bg-gold-500 hover:text-slate-950 transition-all border border-gold-500/10 text-xs">
-            <LogoutIcon className="text-sm" />
-          </Link>
+          {loading ? (
+            <div className="w-8 h-8 rounded-full border-2 border-gold-500/30 border-t-gold-500 animate-spin"></div>
+          ) : user ? (
+            <>
+              <Link to="/profile" className="flex items-center gap-3 bg-surface-container-low border border-gold-900/10 px-4 py-2 rounded-2xl hover:border-gold-500/30 transition-all group">
+                <div className="w-8 h-8 rounded-full border border-gold-500/30 overflow-hidden bg-gold-900/20 flex items-center justify-center text-gold-500">
+                   {user.name?.[0] || 'U'}
+                </div>
+                <span className="text-slate-400 group-hover:text-gold-500 font-black text-sm transition-colors">
+                  {user.name || "عضو ملكي"}
+                </span>
+              </Link>
+              
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-2 bg-red-950/20 text-red-400 px-4 py-2.5 rounded-xl font-black hover:bg-red-500 hover:text-slate-950 transition-all border border-red-500/10 text-xs"
+                title="تسجيل الخروج"
+              >
+                <LogoutIcon className="text-sm" />
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="flex items-center gap-2 bg-gold-900/20 text-gold-500 px-6 py-2.5 rounded-xl font-black hover:bg-gold-500 hover:text-slate-950 transition-all border border-gold-500/10 text-sm">
+              <LoginIcon className="text-sm" />
+              <span>دخول</span>
+            </Link>
+          )}
         </div>
       </div>
     </nav>
