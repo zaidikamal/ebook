@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Helmet } from 'react-helmet-async';
 import { db } from '../lib/firebase';
+import AdUnit from '../components/AdUnit';
 import { collection, query as firestoreQuery, where, getDocs } from 'firebase/firestore';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
@@ -155,6 +157,11 @@ const SearchPage = () => {
 
   return (
     <div className="bg-surface min-h-screen text-slate-100 font-jakarta rtl" dir="rtl">
+      <Helmet>
+        <title>البحث الملكي | اكتشف كنوز المخطوطات والكتب 👑</title>
+        <meta name="description" content="البحث المتقدم في مكتبة كتبي الملكية. اعثر على أندر المخطوطات، الروايات الكلاسيكية، والأبحاث العلمية." />
+        <link rel="canonical" href="https://ebook-mgv9.vercel.app/search" />
+      </Helmet>
       <Navbar />
       
       <main className="container mx-auto px-6 pt-40 pb-24">
@@ -200,6 +207,9 @@ const SearchPage = () => {
               <SearchIcon className="text-3xl" />
             </button>
           </form>
+
+          {/* Royal Ad Slot 2 */}
+          <AdUnit slot="0987654321" className="!my-16" />
 
           {/* Filters Bar */}
           <div className="flex flex-wrap items-center justify-center gap-4 mt-6">

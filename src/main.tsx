@@ -6,6 +6,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ToastProvider } from './components/Toast'
 import * as Sentry from '@sentry/react'
+import ErrorBoundary from './components/ErrorBoundary'
 
 // Lower Sentry overhead for production performance
 const initSentry = () => {
@@ -38,7 +39,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
         </ToastProvider>
       </QueryClientProvider>
     </HelmetProvider>

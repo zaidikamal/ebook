@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Helmet } from 'react-helmet-async';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
+import AdUnit from '../components/AdUnit';
 import { Link } from 'react-router-dom';
 import { formattedAuthor } from '../utils/formatters';
 
@@ -127,6 +129,11 @@ const HomePage = () => {
 
   return (
     <div className="bg-surface min-h-screen text-slate-100 font-jakarta selection:bg-gold-500/30 overflow-x-hidden" dir="rtl">
+      <Helmet>
+        <title>منصة كتبي الملكية | كنوز المعرفة الرقمية 👑</title>
+        <meta name="description" content="البوابة الأولى لتحميل الكتب النادرة والمخطوطات الملكية مجاناً وبأعلى جودة. تصفح آلاف العناوين الحصرية." />
+        <link rel="canonical" href="https://ebook-mgv9.vercel.app/" />
+      </Helmet>
       <Navbar />
       
       {/* Hero Section */}
@@ -182,6 +189,11 @@ const HomePage = () => {
            <div className="w-[1px] h-12 bg-gradient-to-b from-gold-500/50 to-transparent"></div>
         </div>
       </section>
+
+      {/* Royal Ad Slot 1 */}
+      <div className="container mx-auto px-6 max-w-5xl">
+        <AdUnit slot="1234567890" />
+      </div>
 
       {/* Featured Collections */}
       <section className="py-24 px-6 relative">
