@@ -5,6 +5,7 @@ import './index.css'
 import { HelmetProvider } from 'react-helmet-async'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ToastProvider } from './components/Toast'
+import { AuthProvider } from './contexts/AuthContext'
 import * as Sentry from '@sentry/react'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -39,9 +40,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <ErrorBoundary>
-            <App />
-          </ErrorBoundary>
+          <AuthProvider>
+            <ErrorBoundary>
+              <App />
+            </ErrorBoundary>
+          </AuthProvider>
         </ToastProvider>
       </QueryClientProvider>
     </HelmetProvider>

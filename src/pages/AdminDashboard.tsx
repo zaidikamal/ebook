@@ -16,6 +16,7 @@ import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { useToast } from '../components/Toast';
+import { useAuth } from '../contexts/AuthContext';
 
 /* ===================== TYPES ===================== */
 interface FirebaseBook {
@@ -189,10 +190,10 @@ const MembersSection = ({ members }: { members: FirebaseUser[] }) => (
   </div>
 );
 
-/* ===================== MAIN DASHBOARD ===================== */
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [books, setBooks] = useState<FirebaseBook[]>([]);
   const [members, setMembers] = useState<FirebaseUser[]>([]);
@@ -201,19 +202,33 @@ const AdminDashboard: React.FC = () => {
   const [debugInfo, setDebugInfo] = useState<string>('');
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const adminEmail = "admin@kutubi.com"; // Default admin email
+    if (authLoading) return;
+    
+    const adminEmail = "admin@kutubi.com"; 
     
     console.log("Checking admin status for:", user);
     
-    if (user.role === 'admin' || user.email === adminEmail || user.uid === 'S9hB2hX9p9X9p9X9p9X9') { // Added a few safety checks
+    if (user?.role === 'admin' || user?.email === adminEmail || user?.uid === 'S9hB2hX9p9X9p9X9p9X9') {
       setIsAuthorized(true);
     } else {
-      setDebugInfo(`Email: ${user.email || 'None'}, Role: ${user.role || 'None'}`);
+      setDebugInfo(`Email: ${user?.email || 'None'}, Role: ${user?.role || 'None'}`);
       setIsAuthorized(false);
       showToast('⚠️ وصول ممنوع للمناطق المحظورة', 'error');
     }
-  }, [showToast]);
+  }, [user, authLoading, showToast]);
+
+  useEffect(() => {
+    if (!isAuthorized) return;
+    const unsubBooks = onSnapshot(query(collection(db, 'uploads'), orderBy('createdAt', 'desc')), (snap) => {
+      setBooks(snap.docs.map(d => ({ id: d.id, ...d.data() })) as FirebaseBook[]);
+    });
+    const unsubUsers = onSnapshot(query(collection(db, 'users'), orderBy('createdAt', 'desc')), (snap) => {
+      setMembers(snap.docs.map(d => ({ id: d.id, ...d.data() })) as FirebaseUser[]);
+    });
+    return () => { unsubBooks(); unsubUsers(); };
+  }, [isAuthorized]);
+
+  if (authLoading || isAuthorized === null) return null;
 
   if (isAuthorized === false) {
     return (
@@ -227,23 +242,14 @@ const AdminDashboard: React.FC = () => {
              Diagnostic: {debugInfo}
           </div>
           
-          <button onClick={() => navigate('/')} className="gold-button w-full py-4 rounded-xl font-black">العودة للمنزل</button>
+          <div className="space-y-4">
+            <button onClick={() => navigate('/login')} className="gold-button w-full py-4 rounded-xl font-black">تسجيل الدخول كمسؤول</button>
+            <button onClick={() => navigate('/')} className="w-full py-4 rounded-xl font-bold text-slate-500 hover:text-white transition-colors">العودة للمنزل</button>
+          </div>
         </div>
       </div>
     );
   }
-
-  if (isAuthorized === null) return null; // Loading state
-
-  useEffect(() => {
-    const unsubBooks = onSnapshot(query(collection(db, 'uploads'), orderBy('createdAt', 'desc')), (snap) => {
-      setBooks(snap.docs.map(d => ({ id: d.id, ...d.data() })) as FirebaseBook[]);
-    });
-    const unsubUsers = onSnapshot(query(collection(db, 'users'), orderBy('createdAt', 'desc')), (snap) => {
-      setMembers(snap.docs.map(d => ({ id: d.id, ...d.data() })) as FirebaseUser[]);
-    });
-    return () => { unsubBooks(); unsubUsers(); };
-  }, []);
 
   const handleApprove = async (id: string) => {
     try {
