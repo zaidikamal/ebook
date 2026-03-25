@@ -25,17 +25,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
              uid: firebaseUser.uid,
              email: firebaseUser.email,
              displayName: firebaseUser.displayName,
-             role: firebaseUser.email === 'admin@kutubi.com' ? 'admin' : 'user'
+             role: ['admin@kutubi.com', 'fr.capsules20@gmail.com'].includes(firebaseUser.email || '') ? 'admin' : 'user'
            };
            setUser(syncedUser);
            localStorage.setItem('user', JSON.stringify(syncedUser));
            console.log("Auth sync success:", syncedUser);
          } catch (e) {
            console.error("Auth sync error (Firestore likely not ready):", e);
-           const fallback = { 
+           const fallback = {
              uid: firebaseUser.uid, 
              email: firebaseUser.email, 
-             role: firebaseUser.email === 'admin@kutubi.com' ? 'admin' : 'user',
+             role: ['admin@kutubi.com', 'fr.capsules20@gmail.com'].includes(firebaseUser.email || '') ? 'admin' : 'user',
              name: firebaseUser.displayName || 'مستخدم ملكي'
            };
            setUser(fallback);

@@ -37,13 +37,14 @@ const RegisterPage = () => {
       await updateProfile(user, { displayName: formData.name });
 
       // Save to Firestore
-      await setDoc(doc(db, 'users', user.uid), {
+      const registerData = {
         uid: user.uid,
         name: formData.name,
         email: formData.email,
-        role: formData.email === 'admin@kutubi.com' ? 'admin' : 'user',
+        role: ['admin@kutubi.com', 'fr.capsules20@gmail.com'].includes(formData.email) ? 'admin' : 'user',
         createdAt: new Date().toISOString()
-      });
+      };
+      await setDoc(doc(db, 'users', user.uid), registerData);
 
       showToast('تم إنشاء الحساب الملكي بنجاح! مرحباً بك في عالم كتبي. 👑', 'success');
       navigate('/login');
