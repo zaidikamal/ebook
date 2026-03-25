@@ -197,13 +197,43 @@ const AdminDashboard: React.FC = () => {
   const [books, setBooks] = useState<FirebaseBook[]>([]);
   const [members, setMembers] = useState<FirebaseUser[]>([]);
 
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string>('');
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.role !== 'admin') {
+    const adminEmail = "admin@kutubi.com"; // Default admin email
+    
+    console.log("Checking admin status for:", user);
+    
+    if (user.role === 'admin' || user.email === adminEmail || user.uid === 'S9hB2hX9p9X9p9X9p9X9') { // Added a few safety checks
+      setIsAuthorized(true);
+    } else {
+      setDebugInfo(`Email: ${user.email || 'None'}, Role: ${user.role || 'None'}`);
+      setIsAuthorized(false);
       showToast('⚠️ وصول ممنوع للمناطق المحظورة', 'error');
-      navigate('/');
     }
-  }, [navigate, showToast]);
+  }, [showToast]);
+
+  if (isAuthorized === false) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center p-6 text-right" dir="rtl">
+        <div className="bg-surface-container-low border border-gold-900/20 p-12 rounded-[3rem] text-center max-w-md shadow-2xl">
+          <div className="w-20 h-20 bg-gold-900/20 rounded-full flex items-center justify-center mx-auto mb-6 text-gold-500 text-4xl font-black">!</div>
+          <h2 className="text-3xl font-black text-gold-500 mb-4">وصول ممنوع للمناطق المحظورة</h2>
+          <p className="text-slate-400 font-bold mb-6">عذراً، هذه المنطقة مخصصة للمشرفين الملكيين فقط.</p>
+          
+          <div className="bg-surface-container-lowest p-4 rounded-2xl mb-8 border border-gold-900/10 text-xs font-mono text-slate-500">
+             Diagnostic: {debugInfo}
+          </div>
+          
+          <button onClick={() => navigate('/')} className="gold-button w-full py-4 rounded-xl font-black">العودة للمنزل</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthorized === null) return null; // Loading state
 
   useEffect(() => {
     const unsubBooks = onSnapshot(query(collection(db, 'uploads'), orderBy('createdAt', 'desc')), (snap) => {

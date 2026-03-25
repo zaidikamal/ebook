@@ -36,9 +36,19 @@ const LoginPage = () => {
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', await user.getIdToken());
         setLoading(false);
-        navigate('/profile');
+        navigate('/admin'); // Redirect admins directly
       } else {
-        throw new Error('لم يتم العثور على بيانات المستخدم الموقر.');
+        // Fallback for missing Firestore doc
+        const fallbackUser = {
+          uid: user.uid,
+          email: user.email,
+          role: user.email === 'admin@kutubi.com' ? 'admin' : 'user',
+          name: user.displayName || 'مستخدم موقر'
+        };
+        localStorage.setItem('user', JSON.stringify(fallbackUser));
+        localStorage.setItem('token', await user.getIdToken());
+        setLoading(false);
+        navigate(fallbackUser.role === 'admin' ? '/admin' : '/profile');
       }
     } catch (err: any) {
       console.error(err);

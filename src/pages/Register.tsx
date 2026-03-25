@@ -41,7 +41,7 @@ const RegisterPage = () => {
         uid: user.uid,
         name: formData.name,
         email: formData.email,
-        role: 'user', // Default role
+        role: formData.email === 'admin@kutubi.com' ? 'admin' : 'user',
         createdAt: new Date().toISOString()
       });
 
