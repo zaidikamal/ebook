@@ -33,6 +33,7 @@ const UploadBook: React.FC = () => {
   const [selectedCover, setSelectedCover] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string>('');
 
   const generateAIContent = () => {
     setAiLoading(true);
@@ -245,7 +246,7 @@ const UploadBook: React.FC = () => {
                     <button onClick={prevStep} className="flex-1 bg-surface-container-lowest border border-gold-900/20 py-5 rounded-2xl font-black text-slate-400 hover:text-gold-500 transition-all">تعديل البيانات</button>
                     <button 
                       disabled={isUploading || !selectedFile || !selectedCover}
-                      onClick={async () => {
+                       onClick={async () => {
                         if (!storage || !db) {
                           showToast('⚠️ لم يتم تهيئة خدمات التخزين. يرجى التأكد من إضافة مفاتيح Firebase في Vercel.', 'error', 7000);
                           return;
@@ -255,30 +256,44 @@ const UploadBook: React.FC = () => {
                         setUploadProgress(0);
 
                         try {
+                          // Helper for upload with progress
+                          const uploadWithProgress = (file: File, path: string, statusMsg: string): Promise<string> => {
+                             return new Promise((resolve, reject) => {
+                               setUploadStatus(statusMsg);
+                               const fileRef = ref(storage, `${path}/${Date.now()}_${file.name}`);
+                               const uploadTask = uploadBytesResumable(fileRef, file);
+
+                               uploadTask.on('state_changed', 
+                                 (snapshot) => {
+                                   const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                   setUploadProgress(progress);
+                                 }, 
+                                 (error) => {
+                                   console.error(`Upload error for ${file.name}:`, error);
+                                   if (error.code === 'storage/unauthorized') {
+                                      reject(new Error('عذراً، قواعد الحماية تمنع الرفع حالياً. يرجى مراجعة إعدادات Firebase Storage.'));
+                                   } else if (error.code === 'storage/retry-limit-exceeded') {
+                                      reject(new Error('فشل الرفع بسبب ضعف الاتصال. يرجى المحاولة مرة أخرى.'));
+                                   } else {
+                                      reject(error);
+                                   }
+                                 }, 
+                                 async () => {
+                                   const url = await getDownloadURL(uploadTask.snapshot.ref);
+                                   resolve(url);
+                                 }
+                               );
+                             });
+                          };
+
                           // 1. Upload Cover
-                          const coverRef = ref(storage, `covers/${Date.now()}_${selectedCover?.name}`);
-                          const coverUpload = await uploadBytesResumable(coverRef, selectedCover!);
-                          const coverUrl = await getDownloadURL(coverUpload.ref);
+                          const coverUrl = await uploadWithProgress(selectedCover!, 'covers', 'جاري رفع الغلاف الملكي...');
 
                           // 2. Upload PDF
-                          const fileRef = ref(storage, `books/${Date.now()}_${selectedFile?.name}`);
-                          const uploadTask = uploadBytesResumable(fileRef, selectedFile!);
-
-                          // Promise wrapper for progress and completion
-                          await new Promise<void>((resolve, reject) => {
-                            uploadTask.on('state_changed', 
-                              (snapshot) => {
-                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                setUploadProgress(progress);
-                              }, 
-                              (error) => reject(error), 
-                              () => resolve()
-                            );
-                          });
-
-                          const fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                          const fileUrl = await uploadWithProgress(selectedFile!, 'books', 'جاري رفع المجلد الرقمي...');
 
                           // 3. Save Metadata to Firestore
+                          setUploadStatus('جاري تسجيل البيانات في الخزانة...');
                           await addDoc(collection(db, 'uploads'), {
                             ...formData,
                             coverUrl,
@@ -291,16 +306,23 @@ const UploadBook: React.FC = () => {
 
                           showToast('تم رفع المجلد للمراجعة الملكية بنجاح! 👑', 'success', 5000);
                           setIsUploading(false);
+                          setUploadStatus('');
                           navigate('/admin/uploads');
                         } catch (error: any) {
                           console.error(error);
                           showToast('حدث خطأ أثناء الرفع الملكي: ' + error.message, 'error');
                           setIsUploading(false);
+                          setUploadStatus('');
                         }
                       }} 
                       className="flex-[2] gold-button py-5 rounded-2xl font-black text-xl shadow-xl disabled:opacity-50"
                     >
-                      {isUploading ? `جاري الرفع... ${Math.round(uploadProgress)}%` : 'إتمام النشر الملكي 👑'}
+                      {isUploading ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-sm opacity-80 animate-pulse">{uploadStatus}</span>
+                          <span>{Math.round(uploadProgress)}%</span>
+                        </div>
+                      ) : 'إتمام النشر الملكي 👑'}
                     </button>
                    </div>
                 </motion.div>
