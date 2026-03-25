@@ -27,6 +27,11 @@ if (!isConfigValid) {
 }
 
 // Initialize Firebase
+if (isConfigValid) {
+  console.log("🔥 Initializing Firebase with Project ID:", firebaseConfig.projectId);
+  console.log("📦 Storage Bucket:", firebaseConfig.storageBucket);
+}
+
 const app = isConfigValid ? initializeApp(firebaseConfig) : null;
 export const auth = app ? getAuth(app) : null as any;
 export const db = app ? getFirestore(app) : null as any;
