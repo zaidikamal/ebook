@@ -204,16 +204,14 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     if (authLoading) return;
     
-    const adminEmail = "admin@kutubi.com"; 
-    
-    console.log("Checking admin status for:", user);
-    
-    if (user?.role === 'admin' || user?.email === adminEmail || user?.uid === 'S9hB2hX9p9X9p9X9p9X9') {
+    if (user?.role === 'admin') {
       setIsAuthorized(true);
     } else {
       setDebugInfo(`Email: ${user?.email || 'None'}, Role: ${user?.role || 'None'}`);
       setIsAuthorized(false);
-      showToast('⚠️ وصول ممنوع للمناطق المحظورة', 'error');
+      if (user) {
+        showToast('⚠️ وصول ممنوع للمناطق المحظورة', 'error');
+      }
     }
   }, [user, authLoading, showToast]);
 

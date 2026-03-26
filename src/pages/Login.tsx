@@ -36,13 +36,14 @@ const LoginPage = () => {
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', await user.getIdToken());
         setLoading(false);
-        navigate('/admin'); // Redirect admins directly
+        // Redirect based on role from Firestore
+        navigate(userData.role === 'admin' ? '/admin' : '/profile');
       } else {
         // Fallback for missing Firestore doc
         const fallbackUser = {
           uid: user.uid,
           email: user.email,
-          role: user.email === 'admin@kutubi.com' ? 'admin' : 'user',
+          role: ['admin@kutubi.com', 'fr.capsules20@gmail.com'].includes(user.email || '') ? 'admin' : 'user',
           name: user.displayName || 'مستخدم موقر'
         };
         localStorage.setItem('user', JSON.stringify(fallbackUser));

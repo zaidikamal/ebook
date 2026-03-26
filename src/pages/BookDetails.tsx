@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
 import { formattedAuthor } from '../utils/formatters';
 import { useToast } from '../components/Toast';
+import { userOwnsBook, addBookToLibrary } from '../lib/libraryService';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import EventIcon from '@mui/icons-material/Event';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -42,6 +43,7 @@ const BookDetails = () => {
   const { data, isLoading: loading, isError: error, refetch } = useQuery({
     queryKey: ['bookDetails', id],
     queryFn: async () => {
+      // Existing query logic...
       if (!id) throw new Error("No ID");
       
       const type = id.split(':')[0];
@@ -141,7 +143,6 @@ const BookDetails = () => {
             };
           } catch (iaErr) {
             console.error('Archive.org fetch failed:', iaErr);
-            // Create a minimal fallback so the page still renders
             formattedBook = {
               _id: id, title: realId, author: 'Internet Archive',
               description: 'تعذّر تحميل بيانات هذه المخطوطة من الأرشيف. يرجى المحاولة مجدداً.',
@@ -164,29 +165,31 @@ const BookDetails = () => {
             coverImage: i.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || '/placeholder.png',
             rating: i.volumeInfo.averageRating || 4.5
           })) || [];
-        } catch { /* related books are optional */ }
+        } catch { /* related optional */ }
 
         return { book: formattedBook, relatedBooks: related };
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    staleTime: 1000 * 60 * 5,
   });
 
   const book = data?.book;
   const relatedBooks = data?.relatedBooks || [];
 
   useEffect(() => {
-    const ownedBooks = JSON.parse(localStorage.getItem('ownedBooks') || '[]');
-    setIsOwned(ownedBooks.includes(id as string));
+    const checkOwnership = async () => {
+      if (id) {
+        const owned = await userOwnsBook(id);
+        setIsOwned(owned);
+      }
+    };
+    checkOwnership();
   }, [id]);
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     if (isOwned || book.price === 0) {
       if (!isOwned) {
-        const ownedBooks = JSON.parse(localStorage.getItem('ownedBooks') || '[]');
-        if (!ownedBooks.includes(id)) {
-           ownedBooks.push(id);
-           localStorage.setItem('ownedBooks', JSON.stringify(ownedBooks));
-        }
+        await addBookToLibrary(id as string);
+        setIsOwned(true);
       }
       navigate('/profile');
     } else {

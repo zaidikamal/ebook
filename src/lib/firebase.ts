@@ -37,4 +37,10 @@ export const auth = app ? getAuth(app) : null as any;
 export const db = app ? getFirestore(app) : null as any;
 export const storage = app ? getStorage(app) : null as any;
 
+/**
+ * Diagnostic flag to check if Firebase is correctly configured.
+ * This helps prevent top-level crashes when Env Vars are missing.
+ */
+export const isFirebaseReady = isConfigValid && !!app;
+
 export default app;

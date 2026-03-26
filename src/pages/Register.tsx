@@ -24,10 +24,7 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      showToast('كلمتا المرور غير متطابقتين!', 'error');
-      return;
-    }
+    // Removed confirmPassword check since field was deleted in design
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);

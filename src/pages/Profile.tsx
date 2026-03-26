@@ -7,8 +7,10 @@ import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
 import { downloadProtectedFile } from '../utils/ContentProtection';
 import { getLibraryBookIds } from '../lib/libraryService';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
 import { signOut } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { formattedAuthor } from '../utils/formatters';
 import EditIcon from '@mui/icons-material/Edit';
 import VerifiedIcon from '@mui/icons-material/Verified';
@@ -35,38 +37,43 @@ const PRESET_AVATARS = [
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const { user: authUser, loading: authLoading } = useAuth();
   const [ownedBooks, setOwnedBooks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [userAvatar, setUserAvatar] = useState(localStorage.getItem('userAvatar') || '/avatars/royal-user.png');
+  const [loadingBooks, setLoadingBooks] = useState(true);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
   const user = {
-    name: storedUser.name || "القارئ الملكي",
-    email: storedUser.email || "reader@royal.com",
-    avatar: userAvatar,
-    tier: storedUser.role === 'admin' ? "الإدارة الملكية" : "عضوية الصفوة"
+    name: authUser?.name || authUser?.displayName || "القارئ الملكي",
+    email: authUser?.email || "reader@royal.com",
+    avatar: authUser?.avatar || "/avatars/royal-user.png",
+    tier: authUser?.role === 'admin' ? "الإدارة الملكية" : "عضوية الصفوة"
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
       localStorage.removeItem('user');
-      localStorage.removeItem('token');
       navigate('/login');
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
 
-  const applyAvatar = (src: string) => {
-    setUserAvatar(src);
-    localStorage.setItem('userAvatar', src);
-    window.dispatchEvent(new Event('storage'));
-    setShowAvatarModal(false);
-    setUploadPreview(null);
+  const applyAvatar = async (src: string) => {
+    if (!authUser?.uid) return;
+    
+    try {
+      await updateDoc(doc(db, 'users', authUser.uid), {
+        avatar: src
+      });
+      localStorage.setItem('userAvatar', src);
+      setShowAvatarModal(false);
+      setUploadPreview(null);
+    } catch (e) {
+      console.error("Error updating avatar in Firestore:", e);
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,45 +89,51 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchOwnedBooks = async () => {
+      if (authLoading) return;
+      
       const ids = await getLibraryBookIds();
       if (ids.length === 0) {
-        setLoading(false);
+        setLoadingBooks(false);
         return;
       }
 
       try {
         const bookPromises = ids.map(async (fullId: string) => {
           const [type, realId] = fullId.split(':');
-          if (type === 'gb') {
-            const resp = await axios.get(`https://www.googleapis.com/books/v1/volumes/${realId}`);
-            return {
-              _id: fullId,
-              title: resp.data.volumeInfo.title,
-              author: formattedAuthor(resp.data.volumeInfo.authors?.[0]) || 'كاتب موقر',
-              coverImage: resp.data.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:'),
-              price: "مملوك",
-              rating: resp.data.volumeInfo.averageRating || 4.5
-            };
-          } else if (type === 'pg') {
-            const resp = await axios.get(`https://gutendex.com/books/${realId}`);
-            return {
-              _id: fullId,
-              title: resp.data.title,
-              author: formattedAuthor(resp.data.authors?.[0]?.name) || 'مؤلف كلاسيكي',
-              coverImage: `https://www.gutenberg.org/cache/epub/${realId}/pg${realId}.cover.medium.jpg`,
-              price: "مملوك",
-              rating: 4.8
-            };
-          } else if (type === 'ia') {
-            const resp = await axios.get(`https://archive.org/metadata/${realId}`);
-            return {
-              _id: fullId,
-              title: resp.data.metadata.title,
-              author: formattedAuthor(resp.data.metadata.creator) || 'كاتب مجهول',
-              coverImage: `https://archive.org/services/img/${realId}`,
-              price: "مملوك",
-              rating: 4.7
-            };
+          try {
+            if (type === 'gb') {
+              const resp = await axios.get(`https://www.googleapis.com/books/v1/volumes/${realId}`);
+              return {
+                _id: fullId,
+                title: resp.data.volumeInfo.title,
+                author: formattedAuthor(resp.data.volumeInfo.authors?.[0]) || 'كاتب موقر',
+                coverImage: resp.data.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:'),
+                price: "مملوك",
+                rating: resp.data.volumeInfo.averageRating || 4.5
+              };
+            } else if (type === 'pg') {
+              const resp = await axios.get(`https://gutendex.com/books/${realId}`);
+              return {
+                _id: fullId,
+                title: resp.data.title,
+                author: formattedAuthor(resp.data.authors?.[0]?.name) || 'مؤلف كلاسيكي',
+                coverImage: `https://www.gutenberg.org/cache/epub/${realId}/pg${realId}.cover.medium.jpg`,
+                price: "مملوك",
+                rating: 4.8
+              };
+            } else if (type === 'ia') {
+              const resp = await axios.get(`https://archive.org/metadata/${realId}`);
+              return {
+                _id: fullId,
+                title: resp.data.metadata.title,
+                author: formattedAuthor(resp.data.metadata.creator) || 'كاتب مجهول',
+                coverImage: `https://archive.org/services/img/${realId}`,
+                price: "مملوك",
+                rating: 4.7
+              };
+            }
+          } catch (e) {
+            return null;
           }
           return null;
         });
@@ -130,12 +143,12 @@ const ProfilePage = () => {
       } catch (err) {
         console.error("Error fetching library:", err);
       } finally {
-        setLoading(false);
+        setLoadingBooks(false);
       }
     };
 
     fetchOwnedBooks();
-  }, []);
+  }, [authUser, authLoading]);
 
   const handleDownload = (bookTitle: string) => {
     downloadProtectedFile(bookTitle, user.name);
@@ -201,7 +214,7 @@ const ProfilePage = () => {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
             <AnimatePresence mode="popLayout">
-              {loading ? (
+              {loadingBooks ? (
                  [...Array(4)].map((_, i) => (
                    <div key={i} className="aspect-[3/4.5] bg-surface-container-low animate-pulse rounded-[2rem] border border-gold-900/10" />
                  ))
@@ -314,7 +327,7 @@ const ProfilePage = () => {
                       key={i}
                       onClick={() => applyAvatar(src)}
                       className={`w-full aspect-square rounded-2xl overflow-hidden border-2 transition-all hover:scale-110 ${
-                        userAvatar === src ? 'border-gold-500 shadow-[0_0_12px_rgba(212,175,55,0.5)]' : 'border-gold-900/20 hover:border-gold-500/50'
+                        user.avatar === src ? 'border-gold-500 shadow-[0_0_12px_rgba(212,175,55,0.5)]' : 'border-gold-900/20 hover:border-gold-500/50'
                       }`}
                     >
                       <img src={src} alt={`صورة رمزية مستعارة ${i}`} loading="lazy" className="w-full h-full object-cover bg-surface-container-lowest" />

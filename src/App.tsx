@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 
 const Home = lazy(() => import('./pages/Home'));
 const SearchPage = lazy(() => import('./pages/Search'));
@@ -22,6 +23,16 @@ const Contact = lazy(() => import('./pages/Contact'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 
 function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center text-gold-500 font-black" dir="rtl">
+        ...جاري جلب المجلدات
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="min-h-screen bg-surface selection:bg-indigo-500/30">
@@ -34,9 +45,21 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/checkout/:id" element={<Checkout />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/upload" element={<UploadBook />} />
-            <Route path="/admin/uploads" element={<UploadDashboard />} />
+            
+            {/* Admin Routes with Guards */}
+            <Route 
+              path="/admin" 
+              element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" replace />} 
+            />
+            <Route 
+              path="/admin/upload" 
+              element={user?.role === 'admin' ? <UploadBook /> : <Navigate to="/" replace />} 
+            />
+            <Route 
+              path="/admin/uploads" 
+              element={user?.role === 'admin' ? <UploadDashboard /> : <Navigate to="/" replace />} 
+            />
+
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/affiliate" element={<AffiliatePage />} />
             <Route path="/faq" element={<FAQ />} />
