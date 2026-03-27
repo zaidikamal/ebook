@@ -14,7 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { db } from '../lib/firebase';
-import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, getDocs, where, writeBatch } from 'firebase/firestore';
 import { useToast } from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -247,6 +247,32 @@ const AdminDashboard: React.FC = () => {
     }
   }, [user, authLoading, showToast]);
 
+  const cleanupRegistry = async () => {
+    if (!window.confirm('هل أنت متأكد من رغبتك في حذف جميع المجلدات التجريبية؟ لا يمكن التراجع عن هذه الخطوة. ⚠️')) {
+      return;
+    }
+
+    try {
+      showToast('جاري تنظيف الخزانة الملكية...', 'info');
+      const q = query(collection(db, 'books'), where('isTest', '==', true));
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        showToast('الخزانة نظيفة بالفعل! لم يتم العثور على ملفات تجريبية.', 'success');
+        return;
+      }
+
+      const batch = writeBatch(db);
+      snapshot.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      
+      showToast(`تم حذف ${snapshot.size} ملف تجريبي بنجاح! 👑`, 'success');
+    } catch (error) {
+      console.error("Cleanup error:", error);
+      showToast('حدث خطأ أثناء تنظيف الخزانة.', 'error');
+    }
+  };
+
   useEffect(() => {
     if (!isAuthorized) return;
     const unsubBooks = onSnapshot(query(collection(db, 'books'), orderBy('createdAt', 'desc')), (snap) => {
@@ -377,11 +403,20 @@ const AdminDashboard: React.FC = () => {
               ))}
             </div>
 
-            <div className="bg-surface-container-low rounded-[4rem] border border-gold-900/20 shadow-2xl p-12 md:p-16 relative min-h-[500px]">
+            <div className={`p-10 rounded-[3rem] ${activeTab === 'analytics' ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-surface-container-lowest'} border transition-all`}>
+              <div className="flex justify-between items-center mb-6">
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">نظام الإدارة</p>
+                <button 
+                  onClick={cleanupRegistry}
+                  className="text-xs bg-red-500/10 text-red-500 px-4 py-2 rounded-xl font-black border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
+                >
+                  تنظيف السجلات التجريبية 🛡️
+                </button>
+              </div>
               {activeTab === 'overview' && <OverviewSection recentBooks={books.slice(0, 5)} />}
-              {activeTab === 'review' && <ReviewSection pendingBooks={pendingBooks} onApprove={handleApprove} onDelete={handleDelete} />}
-              {activeTab === 'books' && <BooksSection books={books} onDelete={handleDelete} onAdd={() => navigate('/admin/upload')} />}
               {activeTab === 'analytics' && <AnalyticsSection books={approvedBooks} />}
+              {activeTab === 'books' && <BooksSection books={books} onDelete={handleDelete} onAdd={() => navigate('/admin/upload')} />}
+              {activeTab === 'review' && <ReviewSection pendingBooks={pendingBooks} onApprove={handleApprove} onDelete={handleDelete} />}
               {activeTab === 'users' && <MembersSection members={members} />}
               {activeTab === 'settings' && <div className="text-center py-20 opacity-40">خصائص الإعدادات الملكية قادمة قريباً... ⏳</div>}
             </div>
