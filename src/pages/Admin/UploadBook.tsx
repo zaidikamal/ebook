@@ -139,22 +139,51 @@ const UploadBook: React.FC = () => {
         setUploadStatus(statusMsg);
         setUploadProgress(0);
         
+        if (!storage) {
+          showToast('❌ خدمات التخزين غير متصلة. يرجى مراجعة الإعدادات.', 'error');
+          reject(new Error('Storage not initialized'));
+          return;
+        }
+
+        if (!file) {
+          showToast('❌ الملف مفقود. يرجى اختياره مرة أخرى.', 'error');
+          reject(new Error('File is missing'));
+          return;
+        }
+
+        console.log(`🚀 Starting upload to ${path}:`, file.name, `(${file.size} bytes)`);
+        
         const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
         const fileRef = ref(storage, `${path}/${fileName}`);
         const task = uploadBytesResumable(fileRef, file);
         setCurrentTask(task);
 
+        // Watchdog timer: If progress stays at 0 for too long, suggest a retry or check CORS
+        const watchdog = setTimeout(() => {
+          if (uploadProgress === 0 && !isPaused) {
+            console.warn(`⚠️ Upload for ${path} seems stuck at 0%.`);
+            showToast('⚠️ يبدو أن الرفع متوقف عند 0%. يرجى محاولة إعادة المحاولة أو التحقق من جودة الاتصال.', 'info', 7000);
+          }
+        }, 15000);
+
         task.on('state_changed', 
           (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            clearTimeout(watchdog);
+            const progress = snapshot.totalBytes > 0 
+              ? (snapshot.bytesTransferred / snapshot.totalBytes) * 100 
+              : 0;
             setUploadProgress(progress);
+            console.log(`📈 Upload progress (${path}): ${Math.round(progress)}%`);
           }, 
           (error) => {
-            console.error("Upload Error:", error);
+            clearTimeout(watchdog);
+            console.error(`❌ Upload Error (${path}):`, error);
             setCurrentTask(null);
             reject(new Error(error.message));
           }, 
           async () => {
+            clearTimeout(watchdog);
+            console.log(`✅ Upload complete (${path})!`);
             const url = await getDownloadURL(task.snapshot.ref);
             setCurrentTask(null);
             resolve(url);
