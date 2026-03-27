@@ -51,24 +51,7 @@ const UploadBook: React.FC = () => {
     phase: 'none' | 'cover' | 'file' | 'metadata';
   }>({ phase: 'none' });
 
-  // --- DIAGNOSTIC TEST (REQUESTED BY USER) ---
-  React.useEffect(() => {
-    const test = async () => {
-      if (!db) return;
-      try {
-        console.log("🛠️ Running diagnostic Firestore test...");
-        await addDoc(collection(db, "books"), {
-          title: "🎁 اختبار الاتصال الملكي (Test Book)",
-          createdAt: serverTimestamp(),
-          isTest: true
-        });
-        console.log("✅ Diagnostic test successful!");
-      } catch (e) {
-        console.error("❌ Diagnostic test failed:", e);
-      }
-    };
-    test();
-  }, []);
+
 
   // Load draft on mount
   React.useEffect(() => {
@@ -204,13 +187,17 @@ const UploadBook: React.FC = () => {
         setUploadStatus('جاري تسجيل البيانات في الخزانة...');
         console.log("Saving book...");
         await addDoc(collection(db, 'books'), {
-          ...formData,
-          coverUrl: uploadStateRef.current.coverUrl,
-          fileUrl: uploadStateRef.current.fileUrl,
+          title: formData.title || "بدون عنوان",
+          author: formData.author || "غير معروف",
+          price: parseFloat(formData.price) || 0,
+          description: formData.description || "",
+          category: formData.category || "عام",
+          license: formData.license || "Licensed",
           status: 'approved',
+          coverUrl: uploadStateRef.current.coverUrl || "",
+          fileUrl: uploadStateRef.current.fileUrl || "",
           uploadDate: new Date().toISOString().split('T')[0],
           createdAt: serverTimestamp(),
-          price: parseFloat(formData.price) || 0,
           views: 0,
           downloads: 0,
           uploadedBy: auth?.currentUser?.uid || null
