@@ -11,6 +11,7 @@ const ProfilePage = lazy(() => import('./pages/Profile'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const UploadBook = lazy(() => import('./pages/Admin/UploadBook'));
+const MultiUpload = lazy(() => import('./pages/Admin/MultiUpload'));
 const UploadDashboard = lazy(() => import('./pages/Admin/UploadDashboard'));
 const Subscriptions = lazy(() => import('./pages/Subscriptions'));
 const AffiliatePage = lazy(() => import('./pages/Affiliate'));
@@ -54,6 +55,10 @@ function App() {
             <Route 
               path="/admin/upload" 
               element={user?.role === 'admin' ? <UploadBook /> : <Navigate to="/" replace />} 
+            />
+            <Route 
+              path="/admin/multi-upload" 
+              element={user?.role === 'admin' ? <MultiUpload /> : <Navigate to="/" replace />} 
             />
             <Route 
               path="/admin/uploads" 

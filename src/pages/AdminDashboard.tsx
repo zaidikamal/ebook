@@ -4,7 +4,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import GroupIcon from '@mui/icons-material/Group';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
@@ -13,6 +12,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { useToast } from '../components/Toast';
@@ -27,6 +27,8 @@ interface FirebaseBook {
   status: 'pending' | 'approved' | 'rejected';
   uploadDate: string;
   price: number;
+  views?: number;
+  downloads?: number;
 }
 
 interface FirebaseUser {
@@ -38,6 +40,36 @@ interface FirebaseUser {
 }
 
 /* ===================== SECTION COMPONENTS ===================== */
+
+const AnalyticsSection = ({ books }: { books: FirebaseBook[] }) => (
+  <div className="space-y-12 relative z-10 text-right">
+    <h3 className="text-4xl font-amiri font-black gold-text">تحليلات الأداء الملكي</h3>
+    <div className="overflow-x-auto">
+      <table className="w-full text-right" dir="rtl">
+        <thead>
+          <tr className="border-b border-gold-900/10 text-slate-500 text-xs font-black uppercase tracking-widest">
+            <th className="pb-6 pr-4">المجلد</th>
+            <th className="pb-6">المشاهدات</th>
+            <th className="pb-6">التحميلات</th>
+            <th className="pb-6">معدل التحويل</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gold-900/5">
+          {books.map(book => (
+            <tr key={book.id} className="hover:bg-gold-500/5 transition-colors">
+              <td className="py-5 pr-4 font-black text-white">{book.title}</td>
+              <td className="py-5 font-bold text-slate-400">{book.views || 0}</td>
+              <td className="py-5 font-bold text-emerald-500">{book.downloads || 0}</td>
+              <td className="py-5 font-black text-gold-500">
+                {book.views ? Math.round(((book.downloads || 0) / book.views) * 100) : 0}%
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
 
 const OverviewSection = ({ recentBooks }: { recentBooks: FirebaseBook[] }) => (
   <div className="space-y-12 relative z-10 text-right">
@@ -267,10 +299,11 @@ const AdminDashboard: React.FC = () => {
 
   const pendingBooks = books.filter(b => b.status === 'pending');
   const approvedBooks = books.filter(b => b.status === 'approved');
+  const totalDownloads = approvedBooks.reduce((acc, b) => acc + (b.downloads || 0), 0);
 
   const statsList = [
     { label: 'إجمالي المجلدات', value: books.length, icon: MenuBookIcon, color: 'from-gold-700 to-gold-400' },
-    { label: 'الأعضاء الموقرون', value: members.length, icon: GroupIcon, color: 'from-blue-600 to-indigo-400' },
+    { label: 'إجمالي التحميلات', value: totalDownloads, icon: CloudUploadIcon, color: 'from-emerald-700 to-teal-400' },
     { label: 'تنتظر المراجعة', value: pendingBooks.length, icon: PendingActionsIcon, color: 'from-gold-600 to-gold-300' },
     { label: 'تم النشر', value: approvedBooks.length, icon: CheckCircleIcon, color: 'from-emerald-600 to-teal-400' },
   ];
@@ -279,6 +312,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'overview', label: 'نظرة عامة', icon: DashboardIcon },
     { id: 'review', label: 'المراجعة الملكية', icon: PendingActionsIcon, count: pendingBooks.length },
     { id: 'books', label: 'إدارة الكتب', icon: LibraryBooksIcon },
+    { id: 'analytics', label: 'التحليلات الملكية', icon: DashboardIcon },
     { id: 'users', label: 'الأعضاء', icon: PeopleIcon },
     { id: 'settings', label: 'الإعدادات الملكية', icon: SettingsIcon },
   ];
@@ -305,9 +339,14 @@ const AdminDashboard: React.FC = () => {
                 ))}
               </nav>
             </div>
-            <button onClick={() => navigate('/admin/upload')} className="w-full gold-button py-5 rounded-3xl font-black text-xl shadow-2xl flex items-center justify-center gap-3">
-              <AddToPhotosIcon /> رفع مجلد جديد
-            </button>
+            <div className="space-y-4">
+              <button onClick={() => navigate('/admin/upload')} className="w-full gold-button py-5 rounded-3xl font-black text-xl shadow-2xl flex items-center justify-center gap-3">
+                <AddToPhotosIcon /> رفع فردي
+              </button>
+              <button onClick={() => navigate('/admin/multi-upload')} className="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 py-5 rounded-3xl font-black text-xl shadow-2xl flex items-center justify-center gap-3 transition-colors">
+                <CloudUploadIcon /> رفع جماعي (Multi)
+              </button>
+            </div>
           </aside>
 
           <div className="flex-1 space-y-12">
@@ -329,6 +368,7 @@ const AdminDashboard: React.FC = () => {
               {activeTab === 'overview' && <OverviewSection recentBooks={books.slice(0, 5)} />}
               {activeTab === 'review' && <ReviewSection pendingBooks={pendingBooks} onApprove={handleApprove} onDelete={handleDelete} />}
               {activeTab === 'books' && <BooksSection books={books} onDelete={handleDelete} onAdd={() => navigate('/admin/upload')} />}
+              {activeTab === 'analytics' && <AnalyticsSection books={approvedBooks} />}
               {activeTab === 'users' && <MembersSection members={members} />}
               {activeTab === 'settings' && <div className="text-center py-20 opacity-40">خصائص الإعدادات الملكية قادمة قريباً... ⏳</div>}
             </div>

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { storage, db } from '../../lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL, type UploadTask } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { suggestCategory } from '../../utils/ai';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -34,6 +35,8 @@ const UploadBook: React.FC = () => {
   const [aiLoading, setAiLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedCover, setSelectedCover] = useState<File | null>(null);
+  const [hasDraft, setHasDraft] = useState(false);
+
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
@@ -47,6 +50,53 @@ const UploadBook: React.FC = () => {
     fileUrl?: string;
     phase: 'none' | 'cover' | 'file' | 'metadata';
   }>({ phase: 'none' });
+
+  // Load draft on mount
+  React.useEffect(() => {
+    const savedDraft = localStorage.getItem('upload_draft');
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        setFormData(draft.formData);
+        setStep(draft.step);
+        uploadStateRef.current = draft.uploadState;
+        setHasDraft(true);
+        showToast('🔄 تم استعادة مسودة الرفع السابقة.', 'info');
+      } catch (e) {
+        console.error("Error loading draft:", e);
+      }
+    }
+  }, []);
+
+  // Save draft on changes
+  React.useEffect(() => {
+    const draft = {
+      formData,
+      step,
+      uploadState: uploadStateRef.current
+    };
+    localStorage.setItem('upload_draft', JSON.stringify(draft));
+  }, [formData, step]);
+
+  const clearDraft = () => {
+    localStorage.removeItem('upload_draft');
+    setFormData({
+      title: '',
+      author: '',
+      description: '',
+      price: '',
+      category: '',
+      license: 'Licensed',
+      tags: '',
+      isAIGenerated: false
+    });
+    setStep(1);
+    setSelectedFile(null);
+    setSelectedCover(null);
+    uploadStateRef.current = { phase: 'none' };
+    setHasDraft(false);
+    showToast('تم مسح المسودة.', 'info');
+  };
 
   const generateAIContent = () => {
     setAiLoading(true);
@@ -166,7 +216,17 @@ const UploadBook: React.FC = () => {
           
           <div className="bg-gradient-to-r from-gold-900/20 to-transparent p-12 border-b border-gold-900/10 flex justify-between items-end">
             <div>
-              <h1 className="text-5xl font-amiri font-black gold-text mb-4">إضافة مجلد جديد للخزانة الملكية</h1>
+              <h1 className="text-5xl font-amiri font-black gold-text mb-4 inline-flex items-center gap-4">
+                إضافة مجلد جديد للخزانة الملكية
+                {hasDraft && step < 3 && (
+                  <button 
+                    onClick={clearDraft}
+                    className="text-xs bg-red-500/10 text-red-400 px-4 py-2 rounded-full hover:bg-red-500/20 transition-all font-bold border border-red-500/20"
+                  >
+                    مسح المسودة 🗑️
+                  </button>
+                )}
+              </h1>
               <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">المرحلة {step} من 3: {step === 1 ? 'رفع الملفات' : step === 2 ? 'البيانات الملكية' : 'التحقق والمراجعة'}</p>
             </div>
             
@@ -247,7 +307,20 @@ const UploadBook: React.FC = () => {
                   </div>
                   <div className="grid md:grid-cols-3 gap-8">
                     <div className="space-y-4">
-                      <label className="font-black text-slate-400">التصنيف</label>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="font-black text-slate-400">التصنيف</label>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const suggestion = suggestCategory(formData.title, formData.description);
+                            setFormData(prev => ({ ...prev, category: suggestion }));
+                            showToast(`✨ اقتراح الذكاء الاصطناعي: ${suggestion}`, 'info');
+                          }}
+                          className="text-[10px] bg-gold-900/10 text-gold-500 px-3 py-1 rounded-full font-black border border-gold-900/10 hover:bg-gold-500 hover:text-slate-950 transition-all flex items-center gap-1"
+                        >
+                          <AutoAwesomeIcon className="text-[12px]" /> اقتراح سحري
+                        </button>
+                      </div>
                       <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-surface-container-lowest border border-gold-900/10 rounded-2xl p-5 focus:border-gold-500/50 outline-none transition-all text-white font-bold">
                          <option>تاريخ</option><option>أدب</option><option>فلسفة</option><option>رواية / خيال</option><option>السير والتراجم</option><option>العلوم الطبيعية</option><option>الفنون والعمارة</option><option>الدين والفكر</option><option>علوم القرآن والحديث</option><option>المخطوطات النادرة</option><option>السياسة والاقتصاد</option><option>تطوير الذات</option><option>الشعر</option>
                       </select>

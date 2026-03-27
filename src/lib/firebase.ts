@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, doc, updateDoc, increment } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const getEnv = (name: string) => import.meta.env[`VITE_${name}`] || import.meta.env[`NEXT_PUBLIC_${name}`];
@@ -42,5 +42,17 @@ export const storage = app ? getStorage(app) : null as any;
  * This helps prevent top-level crashes when Env Vars are missing.
  */
 export const isFirebaseReady = isConfigValid && !!app;
+
+export const incrementBookStat = async (bookId: string, type: 'views' | 'downloads') => {
+  if (!db) return;
+  try {
+    const bookRef = doc(db, 'uploads', bookId);
+    await updateDoc(bookRef, {
+      [type]: increment(1)
+    });
+  } catch (e) {
+    console.error(`Error incrementing ${type}:`, e);
+  }
+};
 
 export default app;

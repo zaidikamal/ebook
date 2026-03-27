@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db, isFirebaseReady } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import * as Sentry from '@sentry/react';
 
 interface UserProfile {
   uid: string;
@@ -39,6 +40,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
          try {
+           // Identify user in Sentry for better monitoring
+           Sentry.setUser({
+             id: firebaseUser.uid,
+             email: firebaseUser.email || undefined,
+           });
+
            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
            const userData = userDoc.data();
            
@@ -50,6 +57,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
              avatar: userData?.avatar || localStorage.getItem('userAvatar') || '/avatars/royal-user.png',
              name: userData?.name || firebaseUser.displayName || 'مستخدم ملكي'
            };
+           
+           // Tag Sentry with user role
+           Sentry.setTag('user_role', syncedUser.role);
            
            setUser(syncedUser);
            localStorage.setItem('user', JSON.stringify(syncedUser));

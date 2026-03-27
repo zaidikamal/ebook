@@ -18,6 +18,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import StarIcon from '@mui/icons-material/Star';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import { incrementBookStat } from '../lib/firebase';
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -185,11 +186,21 @@ const BookDetails = () => {
     checkOwnership();
   }, [id]);
 
+  useEffect(() => {
+    if (id && id.startsWith('up:')) {
+      const realId = id.split(':')[1];
+      incrementBookStat(realId, 'views');
+    }
+  }, [id]);
+
   const handlePurchase = async () => {
     if (isOwned || book.price === 0) {
       if (!isOwned) {
         await addBookToLibrary(id as string);
         setIsOwned(true);
+        if (id && id.startsWith('up:')) {
+          incrementBookStat(id.split(':')[1], 'downloads');
+        }
       }
       navigate('/profile');
     } else {
