@@ -204,32 +204,6 @@ const UploadBook: React.FC = () => {
               </h1>
               <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">المرحلة {step} من 3: {step === 1 ? 'رفع الملفات' : step === 2 ? 'البيانات الملكية' : 'التحقق والمراجعة'}</p>
             </div>
-            
-            {/* Diagnostics - Only visible if there's a problem or during upload */}
-            <div className="text-left bg-black/20 p-4 rounded-2xl border border-white/5 backdrop-blur-sm hidden md:block">
-              <p className="text-[10px] text-slate-500 uppercase font-black mb-1">بيانات الرفع الملكي</p>
-              <p className="text-xs font-mono text-gold-500/60 truncate max-w-[200px]">{storage?.app?.options?.storageBucket || 'غير معرف'}</p>
-              <button 
-                onClick={async () => {
-                  const s = storage;
-                  if (!s) {
-                    showToast('⚠️ خدمات التخزين غير مهيأة.', 'error');
-                    return;
-                  }
-                  try {
-                    showToast('جاري فحص الاتصال بالخزانة...', 'info');
-                    ref(s, 'test_connection.txt');
-                    // Just a reachability test
-                    showToast('تم الاتصال بالخزانة بنجاح، يرجى التأكد من الرفع الآن.', 'success');
-                  } catch (e) {
-                    showToast('تعذر الاتصال بالخزانة: ' + (e as Error).message, 'error');
-                  }
-                }}
-                className="text-[10px] text-white hover:text-gold-400 mt-2 flex items-center gap-1 transition-colors"
-              >
-                <SyncIcon className="text-[10px]" /> فحص الاتصال
-              </button>
-            </div>
           </div>
 
           <div className="p-12 md:p-20">
