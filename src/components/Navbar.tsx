@@ -35,16 +35,16 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-6">
             <NavLink to="/" className={({isActive}) => `nav-item flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${isActive ? 'nav-active bg-gold-500/10' : 'text-slate-400 hover:text-gold-400'}`}>
               <HomeIcon className="text-lg" />
-              <span className="font-black text-sm uppercase tracking-wider">الرئيسية</span>
+              <span className="font-black text-sm uppercase tracking-wider">الرئيسية 🏛️</span>
             </NavLink>
             <NavLink to="/search" className={({isActive}) => `nav-item flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${isActive ? 'nav-active bg-gold-500/10' : 'text-slate-400 hover:text-gold-400'}`}>
               <AutoStoriesIcon className="text-lg" />
-              <span className="font-black text-sm uppercase tracking-wider">خزانة المجلدات</span>
+              <span className="font-black text-sm uppercase tracking-wider">تصفح الكتب 📜</span>
             </NavLink>
             {user && (
               <NavLink to="/profile" className={({isActive}) => `nav-item flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${isActive ? 'nav-active bg-gold-500/10' : 'text-slate-400 hover:text-gold-400'}`}>
                 <AccountBalanceIcon className="text-lg" />
-                <span className="font-black text-sm uppercase tracking-wider">خزانتي الملكية</span>
+                <span className="font-black text-sm uppercase tracking-wider">مكتبتي 📚</span>
               </NavLink>
             )}
             
@@ -78,7 +78,7 @@ const Navbar = () => {
                    {user.name?.[0] || 'U'}
                 </div>
                 <span className="text-slate-400 group-hover:text-gold-500 font-black text-sm transition-colors">
-                  {user.name || "عضو ملكي"}
+                  {user.role === 'admin' ? 'المدير العام 👑' : (user.name || "عضو ملكي")}
                 </span>
               </Link>
               

@@ -324,7 +324,7 @@ const AdminDashboard: React.FC = () => {
         <div className="flex flex-col lg:flex-row-reverse gap-12">
           <aside className="w-full lg:w-80 space-y-6">
             <div className="bg-surface-container-low p-8 rounded-[3rem] border border-gold-900/20 shadow-2xl relative">
-              <h2 className="text-3xl font-amiri font-black mb-10 gold-text text-right">مركز التحكم</h2>
+              <h2 className="text-3xl font-amiri font-black mb-10 gold-text text-right">جناح المدير العام 👑</h2>
               <nav className="space-y-4">
                 {navItems.map(item => (
                   <button
@@ -350,6 +350,19 @@ const AdminDashboard: React.FC = () => {
           </aside>
 
           <div className="flex-1 space-y-12">
+            {/* Welcome Banner */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-surface-container-low p-10 rounded-[3rem] border border-gold-900/10 shadow-2xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-gold-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+              <div className="text-right flex-1">
+                <h1 className="text-5xl font-amiri font-black gold-text mb-4">أهلاً بك، السيّد المدير العام 👑</h1>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">مرحباً بك في قمرة القيادة الملكية لمنصة كتبي. الخزانة تحت إشرافك.</p>
+              </div>
+              <div className="bg-surface-container-lowest p-6 rounded-3xl border border-gold-900/10 text-center min-w-[200px]">
+                <p className="text-white font-black text-lg">{new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                <p className="text-gold-500 text-[10px] font-black uppercase tracking-tighter">التوقيت الملكي للمنصة</p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
               {statsList.map(stat => (
                 <div key={stat.label} className="bg-surface-container-low p-8 rounded-[2.5rem] border border-gold-900/10 shadow-xl group hover:border-gold-500/30 transition-all">
