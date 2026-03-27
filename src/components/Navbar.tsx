@@ -4,6 +4,9 @@ import SecurityIcon from '@mui/icons-material/Security';
 import SearchIcon from '@mui/icons-material/Search';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
+import HomeIcon from '@mui/icons-material/Home';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -29,16 +32,27 @@ const Navbar = () => {
             <span className="gold-text">كتبي</span>
           </Link>
           
-          <div className="hidden md:flex items-center gap-8">
-            <NavLink to="/" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>الرئيسية</NavLink>
-            <NavLink to="/search" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>تصفح الكتب</NavLink>
-            {user && <NavLink to="/profile" className={({isActive}) => `nav-text nav-item font-bold ${isActive ? 'nav-active' : ''}`}>مكتبتي</NavLink>}
+          <div className="hidden md:flex items-center gap-6">
+            <NavLink to="/" className={({isActive}) => `nav-item flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${isActive ? 'nav-active bg-gold-500/10' : 'text-slate-400 hover:text-gold-400'}`}>
+              <HomeIcon className="text-lg" />
+              <span className="font-black text-sm uppercase tracking-wider">الرئيسية</span>
+            </NavLink>
+            <NavLink to="/search" className={({isActive}) => `nav-item flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${isActive ? 'nav-active bg-gold-500/10' : 'text-slate-400 hover:text-gold-400'}`}>
+              <AutoStoriesIcon className="text-lg" />
+              <span className="font-black text-sm uppercase tracking-wider">خزانة المجلدات</span>
+            </NavLink>
+            {user && (
+              <NavLink to="/profile" className={({isActive}) => `nav-item flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${isActive ? 'nav-active bg-gold-500/10' : 'text-slate-400 hover:text-gold-400'}`}>
+                <AccountBalanceIcon className="text-lg" />
+                <span className="font-black text-sm uppercase tracking-wider">خزانتي الملكية</span>
+              </NavLink>
+            )}
             
             {/* Admin Dashboard Link - Only show if likely admin */}
             {(user?.role === 'admin' || !user) && (
-              <Link to="/admin" className="text-gold-500/40 hover:text-gold-500 font-bold transition-colors flex items-center gap-2">
-                <SecurityIcon className="text-sm" />
-                التحكم الملكي
+              <Link to="/admin" className="nav-item flex items-center gap-2 px-4 py-2 rounded-xl text-gold-500/40 hover:text-gold-500 font-bold transition-all group">
+                <SecurityIcon className="text-lg opacity-50 group-hover:opacity-100" />
+                <span className="text-sm font-black uppercase tracking-wider">التحكم الملكي</span>
               </Link>
             )}
           </div>

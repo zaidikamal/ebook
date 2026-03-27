@@ -49,6 +49,18 @@
   .royal-input {
     @apply bg-surface-container-lowest border border-gold-500/10 rounded-2xl py-4 px-6 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 transition-all text-right;
   }
+
+  .nav-item {
+    @apply relative flex items-center gap-2 transition-all duration-300;
+  }
+
+  .nav-active {
+    @apply text-gold-500 drop-shadow-[0_0_8px_rgba(212,175,55,0.4)];
+  }
+
+  .nav-item:hover {
+    @apply translate-y-[-2px] drop-shadow-[0_0_12px_rgba(212,175,55,0.2)];
+  }
 }
 
 @keyframes shine {
