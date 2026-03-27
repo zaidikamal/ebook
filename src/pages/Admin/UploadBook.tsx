@@ -134,15 +134,22 @@ const UploadBook: React.FC = () => {
     if (!retryPhase) {
       try {
         setUploadStatus('فحص الاتصال بالخزانة...');
-        const testUrl = `https://firebasestorage.googleapis.com/v0/b/kutubi-prod.firebasestorage.app/o`;
+        const bucket = storage.app.options.storageBucket;
+        const testUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o`;
         const res = await fetch(testUrl, { method: 'GET', mode: 'cors' });
-        if (!res.ok && res.status !== 404) {
+        // 200 or 404 both mean CORS is working; anything else or a network error means CORS problem
+        if (!res.ok && res.status !== 404 && res.status !== 400) {
           throw new Error(`Storage unreachable: ${res.status}`);
         }
-        console.log('✅ Firebase Storage CORS check passed!');
+        console.log('✅ Firebase Storage CORS check passed! Bucket:', bucket);
       } catch (e: any) {
         console.error('❌ CORS preflight failed:', e);
-        showToast('❌ تعذر الاتصال بالخزانة. مشكلة CORS - يرجى تكوين CORS على Firebase Storage أولاً.', 'error');
+        // If it's a "Failed to fetch" (CORS block), show a clear message
+        const msg = e.message?.includes('fetch') || e.message?.includes('network')
+          ? '❌ مشكلة CORS: Firebase Storage يرفض الطلبات من المتصفح. يرجى ضبط CORS على الـ Bucket.'
+          : `❌ تعذر الاتصال بالخزانة: ${e.message}`;
+        showToast(msg, 'error');
+        setIsUploading(false);
         return;
       }
     }
