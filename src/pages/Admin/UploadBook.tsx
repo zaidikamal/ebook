@@ -130,6 +130,23 @@ const UploadBook: React.FC = () => {
       return;
     }
 
+    // Pre-flight CORS check: test if the bucket is reachable from the browser
+    if (!retryPhase) {
+      try {
+        setUploadStatus('فحص الاتصال بالخزانة...');
+        const testUrl = `https://firebasestorage.googleapis.com/v0/b/kutubi-prod.firebasestorage.app/o`;
+        const res = await fetch(testUrl, { method: 'GET', mode: 'cors' });
+        if (!res.ok && res.status !== 404) {
+          throw new Error(`Storage unreachable: ${res.status}`);
+        }
+        console.log('✅ Firebase Storage CORS check passed!');
+      } catch (e: any) {
+        console.error('❌ CORS preflight failed:', e);
+        showToast('❌ تعذر الاتصال بالخزانة. مشكلة CORS - يرجى تكوين CORS على Firebase Storage أولاً.', 'error');
+        return;
+      }
+    }
+
     setIsUploading(true);
     setUploadError(null);
     setIsPaused(false);
