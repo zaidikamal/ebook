@@ -249,7 +249,7 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     if (!isAuthorized) return;
-    const unsubBooks = onSnapshot(query(collection(db, 'uploads'), orderBy('createdAt', 'desc')), (snap) => {
+    const unsubBooks = onSnapshot(query(collection(db, 'books'), orderBy('createdAt', 'desc')), (snap) => {
       setBooks(snap.docs.map(d => ({ id: d.id, ...d.data() })) as FirebaseBook[]);
     });
     const unsubUsers = onSnapshot(query(collection(db, 'users'), orderBy('createdAt', 'desc')), (snap) => {
@@ -283,7 +283,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleApprove = async (id: string) => {
     try {
-      await updateDoc(doc(db, 'uploads', id), { status: 'approved' });
+      await updateDoc(doc(db, 'books', id), { status: 'approved' });
       showToast('تمت الموافقة الملكية بنجاح! 👑', 'success');
     } catch (error) { showToast('خطأ في الموافقة', 'error'); }
   };
@@ -291,7 +291,7 @@ const AdminDashboard: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا المجلد من الخزانة؟')) {
       try {
-        await deleteDoc(doc(db, 'uploads', id));
+        await deleteDoc(doc(db, 'books', id));
         showToast('تم الحذف بنجاح', 'info');
       } catch (error) { showToast('خطأ في الحذف', 'error'); }
     }

@@ -100,7 +100,7 @@ const MultiUpload: React.FC = () => {
         });
 
         // Step 3: Save Metadata
-        await addDoc(collection(db, 'uploads'), {
+        await addDoc(collection(db, 'books'), {
           title: item.title,
           author: item.author,
           category: item.category,

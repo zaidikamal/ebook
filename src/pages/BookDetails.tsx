@@ -18,7 +18,8 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import StarIcon from '@mui/icons-material/Star';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
-import { incrementBookStat } from '../lib/firebase';
+import { incrementBookStat, db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -152,6 +153,28 @@ const BookDetails = () => {
               coverImage: '/placeholder.png', source: 'Internet Archive', categories: ['Archive']
             };
           }
+        } else if (type === 'royal') {
+          const docRef = doc(db, 'books', realId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            formattedBook = {
+              _id: id,
+              title: data.title,
+              author: data.author,
+              description: data.description || 'وصف ملكي من خزانة كتبي المتفردة.',
+              price: data.price || 0,
+              rating: 5.0,
+              readers: Math.floor(Math.random() * 1000) + 500,
+              pages: data.pages || '---',
+              publisher: 'منصة كتبي الملكية',
+              publishedDate: data.uploadDate || 'حديث',
+              coverImage: data.coverUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
+              fileUrl: data.fileUrl,
+              source: 'Kutubi Royal',
+              categories: [data.category || 'عام']
+            };
+          }
         }
 
         let related: any[] = [];
@@ -187,7 +210,7 @@ const BookDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    if (id && id.startsWith('up:')) {
+    if (id && id.startsWith('royal:')) {
       const realId = id.split(':')[1];
       incrementBookStat(realId, 'views');
     }
@@ -198,7 +221,7 @@ const BookDetails = () => {
       if (!isOwned) {
         await addBookToLibrary(id as string);
         setIsOwned(true);
-        if (id && id.startsWith('up:')) {
+        if (id && id.startsWith('royal:')) {
           incrementBookStat(id.split(':')[1], 'downloads');
         }
       }

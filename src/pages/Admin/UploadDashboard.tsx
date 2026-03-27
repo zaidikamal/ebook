@@ -47,7 +47,7 @@ const UploadDashboard: React.FC = () => {
     }
 
     // Real-time listener from Firestore
-    const q = query(collection(db, 'uploads'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'books'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -70,7 +70,7 @@ const UploadDashboard: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'uploads', id));
+      await deleteDoc(doc(db, 'books', id));
       showToast('تم حذف المجلد بنجاح', 'info');
     } catch (error) {
       showToast('حدث خطأ أثناء الحذف', 'error');
@@ -79,7 +79,7 @@ const UploadDashboard: React.FC = () => {
 
   const handleApprove = async (id: string) => {
     try {
-      await updateDoc(doc(db, 'uploads', id), { status: 'approved' });
+      await updateDoc(doc(db, 'books', id), { status: 'approved' });
       showToast('تمت الموافقة الملكية على المجلد! سيظهر الآن في الموقع. 👑', 'success');
     } catch (error) {
       showToast('حدث خطأ أثناء الموافقة', 'error');

@@ -31,7 +31,7 @@ const SearchPage = () => {
 
   const getApprovedRoyalBooks = async () => {
     try {
-      const q = firestoreQuery(collection(db, 'uploads'), where('status', '==', 'approved'));
+      const q = firestoreQuery(collection(db, 'books'), where('status', '==', 'approved'));
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => {
         const data = doc.data() as any;

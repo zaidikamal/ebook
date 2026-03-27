@@ -67,7 +67,7 @@ const HomePage = () => {
 
         // 4. Fetch Approved Books from Firestore
         const q = query(
-          collection(db, 'uploads'), 
+          collection(db, 'books'), 
           where('status', '==', 'approved'),
           limit(8)
         );

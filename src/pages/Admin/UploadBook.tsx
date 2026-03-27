@@ -4,7 +4,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useToast } from '../../components/Toast';
 import { useNavigate } from 'react-router-dom';
-import { storage, db } from '../../lib/firebase';
+import { storage, db, auth } from '../../lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL, type UploadTask } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { suggestCategory } from '../../utils/ai';
@@ -50,6 +50,25 @@ const UploadBook: React.FC = () => {
     fileUrl?: string;
     phase: 'none' | 'cover' | 'file' | 'metadata';
   }>({ phase: 'none' });
+
+  // --- DIAGNOSTIC TEST (REQUESTED BY USER) ---
+  React.useEffect(() => {
+    const test = async () => {
+      if (!db) return;
+      try {
+        console.log("🛠️ Running diagnostic Firestore test...");
+        await addDoc(collection(db, "books"), {
+          title: "🎁 اختبار الاتصال الملكي (Test Book)",
+          createdAt: serverTimestamp(),
+          isTest: true
+        });
+        console.log("✅ Diagnostic test successful!");
+      } catch (e) {
+        console.error("❌ Diagnostic test failed:", e);
+      }
+    };
+    test();
+  }, []);
 
   // Load draft on mount
   React.useEffect(() => {
@@ -183,17 +202,22 @@ const UploadBook: React.FC = () => {
       // Phase 3: Metadata
       if (uploadStateRef.current.phase === 'metadata') {
         setUploadStatus('جاري تسجيل البيانات في الخزانة...');
-        await addDoc(collection(db, 'uploads'), {
+        console.log("Saving book...");
+        await addDoc(collection(db, 'books'), {
           ...formData,
           coverUrl: uploadStateRef.current.coverUrl,
           fileUrl: uploadStateRef.current.fileUrl,
-          status: 'pending',
+          status: 'approved',
           uploadDate: new Date().toISOString().split('T')[0],
           createdAt: serverTimestamp(),
-          price: parseFloat(formData.price) || 0
+          price: parseFloat(formData.price) || 0,
+          views: 0,
+          downloads: 0,
+          uploadedBy: auth?.currentUser?.uid || null
         });
 
-        showToast('تم رفع المجلد للمراجعة الملكية بنجاح! 👑', 'success', 5000);
+        console.log("Book saved successfully ✅");
+        showToast('تم حفظ الكتاب بنجاح 👑', 'success', 5000);
         setIsUploading(false);
         navigate('/admin');
       }

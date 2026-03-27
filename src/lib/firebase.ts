@@ -46,7 +46,7 @@ export const isFirebaseReady = isConfigValid && !!app;
 export const incrementBookStat = async (bookId: string, type: 'views' | 'downloads') => {
   if (!db) return;
   try {
-    const bookRef = doc(db, 'uploads', bookId);
+    const bookRef = doc(db, 'books', bookId);
     await updateDoc(bookRef, {
       [type]: increment(1)
     });
