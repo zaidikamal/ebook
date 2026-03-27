@@ -4,8 +4,8 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useToast } from '../../components/Toast';
 import { useNavigate } from 'react-router-dom';
-import { storage, db } from '../../lib/firebase';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { db } from '../../lib/firebase';
+import { uploadToSupabase } from '../../lib/supabase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { suggestCategory } from '../../utils/ai';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -66,40 +66,23 @@ const MultiUpload: React.FC = () => {
       if (item.status === 'completed' || item.status === 'uploading') continue;
 
       try {
-        updateItem(item.id, { status: 'uploading' });
+        updateItem(item.id, { status: 'uploading', progress: 5 });
 
-        // Step 1: Upload Cover (if exists) or use default
-        let coverUrl = 'https://firebasestorage.googleapis.com/v0/b/kutubi-prod.appspot.com/o/covers%2Froyal-default.jpg?alt=media';
+        // Step 1: Upload Cover to Supabase (if exists)
+        let coverUrl = '';
         if (item.cover) {
-          const coverRef = ref(storage, `covers/${Date.now()}_${item.cover.name}`);
-          const coverTask = uploadBytesResumable(coverRef, item.cover);
-          await new Promise((resolve, reject) => {
-            coverTask.on('state_changed', null, reject, async () => {
-              coverUrl = await getDownloadURL(coverTask.snapshot.ref);
-              resolve(null);
-            });
-          });
+          coverUrl = await uploadToSupabase(item.cover, 'covers', (p) =>
+            updateItem(item.id, { progress: Math.round(p * 0.4) })
+          );
         }
 
-        // Step 2: Upload PDF
-        const fileRef = ref(storage, `books/${Date.now()}_${item.file.name}`);
-        const fileTask = uploadBytesResumable(fileRef, item.file);
-        
-        const fileUrl = await new Promise<string>((resolve, reject) => {
-          fileTask.on('state_changed', 
-            (snapshot) => {
-              const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              updateItem(item.id, { progress: p });
-            }, 
-            reject, 
-            async () => {
-              const url = await getDownloadURL(fileTask.snapshot.ref);
-              resolve(url);
-            }
-          );
-        });
+        // Step 2: Upload PDF to Supabase
+        updateItem(item.id, { progress: 40 });
+        const fileUrl = await uploadToSupabase(item.file, 'books', (p) =>
+          updateItem(item.id, { progress: 40 + Math.round(p * 0.5) })
+        );
 
-        // Step 3: Save Metadata
+        // Step 3: Save Metadata to Firestore
         await addDoc(collection(db, 'books'), {
           title: item.title,
           author: item.author,

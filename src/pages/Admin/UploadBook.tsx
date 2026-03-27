@@ -4,8 +4,8 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useToast } from '../../components/Toast';
 import { useNavigate } from 'react-router-dom';
-import { storage, db, auth } from '../../lib/firebase';
-import { ref, uploadBytesResumable, getDownloadURL, type UploadTask } from 'firebase/storage';
+import { db, auth } from '../../lib/firebase';
+import { uploadToSupabase } from '../../lib/supabase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { suggestCategory } from '../../utils/ai';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -13,8 +13,6 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import SyncIcon from '@mui/icons-material/Sync';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import PauseCircleFilledIcon from '@mui/icons-material/PauseCircleFilled';
-import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import ReplayIcon from '@mui/icons-material/Replay';
 
 const UploadBook: React.FC = () => {
@@ -40,8 +38,6 @@ const UploadBook: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
-  const [isPaused, setIsPaused] = useState(false);
-  const [currentTask, setCurrentTask] = useState<UploadTask | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   
   // Track which file is currently being uploaded for retry logic
@@ -113,142 +109,55 @@ const UploadBook: React.FC = () => {
     }, 1500);
   };
 
-  const handlePauseResume = () => {
-    if (!currentTask) return;
-    if (isPaused) {
-      currentTask.resume();
-      setIsPaused(false);
-    } else {
-      currentTask.pause();
-      setIsPaused(true);
-    }
-  };
-
   const startUploadProcess = async (retryPhase?: 'cover' | 'file' | 'metadata') => {
-    if (!storage || !db) {
-      showToast('⚠️ لم يتم تهيئة خدمات التخزين.', 'error');
+    if (!db) {
+      showToast('⚠️ لم يتم تهيئة قاعدة البيانات.', 'error');
       return;
-    }
-
-    // Pre-flight CORS check: test if the bucket is reachable from the browser
-    if (!retryPhase) {
-      try {
-        setUploadStatus('فحص الاتصال بالخزانة...');
-        const bucket = storage.app.options.storageBucket;
-        const testUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o`;
-        const res = await fetch(testUrl, { method: 'GET', mode: 'cors' });
-        // 200 or 404 both mean CORS is working; anything else or a network error means CORS problem
-        if (!res.ok && res.status !== 404 && res.status !== 400) {
-          throw new Error(`Storage unreachable: ${res.status}`);
-        }
-        console.log('✅ Firebase Storage CORS check passed! Bucket:', bucket);
-      } catch (e: any) {
-        console.error('❌ CORS preflight failed:', e);
-        // If it's a "Failed to fetch" (CORS block), show a clear message
-        const msg = e.message?.includes('fetch') || e.message?.includes('network')
-          ? '❌ مشكلة CORS: Firebase Storage يرفض الطلبات من المتصفح. يرجى ضبط CORS على الـ Bucket.'
-          : `❌ تعذر الاتصال بالخزانة: ${e.message}`;
-        showToast(msg, 'error');
-        setIsUploading(false);
-        return;
-      }
     }
 
     setIsUploading(true);
     setUploadError(null);
-    setIsPaused(false);
-
-    const uploadWithProgress = (file: File, path: string, statusMsg: string): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        setUploadStatus(statusMsg);
-        setUploadProgress(0);
-        
-        if (!storage) {
-          showToast('❌ خدمات التخزين غير متصلة. يرجى مراجعة الإعدادات.', 'error');
-          reject(new Error('Storage not initialized'));
-          return;
-        }
-
-        if (!file) {
-          showToast('❌ الملف مفقود. يرجى اختياره مرة أخرى.', 'error');
-          reject(new Error('File is missing'));
-          return;
-        }
-
-        console.log(`🚀 Starting upload to ${path}:`, file.name, `(${file.size} bytes)`);
-        
-        const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-        const fileRef = ref(storage, `${path}/${fileName}`);
-        const task = uploadBytesResumable(fileRef, file);
-        setCurrentTask(task);
-
-        // Watchdog timer: If progress stays at 0 for too long, suggest a retry or check CORS
-        const watchdog = setTimeout(() => {
-          if (uploadProgress === 0 && !isPaused) {
-            console.warn(`⚠️ Upload for ${path} seems stuck at 0%.`);
-            showToast('⚠️ يبدو أن الرفع متوقف عند 0%. يرجى محاولة إعادة المحاولة أو التحقق من جودة الاتصال.', 'info', 7000);
-          }
-        }, 15000);
-
-        task.on('state_changed', 
-          (snapshot) => {
-            clearTimeout(watchdog);
-            const progress = snapshot.totalBytes > 0 
-              ? (snapshot.bytesTransferred / snapshot.totalBytes) * 100 
-              : 0;
-            setUploadProgress(progress);
-            console.log(`📈 Upload progress (${path}): ${Math.round(progress)}%`);
-          }, 
-          (error) => {
-            clearTimeout(watchdog);
-            console.error(`❌ Upload Error (${path}):`, error);
-            setCurrentTask(null);
-            reject(new Error(error.message));
-          }, 
-          async () => {
-            clearTimeout(watchdog);
-            console.log(`✅ Upload complete (${path})!`);
-            const url = await getDownloadURL(task.snapshot.ref);
-            setCurrentTask(null);
-            resolve(url);
-          }
-        );
-      });
-    };
 
     try {
       const currentPhase = retryPhase || 'cover';
 
-      // Phase 1: Cover
+      // Phase 1: Cover Image → Supabase Storage 'covers' bucket
       if (currentPhase === 'cover') {
+        if (!selectedCover) { showToast('❌ الغلاف مفقود.', 'error'); setIsUploading(false); return; }
         uploadStateRef.current.phase = 'cover';
-        const coverUrl = await uploadWithProgress(selectedCover!, 'covers', 'جاري رفع الغلاف الملكي...');
+        setUploadStatus('جاري رفع الغلاف الملكي...');
+        setUploadProgress(5);
+
+        const coverUrl = await uploadToSupabase(selectedCover, 'covers', (p) => setUploadProgress(p * 0.48));
         uploadStateRef.current.coverUrl = coverUrl;
-        // Continue to phase 2
         uploadStateRef.current.phase = 'file';
+        setUploadProgress(50);
       }
 
-      // Phase 2: PDF
+      // Phase 2: PDF/ePub → Supabase Storage 'books' bucket
       if (uploadStateRef.current.phase === 'file') {
-        const fileUrl = await uploadWithProgress(selectedFile!, 'books', 'جاري رفع المجلد الرقمي...');
+        if (!selectedFile) { showToast('❌ ملف الكتاب مفقود.', 'error'); setIsUploading(false); return; }
+        setUploadStatus('جاري رفع المجلد الرقمي...');
+
+        const fileUrl = await uploadToSupabase(selectedFile, 'books', (p) => setUploadProgress(50 + p * 0.45));
         uploadStateRef.current.fileUrl = fileUrl;
         uploadStateRef.current.phase = 'metadata';
+        setUploadProgress(97);
       }
 
-      // Phase 3: Metadata
+      // Phase 3: Save Metadata → Firestore 'books' collection
       if (uploadStateRef.current.phase === 'metadata') {
         setUploadStatus('جاري تسجيل البيانات في الخزانة...');
-        console.log("Saving book...");
         await addDoc(collection(db, 'books'), {
-          title: formData.title || "بدون عنوان",
-          author: formData.author || "غير معروف",
+          title: formData.title || 'بدون عنوان',
+          author: formData.author || 'غير معروف',
           price: parseFloat(formData.price) || 0,
-          description: formData.description || "",
-          category: formData.category || "عام",
-          license: formData.license || "Licensed",
+          description: formData.description || '',
+          category: formData.category || 'عام',
+          license: formData.license || 'Licensed',
           status: 'approved',
-          coverUrl: uploadStateRef.current.coverUrl || "",
-          fileUrl: uploadStateRef.current.fileUrl || "",
+          coverUrl: uploadStateRef.current.coverUrl || '',
+          fileUrl: uploadStateRef.current.fileUrl || '',
           uploadDate: new Date().toISOString().split('T')[0],
           createdAt: serverTimestamp(),
           views: 0,
@@ -256,12 +165,14 @@ const UploadBook: React.FC = () => {
           uploadedBy: auth?.currentUser?.uid || null
         });
 
-        console.log("Book saved successfully ✅");
+        setUploadProgress(100);
+        localStorage.removeItem('upload_draft');
         showToast('تم حفظ الكتاب بنجاح 👑', 'success', 5000);
         setIsUploading(false);
         navigate('/admin');
       }
     } catch (error: any) {
+      console.error('❌ Upload error:', error);
       setUploadError(error.message);
       setIsUploading(false);
       showToast('خطأ في الرفع: ' + error.message, 'error');
@@ -437,12 +348,7 @@ const UploadBook: React.FC = () => {
                         <div className="h-4 bg-surface rounded-full overflow-hidden border border-gold-900/10 p-1">
                           <motion.div initial={{ width: 0 }} animate={{ width: `${uploadProgress}%` }} className="h-full bg-gradient-to-r from-gold-700 via-gold-500 to-gold-300 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.5)]" />
                         </div>
-                        <div className="flex justify-center gap-4">
-                          <button onClick={handlePauseResume} className="flex items-center gap-2 px-6 py-3 bg-gold-500/10 rounded-xl text-gold-500 font-bold hover:bg-gold-500/20 transition-all">
-                            {isPaused ? <PlayCircleFilledIcon /> : <PauseCircleFilledIcon />}
-                            {isPaused ? 'استئناف الرفع' : 'إيقاف مؤقت'}
-                          </button>
-                        </div>
+                        <p className="text-xs text-slate-500 text-center font-bold animate-pulse">جاري الرفع إلى السحابة الملكية... يرجى عدم إغلاق الصفحة</p>
                      </div>
                    ) : uploadError ? (
                      <div className="max-w-xl mx-auto space-y-6 bg-red-500/5 p-8 rounded-3xl border border-red-500/20">
