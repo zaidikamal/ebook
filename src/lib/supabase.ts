@@ -22,7 +22,12 @@ export const uploadToSupabase = async (
     throw new Error('Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.');
   }
 
-  const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+  // Extract extension safely
+  const extMatch = file.name.match(/\.[0-9a-z]+$/i);
+  const ext = extMatch ? extMatch[0] : '';
+  // Generate a fully random, safe alphanumeric key to avoid Arabic/special char issues
+  const safeName = Math.random().toString(36).substring(2, 15);
+  const fileName = `${Date.now()}_${safeName}${ext}`;
   const filePath = `${fileName}`;
 
   // Supabase doesn't have native progress, so we simulate it
