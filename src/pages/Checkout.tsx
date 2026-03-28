@@ -7,6 +7,8 @@ import Footer from '../components/Footer';
 import { addBookToLibrary } from '../lib/libraryService';
 import { formattedAuthor } from '../utils/formatters';
 import { useToast } from '../components/Toast';
+import { db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const Checkout = () => {
   const { id } = useParams();
@@ -56,6 +58,41 @@ const Checkout = () => {
             price: 0,
             coverImage: `https://archive.org/services/img/${realId}`
           };
+        } else if (type === 'ko') {
+          const KUTUBI_ORIGINALS = [
+             { id: 'original-1', title: 'مقدمة ابن خلدون', author: 'ابن خلدون', coverImage: 'https://images.unsplash.com/photo-1589998059171-d88d664a2a0f?auto=format&fit=crop&q=80&w=400', price: 45.00 },
+             { id: 'original-2', title: 'ألف ليلة وليلة', author: 'تراث شعبي', coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400', price: 29.99 },
+             { id: 'original-3', title: 'كليلة ودمنة', author: 'عبد الله بن المقفع', coverImage: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400', price: 19.99 },
+             { id: 'original-4', title: 'ديوان المتنبي', author: 'أبو الطيب المتنبي', coverImage: 'https://images.unsplash.com/photo-1532012197367-6849412a52cd?auto=format&fit=crop&q=80&w=400', price: 35.00 },
+             { id: 'original-5', title: 'طوق الحمامة', author: 'ابن حزم الأندلسي', coverImage: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400', price: 25.00 },
+             { id: 'original-6', title: 'حي بن يقظان', author: 'ابن طفيل', coverImage: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=400', price: 22.00 },
+             { id: 'original-7', title: 'البخلاء', author: 'الجاحظ', coverImage: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=400', price: 15.00 },
+             { id: 'original-8', title: 'رسالة الغفران', author: 'أبو العلاء المعري', coverImage: 'https://images.unsplash.com/photo-1506880018603-83d5b81ae1a3?auto=format&fit=crop&q=80&w=400', price: 27.50 },
+          ];
+          const original = KUTUBI_ORIGINALS.find(b => b.id === realId);
+          if (original) {
+            bookData = {
+               _id: id,
+               title: original.title,
+               author: original.author,
+               price: original.price,
+               coverImage: original.coverImage
+            };
+          }
+        } else if (type === 'royal') {
+          const docRef = doc(db, 'books', realId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            bookData = {
+               _id: id,
+               title: data.title,
+               author: data.author,
+               price: data.price,
+               coverImage: data.coverUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
+               source: 'مخطوطة ملكية معتمدة'
+            };
+          }
         }
 
         // Redirect free books to profile directly
