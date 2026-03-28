@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
+import BookPreviewModal from '../components/BookPreviewModal';
 import { formattedAuthor } from '../utils/formatters';
 import { useToast } from '../components/Toast';
 import { userOwnsBook, addBookToLibrary } from '../lib/libraryService';
@@ -26,6 +27,7 @@ const BookDetails = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [isOwned, setIsOwned] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState(3600 * 3 + 45 * 60); // 3h 45m dummy timer
 
   useEffect(() => {
@@ -388,7 +390,13 @@ const BookDetails = () => {
                   </motion.button>
                   
                   <button 
-                    onClick={() => showToast('سيتم افتتاح الجناح الخاص بالقراءة المدمجة قريباً. ترقبوا التحديث الملكي القادم!', 'info')}
+                    onClick={() => {
+                      if (book.fileUrl) {
+                        setIsPreviewOpen(true);
+                      } else {
+                        showToast('المعاينة المجانية غير متوفرة لهذا المجلد حالياً.', 'error');
+                      }
+                    }}
                     className="flex-1 bg-surface-container-low border border-gold-900/20 py-6 rounded-2xl text-gold-500 font-black text-xl flex items-center justify-center gap-3 hover:bg-gold-500/5 transition-all"
                   >
                     <MenuBookIcon />
@@ -434,6 +442,17 @@ const BookDetails = () => {
       </main>
 
       <Footer />
+
+      {book.fileUrl && (
+        <BookPreviewModal 
+          isOpen={isPreviewOpen} 
+          onClose={() => setIsPreviewOpen(false)} 
+          fileUrl={book.fileUrl} 
+          bookId={id as string} 
+          title={book.title} 
+          price={book.price} 
+        />
+      )}
     </div>
     </>
   );
