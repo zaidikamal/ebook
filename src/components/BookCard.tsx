@@ -43,7 +43,7 @@ const BookCard = ({ book, isPriority = false }: { book: Book, isPriority?: boole
           />
           
           {/* Elegant Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
           
           {/* Content Over Image */}
           <div className="absolute inset-0 p-6 flex flex-col justify-end text-right">

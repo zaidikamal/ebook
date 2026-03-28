@@ -43,7 +43,7 @@
   }
 
   .card-premium {
-    @apply bg-surface-container/50 backdrop-blur-md border border-gold-500/5 rounded-[2rem] hover:border-gold-500/20 hover:bg-surface-container/80 transition-all duration-500 shadow-xl;
+    @apply bg-surface-container/50 backdrop-blur-md border border-gold-500/10 rounded-[2rem] hover:border-gold-500/40 hover:bg-surface-container/80 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(212,175,55,0.25)];
   }
 
   .royal-input {

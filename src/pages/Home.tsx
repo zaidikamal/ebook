@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { db } from '../lib/firebase';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit, orderBy } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
+import TrendingBookCard from '../components/TrendingBookCard';
 import AdUnit from '../components/AdUnit';
 import { Link } from 'react-router-dom';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { formattedAuthor } from '../utils/formatters';
 
 const KUTUBI_ORIGINALS = [
@@ -25,6 +27,7 @@ const KUTUBI_ORIGINALS = [
 const HomePage = () => {
   const [mustReads, setMustReads] = useState<any[]>([]);
   const [newArrivals, setNewArrivals] = useState<any[]>([]);
+  const [trendingBooks, setTrendingBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -81,9 +84,20 @@ const HomePage = () => {
             price: data.price,
             coverImage: data.coverUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
             rating: 5.0,
+            views: data.views || 0,
             isRoyal: true
           };
         });
+
+        // 5. Fetch Trending Books (Fallback if no index)
+        try {
+          const trendingQ = query(collection(db, 'books'), where('status', '==', 'approved'), orderBy('views', 'desc'), limit(6));
+          const snap = await getDocs(trendingQ);
+          setTrendingBooks(snap.docs.map(d => ({ _id: `royal:${d.id}`, isRoyal: true, ...d.data() })));
+        } catch (e) {
+           const sortedApproved = [...approvedRoyal].sort((a: any, b: any) => (b.views || 0) - (a.views || 0)).slice(0, 6);
+           setTrendingBooks(sortedApproved);
+        }
 
         if (resp1?.data?.items) {
            setMustReads(formatBooks(resp1.data.items, 'gb'));
@@ -190,8 +204,36 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Trending Section */}
+      {trendingBooks.length > 0 && (
+        <section className="pt-24 pb-12 px-6 relative z-10 w-full overflow-hidden">
+          {/* Background Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-gold-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+          
+          <div className="container mx-auto relative z-10">
+            <div className="flex flex-row-reverse items-center justify-between gap-4 mb-16">
+               <div className="flex flex-row-reverse items-center gap-4">
+                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-500/20 to-orange-500/20 border border-gold-500/30 flex items-center justify-center flex-shrink-0 shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+                    <LocalFireDepartmentIcon className="text-orange-400 text-3xl" />
+                 </div>
+                 <div className="text-right">
+                   <h2 className="text-3xl md:text-5xl font-amiri font-black text-white drop-shadow-lg">المجلدات الأكثر رواجاً</h2>
+                   <p className="text-gold-500 font-bold text-xs mt-2 tracking-widest uppercase">تصفح الكنوز التي يقرأها الجميع الآن</p>
+                 </div>
+               </div>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+               {trendingBooks.map((book, idx) => (
+                 <TrendingBookCard key={book._id} book={book} rank={idx + 1} />
+               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Royal Ad Slot 1 */}
-      <div className="container mx-auto px-6 max-w-5xl">
+      <div className="container mx-auto px-6 max-w-5xl mt-8">
         <AdUnit slot="1234567890" />
       </div>
 
