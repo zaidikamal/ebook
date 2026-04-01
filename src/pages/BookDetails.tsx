@@ -10,7 +10,7 @@ import BookCard from '../components/BookCard';
 import BookPreviewModal from '../components/BookPreviewModal';
 import { formattedAuthor } from '../utils/formatters';
 import { useToast } from '../components/Toast';
-import { userOwnsBook, addBookToLibrary } from '../lib/libraryService';
+import { checkPurchase, addBookToLibrary } from '../lib/libraryService';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import EventIcon from '@mui/icons-material/Event';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -19,8 +19,9 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import StarIcon from '@mui/icons-material/Star';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
-import { incrementBookStat, db } from '../lib/firebase';
+import { incrementBookStat, db, auth } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -204,12 +205,12 @@ const BookDetails = () => {
   useEffect(() => {
     const checkOwnership = async () => {
       if (id) {
-        const owned = await userOwnsBook(id);
+        const owned = await checkPurchase(auth.currentUser?.uid || '', id);
         setIsOwned(owned);
       }
     };
     checkOwnership();
-  }, [id]);
+  }, [id, auth.currentUser]);
 
   useEffect(() => {
     if (id && id.startsWith('royal:')) {
@@ -227,7 +228,21 @@ const BookDetails = () => {
           incrementBookStat(id.split(':')[1], 'downloads');
         }
       }
-      navigate('/profile');
+      
+      // Handle Secure Download
+      if (book.fileUrl && supabase) {
+        try {
+          const filePath = book.fileUrl.includes('books/') ? book.fileUrl.split('books/')[1] : book.fileUrl;
+          const { data, error } = await supabase.storage.from("books").createSignedUrl(filePath, 60);
+          if (error) throw error;
+          window.open(data.signedUrl, "_blank");
+        } catch (err) {
+          console.error('Error generating secure link', err);
+          showToast('حدث خطأ أثناء إعداد الرابط الآمن. حاول لاحقاً.', 'error');
+        }
+      } else {
+        navigate('/profile');
+      }
     } else {
       navigate(`/checkout/${id}`);
     }
@@ -386,7 +401,7 @@ const BookDetails = () => {
                   >
                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                     <ShoppingBagIcon />
-                    {book.price === 0 ? 'اقتناء مجاني الآن' : `اقتناء النسخة الملكية - $${book.price}`}
+                    {isOwned ? 'تحميل الكتاب 📥' : (book.price === 0 ? 'اقتناء مجاني الآن' : `اقتناء النسخة الملكية - $${book.price}`)}
                   </motion.button>
                   
                   <button 

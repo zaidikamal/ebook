@@ -21,6 +21,7 @@ interface UploadItem {
   cover: File | null;
   title: string;
   author: string;
+  publicationYear: string;
   category: string;
   progress: number;
   status: 'idle' | 'uploading' | 'completed' | 'error';
@@ -42,7 +43,8 @@ const MultiUpload: React.FC = () => {
         file,
         cover: null,
         title: cleanTitle,
-        author: 'مؤلف غير معروف',
+        author: '',
+        publicationYear: '',
         category: suggestCategory(cleanTitle, ''),
         progress: 0,
         status: 'idle'
@@ -85,7 +87,8 @@ const MultiUpload: React.FC = () => {
         // Step 3: Save Metadata to Firestore
         await addDoc(collection(db, 'books'), {
           title: item.title,
-          author: item.author,
+          author: item.author || 'مؤلف غير معروف',
+          publicationYear: item.publicationYear,
           category: item.category,
           description: `مجلد ملكي تم رفعه عبر نظام الرفع الجماعي.`,
           price: 0,
@@ -152,9 +155,13 @@ const MultiUpload: React.FC = () => {
                   {items.map(item => (
                     <div key={item.id} className="bg-surface-container-lowest p-5 rounded-2xl border border-gold-900/5 flex items-center justify-between gap-6 group">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <input type="text" value={item.title} onChange={(e) => updateItem(item.id, { title: e.target.value })} className="bg-transparent border-none outline-none font-black text-white p-0 m-0 w-full focus:text-gold-500" />
-                          <span className="text-[10px] bg-gold-900/20 text-gold-500 px-2 py-1 rounded uppercase font-black">{item.category}</span>
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
+                          <input type="text" value={item.title} onChange={(e) => updateItem(item.id, { title: e.target.value })} placeholder="عنوان الكتاب" className="bg-transparent border-none outline-none font-black text-white p-0 m-0 flex-1 focus:text-gold-500 min-w-[150px]" />
+                          <div className="flex items-center gap-2">
+                            <input type="text" value={item.author} onChange={(e) => updateItem(item.id, { author: e.target.value })} placeholder="المؤلف" className="bg-surface border border-gold-900/20 rounded px-2 py-1 outline-none font-medium text-slate-300 text-sm focus:border-gold-500 w-32" />
+                            <input type="text" value={item.publicationYear} onChange={(e) => updateItem(item.id, { publicationYear: e.target.value })} placeholder="سنة النشر" className="bg-surface border border-gold-900/20 rounded px-2 py-1 outline-none font-medium text-slate-300 text-sm focus:border-gold-500 w-24" />
+                            <span className="text-[10px] bg-gold-900/20 text-gold-500 px-2 py-1 rounded uppercase font-black">{item.category}</span>
+                          </div>
                         </div>
                         <div className="h-1 bg-surface rounded-full overflow-hidden">
                           <motion.div initial={{ width: 0 }} animate={{ width: `${item.progress}%` }} className={`h-full ${item.status === 'error' ? 'bg-red-500' : 'bg-gold-500'}`} />

@@ -9,9 +9,10 @@ import { downloadProtectedFile } from '../utils/ContentProtection';
 import { getLibraryBookIds } from '../lib/libraryService';
 import { auth, db } from '../lib/firebase';
 import { signOut } from 'firebase/auth';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { formattedAuthor } from '../utils/formatters';
+import { supabase } from '../lib/supabase';
 import EditIcon from '@mui/icons-material/Edit';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
@@ -131,15 +132,46 @@ const ProfilePage = () => {
                 price: "مملوك",
                 rating: 4.7
               };
+            } else if (type === 'ko') {
+              const KUTUBI_ORIGINALS = [
+                 { id: 'original-1', title: 'مقدمة ابن خلدون', author: 'ابن خلدون', coverImage: 'https://images.unsplash.com/photo-1589998059171-d88d664a2a0f?auto=format&fit=crop&q=80&w=400', rating: 5.0, price: 45.00 },
+                 { id: 'original-2', title: 'ألف ليلة وليلة', author: 'تراث شعبي', coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400', rating: 4.9, price: 29.99 },
+                 { id: 'original-3', title: 'كليلة ودمنة', author: 'عبد الله بن المقفع', coverImage: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400', rating: 4.8, price: 19.99 },
+                 { id: 'original-4', title: 'ديوان المتنبي', author: 'أبو الطيب المتنبي', coverImage: 'https://images.unsplash.com/photo-1532012197367-6849412a52cd?auto=format&fit=crop&q=80&w=400', rating: 5.0, price: 35.00 },
+                 { id: 'original-5', title: 'طوق الحمامة', author: 'ابن حزم الأندلسي', coverImage: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400', rating: 4.7, price: 25.00 },
+                 { id: 'original-6', title: 'حي بن يقظان', author: 'ابن طفيل', coverImage: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=400', rating: 4.9, price: 22.00 },
+                 { id: 'original-7', title: 'البخلاء', author: 'الجاحظ', coverImage: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=400', rating: 4.6, price: 15.00 },
+                 { id: 'original-8', title: 'رسالة الغفران', author: 'أبو العلاء المعري', coverImage: 'https://images.unsplash.com/photo-1506880018603-83d5b81ae1a3?auto=format&fit=crop&q=80&w=400', rating: 4.8, price: 27.50 },
+              ];
+              const bk = KUTUBI_ORIGINALS.find(b => b.id === realId);
+              if (bk) {
+                 return { _id: fullId, title: bk.title, author: bk.author, coverImage: bk.coverImage, price: "مملوك", rating: bk.rating };
+              }
+            } else if (type === 'royal') {
+              const docSnap = await getDoc(doc(db, 'books', realId));
+              if (docSnap.exists()) {
+                const data = docSnap.data();
+                return {
+                  _id: fullId,
+                  title: data.title,
+                  author: data.author,
+                  coverImage: data.coverUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
+                  price: "مملوك",
+                  rating: 5.0,
+                };
+              } else {
+                return null;
+              }
             }
+            return null;
           } catch (e) {
+            console.warn(`Error fetching details for ${fullId}:`, e);
             return null;
           }
-          return null;
         });
 
         const results = await Promise.all(bookPromises);
-        setOwnedBooks(results.filter(b => b !== null));
+        setOwnedBooks(results.filter(b => b !== null) as any[]);
       } catch (err) {
         console.error("Error fetching library:", err);
       } finally {
@@ -150,8 +182,20 @@ const ProfilePage = () => {
     fetchOwnedBooks();
   }, [authUser, authLoading]);
 
-  const handleDownload = (bookTitle: string) => {
-    downloadProtectedFile(bookTitle, user.name);
+  const handleDownload = async (book: any) => {
+    if (book.fileUrl && supabase) {
+      try {
+        const filePath = book.fileUrl.includes('books/') ? book.fileUrl.split('books/')[1] : book.fileUrl;
+        const { data, error } = await supabase.storage.from("books").createSignedUrl(filePath, 60);
+        if (error) throw error;
+        window.open(data.signedUrl, "_blank");
+      } catch (err) {
+        console.error('Error with Supabase signed URL', err);
+        downloadProtectedFile(book.title, user.name);
+      }
+    } else {
+      downloadProtectedFile(book.title, user.name);
+    }
   };
 
   return (
@@ -235,7 +279,7 @@ const ProfilePage = () => {
                   >
                     <BookCard book={book} />
                     <button 
-                      onClick={() => handleDownload(book.title)}
+                      onClick={() => handleDownload(book)}
                       className="absolute bottom-24 left-8 right-8 bg-surface/90 backdrop-blur-xl border border-gold-500/30 py-3 rounded-2xl text-gold-500 font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 shadow-2xl flex items-center justify-center gap-2 hover:bg-gold-500 hover:text-surface"
                     >
                       <DownloadIcon className="text-sm" />

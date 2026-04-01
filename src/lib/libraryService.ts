@@ -1,5 +1,5 @@
 import { db, auth } from './firebase';
-import { doc, setDoc, getDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, getDocs, deleteDoc, addDoc, serverTimestamp, query, where } from 'firebase/firestore';
 
 /**
  * Add a book to the current user's personal library in Firestore.
@@ -83,5 +83,56 @@ export async function removeBookFromLibrary(bookId: string): Promise<void> {
     await deleteDoc(doc(db, 'users', user.uid, 'library', bookId));
   } catch (e) {
     console.error("Error removing book from Firestore:", e);
+  }
+}
+
+/**
+ * NEW: Save a purchase to the global 'purchases' collection.
+ */
+export async function savePurchase(userId: string, bookId: string, price: number): Promise<void> {
+  try {
+    const purchaseRef = collection(db, 'purchases');
+    await addDoc(purchaseRef, {
+      userId,
+      bookId,
+      price,
+      paymentMethod: 'paypal',
+      createdAt: serverTimestamp()
+    });
+    console.log(`Purchase saved for user ${userId} and book ${bookId}`);
+  } catch (e) {
+    console.error("Error saving purchase to Firestore:", e);
+    throw e;
+  }
+}
+
+/**
+ * NEW: Check if a user has purchased a book.
+ */
+export async function checkPurchase(userId: string, bookId: string): Promise<boolean> {
+  if (!userId) {
+    const ownedBooks = JSON.parse(localStorage.getItem('ownedBooks') || '[]');
+    return ownedBooks.includes(bookId);
+  }
+
+  try {
+    const q = query(
+      collection(db, 'purchases'),
+      where('userId', '==', userId),
+      where('bookId', '==', bookId)
+    );
+    const snapshot = await getDocs(q);
+    
+    // Fallback to library subcollection check just in case for older purchases
+    if (snapshot.empty) {
+      const oldDocRef = doc(db, 'users', userId, 'library', bookId);
+      const oldSnap = await getDoc(oldDocRef);
+      return oldSnap.exists();
+    }
+    
+    return !snapshot.empty;
+  } catch (e) {
+    console.error("Error checking purchase in Firestore:", e);
+    return false;
   }
 }

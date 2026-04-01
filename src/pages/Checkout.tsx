@@ -4,11 +4,11 @@ import axios from 'axios';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { addBookToLibrary } from '../lib/libraryService';
+import { db, auth } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { addBookToLibrary, savePurchase } from '../lib/libraryService';
 import { formattedAuthor } from '../utils/formatters';
 import { useToast } from '../components/Toast';
-import { db } from '../lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 
 const Checkout = () => {
   const { id } = useParams();
@@ -112,9 +112,17 @@ const Checkout = () => {
   }, [id, navigate]);
 
   const handlePaymentSuccess = async (details: any) => {
-    await addBookToLibrary(id as string);
-    showToast(`شكراً لك ${details.payer.name.given_name}! تمت عملية الاستحواذ الملكية بنجاح. 👑`, 'success', 6000);
-    navigate('/profile');
+    try {
+      if (auth.currentUser) {
+        await savePurchase(auth.currentUser.uid, id as string, book?.price || 0);
+      }
+      await addBookToLibrary(id as string);
+      showToast(`شكراً لك ${details.payer.name.given_name}! تمت عملية الاستحواذ الملكية بنجاح. 👑`, 'success', 6000);
+      navigate(`/book/${id}`);
+    } catch (error) {
+       console.error("Error during purchase save", error);
+       showToast("حدث خطأ أثناء حفظ الشراء، يرجى التواصل مع الدعم.", "error");
+    }
   };
 
   if (loading) return <div className="min-h-screen bg-surface flex items-center justify-center text-gold-500 font-black">جالٍ تحميل التفاصيل الملكية...</div>;

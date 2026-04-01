@@ -25,6 +25,7 @@ const UploadBook: React.FC = () => {
     description: '',
     price: '',
     category: '',
+    publicationYear: '',
     license: 'Licensed',
     tags: '',
     isAIGenerated: false
@@ -84,6 +85,7 @@ const UploadBook: React.FC = () => {
       description: '',
       price: '',
       category: '',
+      publicationYear: '',
       license: 'Licensed',
       tags: '',
       isAIGenerated: false
@@ -154,6 +156,7 @@ const UploadBook: React.FC = () => {
           price: parseFloat(formData.price) || 0,
           description: formData.description || '',
           category: formData.category || 'عام',
+          publicationYear: formData.publicationYear || '',
           license: formData.license || 'Licensed',
           status: 'approved',
           coverUrl: uploadStateRef.current.coverUrl || '',
@@ -254,7 +257,11 @@ const UploadBook: React.FC = () => {
                     </div>
                     <textarea rows={6} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full bg-surface-container-lowest border border-gold-900/10 rounded-3xl p-6 focus:border-gold-500/50 outline-none transition-all text-white font-medium text-lg leading-relaxed" />
                   </div>
-                  <div className="grid md:grid-cols-3 gap-8">
+                  <div className="grid md:grid-cols-4 gap-8">
+                    <div className="space-y-4">
+                      <label className="font-black text-slate-400">سنة النشر</label>
+                      <input type="text" value={formData.publicationYear} onChange={e => setFormData({...formData, publicationYear: e.target.value})} placeholder="مثال: 2023" className="w-full bg-surface-container-lowest border border-gold-900/10 rounded-2xl p-5 focus:border-gold-500/50 outline-none transition-all text-white font-bold" />
+                    </div>
                     <div className="space-y-4">
                       <div className="flex justify-between items-center mb-2">
                         <label className="font-black text-slate-400">التصنيف</label>
@@ -306,6 +313,10 @@ const UploadBook: React.FC = () => {
                       <div className="flex justify-between border-b border-gold-900/5 pb-4">
                         <span className="text-slate-500">المؤلف:</span>
                         <span className="font-black">{formData.author}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gold-900/5 pb-4">
+                        <span className="text-slate-500">سنة النشر:</span>
+                        <span className="font-black text-gold-500">{formData.publicationYear || 'غير محدد'}</span>
                       </div>
                       <div className="flex justify-between border-b border-gold-900/5 pb-4">
                         <span className="text-slate-500">السعر:</span>
