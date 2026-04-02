@@ -158,7 +158,7 @@ const UploadBook: React.FC = () => {
           category: formData.category || 'عام',
           publicationYear: formData.publicationYear || '',
           license: formData.license || 'Licensed',
-          status: 'approved',
+          status: 'pending',
           coverUrl: uploadStateRef.current.coverUrl || '',
           fileUrl: uploadStateRef.current.fileUrl || '',
           uploadDate: new Date().toISOString().split('T')[0],
@@ -300,55 +300,159 @@ const UploadBook: React.FC = () => {
               )}
 
               {step === 3 && (
-                <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-12 text-center">
-                   <div className="w-32 h-32 bg-gold-600/10 rounded-full flex items-center justify-center mx-auto mb-10 ring-2 ring-gold-500/20">
-                     <TaskAltIcon className="text-7xl text-gold-500" />
-                   </div>
-                   <h2 className="text-4xl font-amiri font-black text-white">تحقق أخير من المخطوطة</h2>
-                   <div className="bg-surface-container-lowest/50 border border-gold-900/10 p-10 rounded-[3rem] text-right space-y-6 max-w-2xl mx-auto">
-                      <div className="flex justify-between border-b border-gold-900/5 pb-4">
-                        <span className="text-slate-500">العنوان:</span>
-                        <span className="font-black text-gold-500">{formData.title}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-gold-900/5 pb-4">
-                        <span className="text-slate-500">المؤلف:</span>
-                        <span className="font-black">{formData.author}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-gold-900/5 pb-4">
-                        <span className="text-slate-500">سنة النشر:</span>
-                        <span className="font-black text-gold-500">{formData.publicationYear || 'غير محدد'}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-gold-900/5 pb-4">
-                        <span className="text-slate-500">السعر:</span>
-                        <span className="font-black text-emerald-500">${formData.price}</span>
-                      </div>
-                   </div>
+                <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
+                  {/* Header */}
+                  <div className="text-center">
+                    <div className="w-20 h-20 bg-gold-600/10 rounded-full flex items-center justify-center mx-auto mb-6 ring-2 ring-gold-500/20">
+                      <TaskAltIcon className="text-5xl text-gold-500" />
+                    </div>
+                    <h2 className="text-3xl font-amiri font-black text-white mb-2">مراجعة وتعديل بيانات الكتاب</h2>
+                    <p className="text-slate-500 font-bold text-sm">يمكنك تعديل أي معلومة قبل إتمام النشر</p>
+                  </div>
 
-                   {isUploading ? (
-                     <div className="max-w-xl mx-auto space-y-6 bg-surface-container-lowest p-8 rounded-3xl border border-gold-500/10">
-                        <div className="flex justify-between items-center text-sm font-black text-gold-500 uppercase tracking-widest">
-                          <span>{uploadStatus}</span>
-                          <span>{Math.round(uploadProgress)}%</span>
+                  {/* Editable Fields */}
+                  <div className="bg-surface-container-lowest/50 border border-gold-900/10 p-8 rounded-[2.5rem] space-y-6 text-right">
+                    {/* Row: Title + Author */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest">عنوان الكتاب *</label>
+                        <input
+                          type="text"
+                          value={formData.title}
+                          onChange={e => setFormData({ ...formData, title: e.target.value })}
+                          placeholder="عنوان الكتاب"
+                          className="w-full bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest">اسم الكاتب / المؤلف *</label>
+                        <input
+                          type="text"
+                          value={formData.author}
+                          onChange={e => setFormData({ ...formData, author: e.target.value })}
+                          placeholder="اسم الكاتب الكامل"
+                          className="w-full bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row: Year + Category + Price */}
+                    <div className="grid md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest">سنة الإصدار</label>
+                        <input
+                          type="text"
+                          value={formData.publicationYear}
+                          onChange={e => setFormData({ ...formData, publicationYear: e.target.value })}
+                          placeholder="مثال: 2023"
+                          className="w-full bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest">التصنيف</label>
+                        <select
+                          value={formData.category}
+                          onChange={e => setFormData({ ...formData, category: e.target.value })}
+                          className="w-full bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+                        >
+                          <option>تاريخ</option><option>أدب</option><option>فلسفة</option>
+                          <option>رواية / خيال</option><option>السير والتراجم</option>
+                          <option>العلوم الطبيعية</option><option>الفنون والعمارة</option>
+                          <option>الدين والفكر</option><option>علوم القرآن والحديث</option>
+                          <option>المخطوطات النادرة</option><option>السياسة والاقتصاد</option>
+                          <option>تطوير الذات</option><option>الشعر</option><option>عام</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest">السعر ($)</label>
+                        <input
+                          type="number"
+                          value={formData.price}
+                          onChange={e => setFormData({ ...formData, price: e.target.value })}
+                          placeholder="0.00"
+                          className="w-full bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+                        />
+                      </div>
+                    </div>
+
+                    {/* License */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest">نوع الترخيص</label>
+                      <select
+                        value={formData.license}
+                        onChange={e => setFormData({ ...formData, license: e.target.value })}
+                        className="w-full bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+                      >
+                        <option>Licensed</option>
+                        <option>Public Domain</option>
+                        <option>Creative Commons</option>
+                      </select>
+                    </div>
+
+                    {/* Description */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest">وصف الكتاب</label>
+                      <textarea
+                        rows={4}
+                        value={formData.description}
+                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                        placeholder="وصف مفصّل عن محتوى الكتاب..."
+                        className="w-full bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-medium focus:outline-none focus:border-gold-500/50 transition-all text-right resize-none leading-relaxed"
+                      />
+                    </div>
+
+                    {/* Files summary */}
+                    <div className="grid md:grid-cols-2 gap-4 pt-2">
+                      <div className={`flex items-center gap-3 p-4 rounded-2xl border ${selectedFile ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'}`}>
+                        <span className={`text-lg ${selectedFile ? 'text-emerald-400' : 'text-red-400'}`}>{selectedFile ? '✅' : '❌'}</span>
+                        <div className="text-right">
+                          <p className="text-xs font-black text-slate-500">ملف الكتاب</p>
+                          <p className="text-sm font-bold text-white truncate max-w-[160px]">{selectedFile ? selectedFile.name : 'لم يتم الاختيار'}</p>
                         </div>
-                        <div className="h-4 bg-surface rounded-full overflow-hidden border border-gold-900/10 p-1">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${uploadProgress}%` }} className="h-full bg-gradient-to-r from-gold-700 via-gold-500 to-gold-300 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.5)]" />
+                      </div>
+                      <div className={`flex items-center gap-3 p-4 rounded-2xl border ${selectedCover ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'}`}>
+                        <span className={`text-lg ${selectedCover ? 'text-emerald-400' : 'text-red-400'}`}>{selectedCover ? '✅' : '❌'}</span>
+                        <div className="text-right">
+                          <p className="text-xs font-black text-slate-500">صورة الغلاف</p>
+                          <p className="text-sm font-bold text-white truncate max-w-[160px]">{selectedCover ? selectedCover.name : 'لم يتم الاختيار'}</p>
                         </div>
-                        <p className="text-xs text-slate-500 text-center font-bold animate-pulse">جاري الرفع إلى السحابة الملكية... يرجى عدم إغلاق الصفحة</p>
-                     </div>
-                   ) : uploadError ? (
-                     <div className="max-w-xl mx-auto space-y-6 bg-red-500/5 p-8 rounded-3xl border border-red-500/20">
-                        <p className="text-red-400 font-bold">عذراً، حدث خطأ: {uploadError}</p>
-                        <button onClick={() => startUploadProcess(uploadStateRef.current.phase as any)} className="flex items-center gap-2 px-6 py-4 bg-red-500 text-white rounded-2xl mx-auto font-black hover:bg-red-600 transition-all shadow-xl shadow-red-500/20">
-                          <ReplayIcon />
-                          إعادة محاولة (من مرحلة {uploadStateRef.current.phase === 'cover' ? 'الغلاف' : uploadStateRef.current.phase === 'file' ? 'المجلد' : 'البيانات'})
-                        </button>
-                     </div>
-                   ) : (
-                     <div className="flex gap-6 pt-12">
-                      <button onClick={prevStep} className="flex-1 bg-surface-container-lowest border border-gold-900/20 py-5 rounded-2xl font-black text-slate-400 hover:text-gold-500 transition-all">تعديل البيانات</button>
-                      <button disabled={!selectedFile || !selectedCover} onClick={() => startUploadProcess()} className="flex-[2] gold-button py-5 rounded-2xl font-black text-xl shadow-xl disabled:opacity-50">إتمام النشر الملكي 👑</button>
-                     </div>
-                   )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Upload Progress / Error / Actions */}
+                  {isUploading ? (
+                    <div className="space-y-6 bg-surface-container-lowest p-8 rounded-3xl border border-gold-500/10">
+                      <div className="flex justify-between items-center text-sm font-black text-gold-500 uppercase tracking-widest">
+                        <span>{uploadStatus}</span>
+                        <span>{Math.round(uploadProgress)}%</span>
+                      </div>
+                      <div className="h-4 bg-surface rounded-full overflow-hidden border border-gold-900/10 p-1">
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${uploadProgress}%` }} className="h-full bg-gradient-to-r from-gold-700 via-gold-500 to-gold-300 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.5)]" />
+                      </div>
+                      <p className="text-xs text-slate-500 text-center font-bold animate-pulse">جاري الرفع إلى السحابة الملكية... يرجى عدم إغلاق الصفحة</p>
+                    </div>
+                  ) : uploadError ? (
+                    <div className="space-y-6 bg-red-500/5 p-8 rounded-3xl border border-red-500/20 text-center">
+                      <p className="text-red-400 font-bold">عذراً، حدث خطأ: {uploadError}</p>
+                      <button onClick={() => startUploadProcess(uploadStateRef.current.phase as any)} className="flex items-center gap-2 px-6 py-4 bg-red-500 text-white rounded-2xl mx-auto font-black hover:bg-red-600 transition-all">
+                        <ReplayIcon /> إعادة المحاولة
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-6">
+                      <button onClick={prevStep} className="flex-1 bg-surface-container-lowest border border-gold-900/20 py-5 rounded-2xl font-black text-slate-400 hover:text-gold-500 transition-all">
+                        ← رفع الملفات
+                      </button>
+                      <button
+                        disabled={!selectedFile || !selectedCover || !formData.title || !formData.author}
+                        onClick={() => startUploadProcess()}
+                        className="flex-[2] gold-button py-5 rounded-2xl font-black text-xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        إتمام النشر الملكي 👑
+                      </button>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

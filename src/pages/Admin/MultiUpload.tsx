@@ -153,17 +153,41 @@ const MultiUpload: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   {items.map(item => (
-                    <div key={item.id} className="bg-surface-container-lowest p-5 rounded-2xl border border-gold-900/5 flex items-center justify-between gap-6 group">
+                    <div key={item.id} className={`bg-surface-container-lowest p-5 rounded-2xl border flex items-center justify-between gap-6 group transition-all ${item.status === 'completed' ? 'border-emerald-500/20 opacity-70' : 'border-gold-900/5'}`}>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <input type="text" value={item.title} onChange={(e) => updateItem(item.id, { title: e.target.value })} placeholder="عنوان الكتاب" className="bg-transparent border-none outline-none font-black text-white p-0 m-0 flex-1 focus:text-gold-500 min-w-[150px]" />
+                          <input
+                            type="text"
+                            value={item.title}
+                            onChange={(e) => updateItem(item.id, { title: e.target.value })}
+                            placeholder="عنوان الكتاب"
+                            disabled={item.status === 'completed' || item.status === 'uploading'}
+                            className="bg-transparent border-none outline-none font-black text-white p-0 m-0 flex-1 focus:text-gold-500 min-w-[150px] disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
                           <div className="flex items-center gap-2">
-                            <input type="text" value={item.author} onChange={(e) => updateItem(item.id, { author: e.target.value })} placeholder="المؤلف" className="bg-surface border border-gold-900/20 rounded px-2 py-1 outline-none font-medium text-slate-300 text-sm focus:border-gold-500 w-32" />
-                            <input type="text" value={item.publicationYear} onChange={(e) => updateItem(item.id, { publicationYear: e.target.value })} placeholder="سنة النشر" className="bg-surface border border-gold-900/20 rounded px-2 py-1 outline-none font-medium text-slate-300 text-sm focus:border-gold-500 w-24" />
+                            <input
+                              type="text"
+                              value={item.author}
+                              onChange={(e) => updateItem(item.id, { author: e.target.value })}
+                              placeholder="المؤلف"
+                              disabled={item.status === 'completed' || item.status === 'uploading'}
+                              className="bg-surface border border-gold-900/20 rounded px-2 py-1 outline-none font-medium text-slate-300 text-sm focus:border-gold-500 w-32 disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
+                            <input
+                              type="text"
+                              value={item.publicationYear}
+                              onChange={(e) => updateItem(item.id, { publicationYear: e.target.value })}
+                              placeholder="سنة النشر"
+                              disabled={item.status === 'completed' || item.status === 'uploading'}
+                              className="bg-surface border border-gold-900/20 rounded px-2 py-1 outline-none font-medium text-slate-300 text-sm focus:border-gold-500 w-24 disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
                             <span className="text-[10px] bg-gold-900/20 text-gold-500 px-2 py-1 rounded uppercase font-black">{item.category}</span>
                           </div>
                         </div>
-                        <div className="h-1 bg-surface rounded-full overflow-hidden">
+                        {item.status === 'completed' && (
+                          <p className="text-[10px] text-emerald-400 font-black uppercase tracking-widest mt-1">✅ تم الرفع — يحتاج موافقة المدير</p>
+                        )}
+                        <div className="h-1 bg-surface rounded-full overflow-hidden mt-2">
                           <motion.div initial={{ width: 0 }} animate={{ width: `${item.progress}%` }} className={`h-full ${item.status === 'error' ? 'bg-red-500' : 'bg-gold-500'}`} />
                         </div>
                       </div>
@@ -175,10 +199,12 @@ const MultiUpload: React.FC = () => {
                         ) : (
                           <button onClick={() => removeItem(item.id)} className="text-slate-500 hover:text-red-400 group-hover:opacity-100 opacity-60 transition-all"><DeleteIcon /></button>
                         )}
-                        <label className="cursor-pointer hover:text-gold-500 transition-colors">
-                          {item.cover ? <AutoAwesomeIcon className="text-emerald-500" /> : <AddToPhotosIcon />}
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => updateItem(item.id, { cover: e.target.files?.[0] || null })} />
-                        </label>
+                        {item.status !== 'completed' && (
+                          <label className="cursor-pointer hover:text-gold-500 transition-colors">
+                            {item.cover ? <AutoAwesomeIcon className="text-emerald-500" /> : <AddToPhotosIcon />}
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => updateItem(item.id, { cover: e.target.files?.[0] || null })} />
+                          </label>
+                        )}
                       </div>
                     </div>
                   ))}

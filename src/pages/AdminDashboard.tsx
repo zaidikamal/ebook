@@ -4,15 +4,18 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
+import SaveIcon from '@mui/icons-material/Save';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, getDocs, where, writeBatch } from 'firebase/firestore';
 import { useToast } from '../components/Toast';
@@ -27,6 +30,9 @@ interface FirebaseBook {
   status: 'pending' | 'approved' | 'rejected';
   uploadDate: string;
   price: number;
+  publicationYear?: string;
+  description?: string;
+  license?: string;
   views?: number;
   downloads?: number;
 }
@@ -38,6 +44,175 @@ interface FirebaseUser {
   role: string;
   createdAt: string;
 }
+
+/* ===================== EDIT MODAL ===================== */
+interface EditModalProps {
+  book: FirebaseBook;
+  onClose: () => void;
+  onSave: (id: string, data: Partial<FirebaseBook>) => Promise<void>;
+}
+
+const EditModal: React.FC<EditModalProps> = ({ book, onClose, onSave }) => {
+  const [form, setForm] = useState({
+    title: book.title || '',
+    author: book.author || '',
+    category: book.category || '',
+    price: String(book.price || 0),
+    publicationYear: book.publicationYear || '',
+    description: book.description || '',
+    license: book.license || 'Licensed',
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    await onSave(book.id, {
+      title: form.title,
+      author: form.author,
+      category: form.category,
+      price: parseFloat(form.price) || 0,
+      publicationYear: form.publicationYear,
+      description: form.description,
+      license: form.license,
+    });
+    setSaving(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir="rtl">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Modal */}
+      <div className="relative bg-[#0d1117] border border-gold-500/20 rounded-[2.5rem] shadow-[0_40px_80px_rgba(0,0,0,0.8)] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-8 border-b border-gold-900/20">
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white">
+            <CloseIcon />
+          </button>
+          <div className="text-right">
+            <h2 className="text-2xl font-amiri font-black gold-text">تعديل معلومات الكتاب</h2>
+            <p className="text-slate-500 text-sm font-bold mt-1">يمكنك تحديث جميع بيانات الكاتب والكتاب وسنة الإصدار</p>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="p-8 space-y-6">
+          {/* Row 1: Title & Author */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-black text-slate-400">عنوان الكتاب *</label>
+              <input
+                type="text"
+                value={form.title}
+                onChange={e => setForm({ ...form, title: e.target.value })}
+                placeholder="عنوان الكتاب"
+                className="w-full bg-white/5 border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-black text-slate-400">اسم الكاتب / المؤلف *</label>
+              <input
+                type="text"
+                value={form.author}
+                onChange={e => setForm({ ...form, author: e.target.value })}
+                placeholder="اسم الكاتب الكامل"
+                className="w-full bg-white/5 border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Year, Category, Price */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-black text-slate-400">سنة الإصدار</label>
+              <input
+                type="text"
+                value={form.publicationYear}
+                onChange={e => setForm({ ...form, publicationYear: e.target.value })}
+                placeholder="مثال: 2023"
+                className="w-full bg-white/5 border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-black text-slate-400">التصنيف</label>
+              <select
+                value={form.category}
+                onChange={e => setForm({ ...form, category: e.target.value })}
+                className="w-full bg-[#0d1117] border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+              >
+                <option>تاريخ</option><option>أدب</option><option>فلسفة</option>
+                <option>رواية / خيال</option><option>السير والتراجم</option>
+                <option>العلوم الطبيعية</option><option>الفنون والعمارة</option>
+                <option>الدين والفكر</option><option>علوم القرآن والحديث</option>
+                <option>المخطوطات النادرة</option><option>السياسة والاقتصاد</option>
+                <option>تطوير الذات</option><option>الشعر</option><option>عام</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-black text-slate-400">السعر ($)</label>
+              <input
+                type="number"
+                value={form.price}
+                onChange={e => setForm({ ...form, price: e.target.value })}
+                placeholder="0.00"
+                className="w-full bg-white/5 border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+              />
+            </div>
+          </div>
+
+          {/* License */}
+          <div className="space-y-2">
+            <label className="text-sm font-black text-slate-400">نوع الترخيص</label>
+            <select
+              value={form.license}
+              onChange={e => setForm({ ...form, license: e.target.value })}
+              className="w-full bg-[#0d1117] border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-bold focus:outline-none focus:border-gold-500/50 transition-all text-right"
+            >
+              <option>Licensed</option>
+              <option>Public Domain</option>
+              <option>Creative Commons</option>
+            </select>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <label className="text-sm font-black text-slate-400">وصف الكتاب</label>
+            <textarea
+              rows={5}
+              value={form.description}
+              onChange={e => setForm({ ...form, description: e.target.value })}
+              placeholder="وصف مفصّل عن محتوى الكتاب..."
+              className="w-full bg-white/5 border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-medium focus:outline-none focus:border-gold-500/50 transition-all text-right resize-none leading-relaxed"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex gap-4 p-8 border-t border-gold-900/20">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-white/5 border border-gold-900/20 py-4 rounded-2xl font-black text-slate-400 hover:text-white transition-all"
+          >
+            إلغاء
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || !form.title || !form.author}
+            className="flex-[2] gold-button py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? (
+              <span className="animate-pulse">جاري الحفظ...</span>
+            ) : (
+              <><SaveIcon className="text-xl" /> حفظ التعديلات</>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 /* ===================== SECTION COMPONENTS ===================== */
 
@@ -112,9 +287,26 @@ const OverviewSection = ({ recentBooks }: { recentBooks: FirebaseBook[] }) => (
   </div>
 );
 
-const BooksSection = ({ books, onDelete, onAdd }: { books: FirebaseBook[], onDelete: (id: string) => void, onAdd: () => void }) => {
+/* ===================== BOOKS SECTION with Edit/Delete/Approve ===================== */
+const BooksSection = ({
+  books,
+  onDelete,
+  onApprove,
+  onEdit,
+  onAdd,
+}: {
+  books: FirebaseBook[];
+  onDelete: (id: string) => void;
+  onApprove: (id: string) => void;
+  onEdit: (book: FirebaseBook) => void;
+  onAdd: () => void;
+}) => {
   const [search, setSearch] = useState('');
-  const filtered = books.filter(b => b.title.toLowerCase().includes(search.toLowerCase()) || b.author.toLowerCase().includes(search.toLowerCase()));
+  const filtered = books.filter(
+    b =>
+      b.title.toLowerCase().includes(search.toLowerCase()) ||
+      b.author.toLowerCase().includes(search.toLowerCase())
+  );
   return (
     <div className="space-y-10 relative z-10 text-right">
       <div className="flex flex-row-reverse items-center justify-between gap-4">
@@ -137,9 +329,10 @@ const BooksSection = ({ books, onDelete, onAdd }: { books: FirebaseBook[], onDel
             <tr className="border-b border-gold-900/10 text-slate-500 text-xs font-black uppercase tracking-widest">
               <th className="pb-5 pr-4 text-right">العنوان</th>
               <th className="pb-5 text-right">المؤلف</th>
+              <th className="pb-5 text-right">سنة الإصدار</th>
               <th className="pb-5 text-right">السعر</th>
               <th className="pb-5 text-right">الحالة</th>
-              <th className="pb-5 text-left pl-4">الإجراءات</th>
+              <th className="pb-5 text-center">الإجراءات</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gold-900/5">
@@ -147,17 +340,56 @@ const BooksSection = ({ books, onDelete, onAdd }: { books: FirebaseBook[], onDel
               <tr key={book.id} className="hover:bg-gold-500/5 transition-colors group">
                 <td className="py-5 pr-4 font-black text-white">{book.title}</td>
                 <td className="py-5 text-slate-400 font-bold">{book.author}</td>
+                <td className="py-5 text-slate-500 font-bold text-sm">{book.publicationYear || '—'}</td>
                 <td className="py-5 text-gold-500 font-black">${book.price}</td>
                 <td className="py-5">
-                  <span className={`px-3 py-1 rounded-full text-xs font-black ${book.status === 'approved' ? 'bg-emerald-900/20 text-emerald-400' : 'bg-gold-900/20 text-gold-400'}`}>{book.status === 'approved' ? 'منشور' : 'قيد المراجعة'}</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-black ${
+                    book.status === 'approved'
+                      ? 'bg-emerald-900/20 text-emerald-400'
+                      : 'bg-gold-900/20 text-gold-400'
+                  }`}>
+                    {book.status === 'approved' ? 'منشور' : 'قيد المراجعة'}
+                  </span>
                 </td>
-                <td className="py-5 pl-4 text-left">
-                  <div className="flex gap-2 justify-start opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => onDelete(book.id)} aria-label="حذف" className="p-2 hover:text-rose-500 transition-colors"><DeleteIcon className="text-base" /></button>
+                <td className="py-5 text-center">
+                  <div className="flex gap-2 justify-center">
+                    {/* Edit — always available for all books */}
+                    <button
+                      onClick={() => onEdit(book)}
+                      title="تعديل"
+                      className="p-2 rounded-xl hover:bg-gold-500/10 text-slate-500 hover:text-gold-400 transition-all"
+                    >
+                      <EditIcon className="text-base" />
+                    </button>
+                    {/* Approve — only for pending books */}
+                    {book.status !== 'approved' && (
+                      <button
+                        onClick={() => onApprove(book.id)}
+                        title="موافقة"
+                        className="p-2 rounded-xl hover:bg-emerald-500/10 text-slate-500 hover:text-emerald-400 transition-all"
+                      >
+                        <CheckCircleIcon className="text-base" />
+                      </button>
+                    )}
+                    {/* Delete — always available */}
+                    <button
+                      onClick={() => onDelete(book.id)}
+                      title="حذف"
+                      className="p-2 rounded-xl hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 transition-all"
+                    >
+                      <DeleteIcon className="text-base" />
+                    </button>
                   </div>
                 </td>
               </tr>
             ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-12 text-center text-slate-500 font-bold">
+                  لا توجد كتب تطابق البحث.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -165,27 +397,63 @@ const BooksSection = ({ books, onDelete, onAdd }: { books: FirebaseBook[], onDel
   );
 };
 
-const ReviewSection = ({ pendingBooks, onApprove, onDelete }: { pendingBooks: FirebaseBook[], onApprove: (id: string) => void, onDelete: (id: string) => void }) => (
+/* ===================== REVIEW SECTION with Edit/Approve/Delete ===================== */
+const ReviewSection = ({
+  pendingBooks,
+  onApprove,
+  onDelete,
+  onEdit,
+}: {
+  pendingBooks: FirebaseBook[];
+  onApprove: (id: string) => void;
+  onDelete: (id: string) => void;
+  onEdit: (book: FirebaseBook) => void;
+}) => (
   <div className="space-y-10 relative z-10 text-right">
     <h3 className="text-4xl font-amiri font-black gold-text">مراجعة المجلدات الجديدة</h3>
     <div className="grid gap-6">
       {pendingBooks.map(book => (
-        <div key={book.id} className="bg-surface-container-lowest p-6 rounded-3xl border border-gold-500/20 flex flex-row-reverse items-center justify-between">
-           <div className="text-right">
-             <h4 className="text-xl font-black text-white">{book.title}</h4>
-             <p className="text-slate-500 font-bold">{book.author} • {book.category}</p>
-           </div>
-           <div className="flex gap-4">
-             <button onClick={() => onApprove(book.id)} className="bg-emerald-500 text-slate-950 px-6 py-2 rounded-xl font-black text-sm hover:bg-emerald-400 transition-all flex items-center gap-2">
-               <CheckCircleIcon className="text-sm" /> موافقة ملكية
-             </button>
-             <button onClick={() => onDelete(book.id)} className="bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-2 rounded-xl font-bold text-sm hover:bg-red-500/20 transition-all">رفض</button>
-           </div>
+        <div
+          key={book.id}
+          className="bg-surface-container-lowest p-6 rounded-3xl border border-gold-500/20 flex flex-col md:flex-row-reverse items-start md:items-center justify-between gap-4"
+        >
+          <div className="text-right flex-1">
+            <h4 className="text-xl font-black text-white">{book.title}</h4>
+            <p className="text-slate-500 font-bold mt-1">
+              {book.author}
+              {book.publicationYear && <span className="text-gold-600 mx-2">• {book.publicationYear}</span>}
+              <span className="mx-2">• {book.category}</span>
+              <span className="text-emerald-500">${book.price}</span>
+            </p>
+          </div>
+          <div className="flex gap-3 flex-wrap">
+            {/* Edit */}
+            <button
+              onClick={() => onEdit(book)}
+              className="flex items-center gap-2 bg-gold-500/10 text-gold-400 border border-gold-500/20 px-4 py-2 rounded-xl font-black text-sm hover:bg-gold-500/20 transition-all"
+            >
+              <EditIcon className="text-sm" /> تعديل
+            </button>
+            {/* Approve */}
+            <button
+              onClick={() => onApprove(book.id)}
+              className="flex items-center gap-2 bg-emerald-500 text-slate-950 px-5 py-2 rounded-xl font-black text-sm hover:bg-emerald-400 transition-all"
+            >
+              <CheckCircleIcon className="text-sm" /> موافقة ملكية
+            </button>
+            {/* Delete/Reject */}
+            <button
+              onClick={() => onDelete(book.id)}
+              className="flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-2 rounded-xl font-bold text-sm hover:bg-red-500/20 transition-all"
+            >
+              <DeleteIcon className="text-sm" /> رفض وحذف
+            </button>
+          </div>
         </div>
       ))}
       {pendingBooks.length === 0 && (
         <div className="p-20 text-center text-slate-500 font-bold bg-gold-500/5 rounded-[3rem]">
-           لا توجد مجلدات تنتظر المراجعة حالياً. الخزانة في أمان. 🏛️
+          لا توجد مجلدات تنتظر المراجعة حالياً. الخزانة في أمان. 🏛️
         </div>
       )}
     </div>
@@ -211,7 +479,9 @@ const MembersSection = ({ members }: { members: FirebaseUser[] }) => (
               <td className="py-5 pr-4 font-black text-white">{m.name}</td>
               <td className="py-5 text-slate-400 font-bold text-sm">{m.email}</td>
               <td className="py-5">
-                <span className={`px-3 py-1 rounded-full text-xs font-black text-white ${m.role === 'admin' ? 'bg-gold-500 text-slate-950' : 'bg-slate-700'}`}>{m.role === 'admin' ? 'مسؤول' : 'عضو'}</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-black text-white ${m.role === 'admin' ? 'bg-gold-500 text-slate-950' : 'bg-slate-700'}`}>
+                  {m.role === 'admin' ? 'مسؤول' : 'عضو'}
+                </span>
               </td>
               <td className="py-5 pl-4 text-left text-slate-500 text-sm">{m.createdAt?.split('T')[0] || 'قديم'}</td>
             </tr>
@@ -222,6 +492,7 @@ const MembersSection = ({ members }: { members: FirebaseUser[] }) => (
   </div>
 );
 
+/* ===================== MAIN DASHBOARD ===================== */
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -229,13 +500,14 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [books, setBooks] = useState<FirebaseBook[]>([]);
   const [members, setMembers] = useState<FirebaseUser[]>([]);
+  const [editingBook, setEditingBook] = useState<FirebaseBook | null>(null);
 
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [debugInfo, setDebugInfo] = useState<string>('');
 
   useEffect(() => {
     if (authLoading) return;
-    
+
     if (user?.role === 'admin') {
       setIsAuthorized(true);
     } else {
@@ -256,7 +528,7 @@ const AdminDashboard: React.FC = () => {
       showToast('جاري تنظيف الخزانة الملكية...', 'info');
       const q = query(collection(db, 'books'), where('isTest', '==', true));
       const snapshot = await getDocs(q);
-      
+
       if (snapshot.empty) {
         showToast('الخزانة نظيفة بالفعل! لم يتم العثور على ملفات تجريبية.', 'success');
         return;
@@ -265,23 +537,26 @@ const AdminDashboard: React.FC = () => {
       const batch = writeBatch(db);
       snapshot.forEach(d => batch.delete(d.ref));
       await batch.commit();
-      
+
       showToast(`تم حذف ${snapshot.size} ملف تجريبي بنجاح! 👑`, 'success');
     } catch (error) {
-      console.error("Cleanup error:", error);
+      console.error('Cleanup error:', error);
       showToast('حدث خطأ أثناء تنظيف الخزانة.', 'error');
     }
   };
 
   useEffect(() => {
     if (!isAuthorized) return;
-    const unsubBooks = onSnapshot(query(collection(db, 'books'), orderBy('createdAt', 'desc')), (snap) => {
+    const unsubBooks = onSnapshot(query(collection(db, 'books'), orderBy('createdAt', 'desc')), snap => {
       setBooks(snap.docs.map(d => ({ id: d.id, ...d.data() })) as FirebaseBook[]);
     });
-    const unsubUsers = onSnapshot(query(collection(db, 'users'), orderBy('createdAt', 'desc')), (snap) => {
+    const unsubUsers = onSnapshot(query(collection(db, 'users'), orderBy('createdAt', 'desc')), snap => {
       setMembers(snap.docs.map(d => ({ id: d.id, ...d.data() })) as FirebaseUser[]);
     });
-    return () => { unsubBooks(); unsubUsers(); };
+    return () => {
+      unsubBooks();
+      unsubUsers();
+    };
   }, [isAuthorized]);
 
   if (authLoading || isAuthorized === null) return null;
@@ -293,11 +568,11 @@ const AdminDashboard: React.FC = () => {
           <div className="w-20 h-20 bg-gold-900/20 rounded-full flex items-center justify-center mx-auto mb-6 text-gold-500 text-4xl font-black">!</div>
           <h2 className="text-3xl font-black text-gold-500 mb-4">وصول ممنوع للمناطق المحظورة</h2>
           <p className="text-slate-400 font-bold mb-6">عذراً، هذه المنطقة مخصصة للمشرفين الملكيين فقط.</p>
-          
+
           <div className="bg-surface-container-lowest p-4 rounded-2xl mb-8 border border-gold-900/10 text-xs font-mono text-slate-500">
-             Diagnostic: {debugInfo}
+            Diagnostic: {debugInfo}
           </div>
-          
+
           <div className="space-y-4">
             <button onClick={() => navigate('/login')} className="gold-button w-full py-4 rounded-xl font-black">تسجيل الدخول كمسؤول</button>
             <button onClick={() => navigate('/')} className="w-full py-4 rounded-xl font-bold text-slate-500 hover:text-white transition-colors">العودة للمنزل</button>
@@ -311,7 +586,9 @@ const AdminDashboard: React.FC = () => {
     try {
       await updateDoc(doc(db, 'books', id), { status: 'approved' });
       showToast('تمت الموافقة الملكية بنجاح! 👑', 'success');
-    } catch (error) { showToast('خطأ في الموافقة', 'error'); }
+    } catch (error) {
+      showToast('خطأ في الموافقة', 'error');
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -319,7 +596,23 @@ const AdminDashboard: React.FC = () => {
       try {
         await deleteDoc(doc(db, 'books', id));
         showToast('تم الحذف بنجاح', 'info');
-      } catch (error) { showToast('خطأ في الحذف', 'error'); }
+      } catch (error) {
+        showToast('خطأ في الحذف', 'error');
+      }
+    }
+  };
+
+  const handleEdit = (book: FirebaseBook) => {
+    setEditingBook(book);
+  };
+
+  const handleSaveEdit = async (id: string, data: Partial<FirebaseBook>) => {
+    try {
+      await updateDoc(doc(db, 'books', id), data as Record<string, unknown>);
+      showToast('تم حفظ التعديلات بنجاح! ✏️', 'success');
+    } catch (error) {
+      showToast('خطأ في حفظ التعديلات', 'error');
+      throw error;
     }
   };
 
@@ -346,6 +639,16 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-surface text-slate-100 font-jakarta rtl" dir="rtl">
       <Navbar />
+
+      {/* Edit Modal */}
+      {editingBook && (
+        <EditModal
+          book={editingBook}
+          onClose={() => setEditingBook(null)}
+          onSave={handleSaveEdit}
+        />
+      )}
+
       <main className="container mx-auto px-6 pt-40 pb-24">
         <div className="flex flex-col lg:flex-row-reverse gap-12">
           <aside className="w-full lg:w-80 space-y-6">
@@ -356,20 +659,34 @@ const AdminDashboard: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`w-full flex flex-row-reverse items-center gap-4 p-5 rounded-2xl transition-all font-black text-lg ${activeTab === item.id ? 'bg-gold-500 text-slate-950 shadow-lg' : 'bg-surface-container-lowest text-slate-400 hover:text-gold-400'}`}
+                    className={`w-full flex flex-row-reverse items-center gap-4 p-5 rounded-2xl transition-all font-black text-lg ${
+                      activeTab === item.id
+                        ? 'bg-gold-500 text-slate-950 shadow-lg'
+                        : 'bg-surface-container-lowest text-slate-400 hover:text-gold-400'
+                    }`}
                   >
                     <item.icon />
                     <span className="flex-1 text-right">{item.label}</span>
-                    {item.count ? <span className="bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center animate-bounce">{item.count}</span> : null}
+                    {item.count ? (
+                      <span className="bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center animate-bounce">
+                        {item.count}
+                      </span>
+                    ) : null}
                   </button>
                 ))}
               </nav>
             </div>
             <div className="space-y-4">
-              <button onClick={() => navigate('/admin/upload')} className="w-full gold-button py-5 rounded-3xl font-black text-xl shadow-2xl flex items-center justify-center gap-3">
+              <button
+                onClick={() => navigate('/admin/upload')}
+                className="w-full gold-button py-5 rounded-3xl font-black text-xl shadow-2xl flex items-center justify-center gap-3"
+              >
                 <AddToPhotosIcon /> رفع فردي
               </button>
-              <button onClick={() => navigate('/admin/multi-upload')} className="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 py-5 rounded-3xl font-black text-xl shadow-2xl flex items-center justify-center gap-3 transition-colors">
+              <button
+                onClick={() => navigate('/admin/multi-upload')}
+                className="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 py-5 rounded-3xl font-black text-xl shadow-2xl flex items-center justify-center gap-3 transition-colors"
+              >
                 <CloudUploadIcon /> رفع جماعي (Multi)
               </button>
             </div>
@@ -378,13 +695,15 @@ const AdminDashboard: React.FC = () => {
           <div className="flex-1 space-y-12">
             {/* Welcome Banner */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-surface-container-low p-10 rounded-[3rem] border border-gold-900/10 shadow-2xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-gold-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-gold-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
               <div className="text-right flex-1">
                 <h1 className="text-5xl font-amiri font-black gold-text mb-4">أهلاً بك، السيّد المدير العام 👑</h1>
                 <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">مرحباً بك في قمرة القيادة الملكية لمنصة كتبي. الخزانة تحت إشرافك.</p>
               </div>
               <div className="bg-surface-container-lowest p-6 rounded-3xl border border-gold-900/10 text-center min-w-[200px]">
-                <p className="text-white font-black text-lg">{new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                <p className="text-white font-black text-lg">
+                  {new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </p>
                 <p className="text-gold-500 text-[10px] font-black uppercase tracking-tighter">التوقيت الملكي للمنصة</p>
               </div>
             </div>
@@ -406,7 +725,7 @@ const AdminDashboard: React.FC = () => {
             <div className={`p-10 rounded-[3rem] ${activeTab === 'analytics' ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-surface-container-lowest'} border transition-all`}>
               <div className="flex justify-between items-center mb-6">
                 <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">نظام الإدارة</p>
-                <button 
+                <button
                   onClick={cleanupRegistry}
                   className="text-xs bg-red-500/10 text-red-500 px-4 py-2 rounded-xl font-black border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
                 >
@@ -415,10 +734,27 @@ const AdminDashboard: React.FC = () => {
               </div>
               {activeTab === 'overview' && <OverviewSection recentBooks={books.slice(0, 5)} />}
               {activeTab === 'analytics' && <AnalyticsSection books={approvedBooks} />}
-              {activeTab === 'books' && <BooksSection books={books} onDelete={handleDelete} onAdd={() => navigate('/admin/upload')} />}
-              {activeTab === 'review' && <ReviewSection pendingBooks={pendingBooks} onApprove={handleApprove} onDelete={handleDelete} />}
+              {activeTab === 'books' && (
+                <BooksSection
+                  books={books}
+                  onDelete={handleDelete}
+                  onApprove={handleApprove}
+                  onEdit={handleEdit}
+                  onAdd={() => navigate('/admin/upload')}
+                />
+              )}
+              {activeTab === 'review' && (
+                <ReviewSection
+                  pendingBooks={pendingBooks}
+                  onApprove={handleApprove}
+                  onDelete={handleDelete}
+                  onEdit={handleEdit}
+                />
+              )}
               {activeTab === 'users' && <MembersSection members={members} />}
-              {activeTab === 'settings' && <div className="text-center py-20 opacity-40">خصائص الإعدادات الملكية قادمة قريباً... ⏳</div>}
+              {activeTab === 'settings' && (
+                <div className="text-center py-20 opacity-40">خصائص الإعدادات الملكية قادمة قريباً... ⏳</div>
+              )}
             </div>
           </div>
         </div>

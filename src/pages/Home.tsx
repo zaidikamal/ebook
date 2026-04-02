@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { db } from '../lib/firebase';
-import { collection, query, where, getDocs, limit, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -37,6 +37,8 @@ const HomePage = () => {
         // Start with Originals to ensure immediate visibility
         setMustReads(KUTUBI_ORIGINALS.slice(0, 4));
         setNewArrivals(KUTUBI_ORIGINALS.slice(4, 8));
+        // Show originals as trending immediately while we load
+        setTrendingBooks(KUTUBI_ORIGINALS.slice(0, 6));
 
         // Attempt to fetch Arabic Literature from Google Books
         let resp1, resp2;
@@ -68,11 +70,11 @@ const HomePage = () => {
           rating: item.volumeInfo?.averageRating || 4.5
         })) || [];
 
-        // 4. Fetch Approved Books from Firestore
+        // 4. Fetch Approved Books from Firestore (no compound index needed)
         const q = query(
           collection(db, 'books'), 
           where('status', '==', 'approved'),
-          limit(8)
+          limit(12)
         );
         const querySnapshot = await getDocs(q);
         const approvedRoyal = querySnapshot.docs.map(doc => {
@@ -89,28 +91,26 @@ const HomePage = () => {
           };
         });
 
-        // 5. Fetch Trending Books (Fallback if no index)
-        try {
-          const trendingQ = query(collection(db, 'books'), where('status', '==', 'approved'), orderBy('views', 'desc'), limit(6));
-          const snap = await getDocs(trendingQ);
-          setTrendingBooks(snap.docs.map(d => ({ _id: `royal:${d.id}`, isRoyal: true, ...d.data() })));
-        } catch (e) {
-           const sortedApproved = [...approvedRoyal].sort((a: any, b: any) => (b.views || 0) - (a.views || 0)).slice(0, 6);
-           setTrendingBooks(sortedApproved);
+        // 5. Set Trending: approved royal books sorted by views client-side,
+        //    fall back to KUTUBI_ORIGINALS if none approved yet
+        const sortedApproved = [...approvedRoyal].sort((a: any, b: any) => (b.views || 0) - (a.views || 0)).slice(0, 6);
+        if (sortedApproved.length > 0) {
+          setTrendingBooks(sortedApproved);
+        } else {
+          // Keep originals as trending fallback
+          setTrendingBooks(KUTUBI_ORIGINALS.slice(0, 6));
         }
 
         if (resp1?.data?.items) {
            setMustReads(formatBooks(resp1.data.items, 'gb'));
         }
         if (resp2?.data?.items) {
-           // Prepend approved royal books to new arrivals
            const formattedGB = formatBooks(resp2.data.items, 'gb');
            setNewArrivals([...approvedRoyal, ...formattedGB]);
         } else if (approvedRoyal.length > 0) {
            setNewArrivals(prev => [...approvedRoyal, ...prev]);
         }
 
-        // If Google failed, augment with Gutenberg/Archive but don't clear originals if they are better
         if (!resp1?.data?.items) {
           const gutResp = await axios.get('https://gutendex.com/books/?languages=ar&topic=literature').catch(() => ({ data: { results: [] } }));
           if (gutResp.data.results?.length > 0) {
@@ -133,6 +133,8 @@ const HomePage = () => {
         }
       } catch (err) {
         console.error('Error fetching books:', err);
+        // Ensure trending is always visible even on full failure
+        setTrendingBooks(KUTUBI_ORIGINALS.slice(0, 6));
       } finally {
         setLoading(false);
       }
