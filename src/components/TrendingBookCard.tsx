@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import StarIcon from '@mui/icons-material/Star';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 interface TrendingBookCardProps {
   book: any;
@@ -11,57 +11,109 @@ interface TrendingBookCardProps {
 }
 
 const TrendingBookCard: React.FC<TrendingBookCardProps> = ({ book, rank }) => {
+  const isTopThree = rank <= 3;
+
   return (
-    <Link to={`/book/${book._id}`}>
-      <motion.div 
-        whileHover={{ y: -8, scale: 1.02 }}
-        className="group relative h-40 sm:h-48 md:h-56 bg-surface-container-low rounded-[2rem] border border-gold-900/20 overflow-hidden flex shadow-lg hover:shadow-[0_20px_60px_-15px_rgba(212,175,55,0.3)] hover:border-gold-500/50 transition-all duration-500"
+    <Link to={`/book/${book._id}`} className="block">
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: rank * 0.07, duration: 0.5, ease: 'easeOut' }}
+        whileHover={{ y: -6, scale: 1.015 }}
+        className="group relative overflow-hidden rounded-[2rem] border border-gold-900/20 hover:border-gold-500/50 transition-all duration-500 shadow-lg hover:shadow-[0_24px_70px_-10px_rgba(212,175,55,0.35)]"
+        style={{
+          background: 'linear-gradient(135deg, rgba(18,15,25,0.95) 0%, rgba(12,10,18,0.98) 100%)',
+          height: '9rem',
+        }}
       >
-        {/* Number Badge */}
-        <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-bl from-gold-500 to-gold-900 rounded-bl-[2rem] flex items-start justify-end p-3 sm:p-4 z-20 shadow-xl">
-          <span className="text-2xl sm:text-3xl font-black text-surface font-amiri leading-none">{rank}</span>
+        {/* Ambient background glow on hover */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse 80% 60% at 30% 50%, rgba(212,175,55,0.07) 0%, transparent 70%)' }}
+        />
+
+        {/* Rank Watermark */}
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 font-amiri font-black select-none leading-none transition-all duration-500 group-hover:opacity-25"
+          style={{
+            fontSize: '5.5rem',
+            background: isTopThree
+              ? 'linear-gradient(135deg, #d4af37, #8b6914)'
+              : 'linear-gradient(135deg, rgba(212,175,55,0.4), rgba(139,105,20,0.2))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            opacity: isTopThree ? 0.2 : 0.1,
+          }}
+        >
+          {rank}
         </div>
 
-        {/* Cover Image Wrapper with Glow */}
-        <div className="relative w-28 sm:w-36 md:w-44 h-full flex-shrink-0 z-10 overflow-hidden bg-surface-container-lowest border-l border-gold-900/30 group-hover:border-gold-500/30 transition-colors">
-          <div className="absolute inset-0 bg-gold-500/20 group-hover:bg-transparent transition-colors z-10"></div>
-          <img 
-            src={book.coverImage} 
-            alt={book.title} 
+        {/* Cover Image */}
+        <div className="absolute right-0 top-0 bottom-0 w-28 overflow-hidden border-r border-gold-900/30 group-hover:border-gold-500/30 transition-colors">
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[rgba(12,10,18,0.3)] z-10 pointer-events-none" />
+          <img
+            src={book.coverImage}
+            alt={book.title}
             loading="lazy"
             className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+            onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=300'; }}
           />
         </div>
 
+        {/* Top gold line for top-3 */}
+        {isTopThree && (
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold-500/70 to-transparent" />
+        )}
+
         {/* Content */}
-        <div className="flex-1 p-4 sm:p-6 md:p-8 flex flex-col justify-center relative z-10">
-          {/* Subtle Background Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gold-600/10 rounded-full blur-[40px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-          
-          <div className="flex items-center gap-2 mb-2 sm:mb-3">
-             <div className="flex bg-gold-900/20 px-2 py-1 rounded-full items-center gap-1 border border-gold-500/20">
-               <LocalFireDepartmentIcon className="text-orange-500 text-[10px] sm:text-xs" />
-               <span className="text-orange-400 text-[9px] sm:text-[10px] font-black tracking-widest uppercase">الأكثر رواجاً</span>
-             </div>
-             {book.rating && (
-               <div className="flex items-center gap-1">
-                 <StarIcon className="text-gold-400 text-[10px] sm:text-xs" />
-                 <span className="text-gold-400 text-xs sm:text-sm font-bold">{book.rating}</span>
-               </div>
-             )}
+        <div className="relative z-10 h-full flex flex-col justify-center pr-32 pl-6 py-5">
+          {/* Tags row */}
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="badge-trending flex items-center gap-1 text-[10px]">
+              <LocalFireDepartmentIcon className="text-orange-400" style={{ fontSize: '11px' }} />
+              <span>رائج</span>
+            </div>
+            {isTopThree && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-black"
+                style={{
+                  border: '1px solid rgba(212,175,55,0.4)',
+                  background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(139,105,20,0.1))',
+                  color: '#d4af37',
+                }}>
+                #{rank} الأكثر قراءةً
+              </span>
+            )}
           </div>
 
-          <h3 className="text-lg sm:text-xl md:text-2xl font-amiri font-black text-white mb-1 sm:mb-2 line-clamp-1 group-hover:text-gold-400 transition-colors">{book.title}</h3>
-          <p className="text-slate-400 text-xs sm:text-sm font-bold mb-3 sm:mb-4 line-clamp-1">{book.author}</p>
-          
-          <div className="flex items-center justify-between mt-auto pt-4 border-t border-gold-900/10">
-            <div className="flex items-center gap-2 text-slate-500 group-hover:text-gold-500/80 transition-colors">
-               <VisibilityIcon className="text-[14px] sm:text-[16px]" />
-               <span className="text-xs sm:text-sm font-black">{book.views ? `${book.views} مشاهدة` : 'رائج جداً'}</span>
+          {/* Title */}
+          <h3 className="font-amiri font-black text-white text-xl leading-tight line-clamp-1 group-hover:text-gold-300 transition-colors duration-400 mb-1">
+            {book.title}
+          </h3>
+
+          {/* Author */}
+          <p className="text-slate-500 text-xs font-bold line-clamp-1 mb-3 group-hover:text-slate-400 transition-colors">
+            {book.author}
+          </p>
+
+          {/* Footer row */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 text-slate-600">
+              {book.views ? (
+                <span className="flex items-center gap-1 text-xs text-slate-500 group-hover:text-gold-500/70 transition-colors">
+                  <VisibilityIcon style={{ fontSize: '13px' }} />
+                  <span className="font-bold">{book.views.toLocaleString()}</span>
+                </span>
+              ) : null}
             </div>
-            <span className="text-gold-500 font-black text-sm sm:text-lg">
-              {book.price === 0 ? 'مجاني' : `$${book.price}`}
-            </span>
+
+            <div className="flex items-center gap-2">
+              <span className={`font-amiri font-black text-base ${book.price === 0 ? 'text-emerald-400' : 'text-gold-400'}`}>
+                {book.price === 0 ? 'مجاني' : `$${Number(book.price).toFixed(2)}`}
+              </span>
+              <ArrowForwardIosIcon
+                className="text-gold-500/30 group-hover:text-gold-500/80 transition-colors"
+                style={{ fontSize: '11px', transform: 'rotate(180deg)' }}
+              />
+            </div>
           </div>
         </div>
       </motion.div>
