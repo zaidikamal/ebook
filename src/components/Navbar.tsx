@@ -55,6 +55,7 @@ const Navbar = () => {
           <Link
             to="/"
             className="flex items-center gap-3 flex-shrink-0 group"
+            dir="ltr"
           >
             <div className="relative w-9 h-9 md:w-10 md:h-10">
               <div className="absolute inset-0 rounded-xl bg-gold-500/20 blur-md group-hover:blur-lg transition-all duration-500 animate-glow-pulse" />
@@ -62,8 +63,8 @@ const Navbar = () => {
                 <MenuBookIcon className="text-slate-950 text-lg font-black" />
               </div>
             </div>
-            <span className="text-2xl md:text-3xl font-amiri font-black gold-text tracking-tight group-hover:animate-royal-flicker">
-              كتبي
+            <span className="text-2xl md:text-3xl font-amiri italic font-black gold-text tracking-wide group-hover:animate-royal-flicker">
+              Koutoubi
             </span>
           </Link>
 

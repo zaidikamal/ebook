@@ -1,9 +1,41 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import SendIcon from '@mui/icons-material/Send';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useState } from 'react';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus('loading');
+    
+    try {
+      await addDoc(collection(db, 'newsletter_subscriptions'), {
+        email: email.trim().toLowerCase(),
+        subscribedAt: new Date().toISOString()
+      });
+      
+      setStatus('success');
+      setEmail('');
+      
+      // Reset back to idle after a few seconds
+      setTimeout(() => {
+        setStatus('idle');
+      }, 3000);
+    } catch (error) {
+      console.error("Error subscribing:", error);
+      setStatus('idle');
+    }
+  };
+
   return (
     <footer className="relative overflow-hidden border-t" dir="rtl"
       style={{
@@ -33,14 +65,14 @@ const Footer = () => {
 
           {/* Brand Column */}
           <div className="space-y-6 lg:col-span-1">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-fit" dir="ltr">
               <div className="relative w-11 h-11">
                 <div className="absolute inset-0 rounded-xl bg-gold-500/20 blur-md animate-glow-pulse" />
                 <div className="relative w-full h-full bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 rounded-xl flex items-center justify-center shadow-lg shadow-gold-500/30 transform -rotate-6">
                   <MenuBookIcon className="text-slate-950 text-xl font-black" />
                 </div>
               </div>
-              <h2 className="text-4xl font-amiri font-black gold-text">كتبي</h2>
+              <h2 className="text-4xl font-amiri italic tracking-wide font-black gold-text">Koutoubi</h2>
             </div>
 
             <p className="text-slate-500 leading-loose text-sm font-medium">
@@ -153,20 +185,46 @@ const Footer = () => {
             <p className="text-slate-500 text-sm font-medium leading-relaxed">
               اشترك لتصلك دعوات خاصة لمزادات الكتب النادرة وآخر الإصدارات.
             </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="بريدك الإلكتروني..."
-                className="royal-input flex-1 min-w-0 text-sm py-3"
-              />
-              <motion.button
-                whileTap={{ scale: 0.92 }}
-                aria-label="اشتراك"
-                className="gold-button !px-4 !py-0 h-12 flex items-center justify-center rounded-xl flex-shrink-0"
-              >
-                <SendIcon className="text-base" />
-              </motion.button>
-            </div>
+            <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="بريدك الإلكتروني..."
+                  className="royal-input flex-1 min-w-0 text-sm py-3"
+                  required
+                  disabled={status !== 'idle'}
+                />
+                <motion.button
+                  type="submit"
+                  whileTap={status === 'idle' ? { scale: 0.92 } : {}}
+                  disabled={status !== 'idle'}
+                  aria-label="اشتراك"
+                  className="gold-button !px-4 !py-0 h-12 flex items-center justify-center rounded-xl flex-shrink-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {status === 'loading' ? (
+                    <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                  ) : status === 'success' ? (
+                    <CheckCircleIcon className="text-base" />
+                  ) : (
+                    <SendIcon className="text-base" />
+                  )}
+                </motion.button>
+              </div>
+              <AnimatePresence>
+                {status === 'success' && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="text-emerald-400 text-xs font-bold px-2"
+                  >
+                    تم الاشتراك بنجاح! شكراً لك.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </form>
           </div>
         </div>
 
