@@ -4,8 +4,7 @@ import SendIcon from '@mui/icons-material/Send';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
@@ -18,15 +17,27 @@ const Footer = () => {
     setStatus('loading');
     
     try {
-      await addDoc(collection(db, 'newsletter_subscriptions'), {
-        email: email.trim().toLowerCase(),
-        subscribedAt: new Date().toISOString()
-      });
+      if (!supabase) throw new Error("Supabase is not configured");
+
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert([{
+          email: email.trim().toLowerCase(),
+          subscribed_at: new Date().toISOString(),
+          source: 'footer'
+        }]);
+
+      if (error) {
+        if (error.code === '23505') {
+           // Ignore duplicate silently or handle it
+        } else {
+           throw error;
+        }
+      }
       
       setStatus('success');
       setEmail('');
       
-      // Reset back to idle after a few seconds
       setTimeout(() => {
         setStatus('idle');
       }, 3000);

@@ -9,6 +9,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -20,6 +21,7 @@ import { db } from '../lib/firebase';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, getDocs, where, writeBatch } from 'firebase/firestore';
 import { useToast } from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
+import { uploadToSupabase } from '../lib/supabase';
 
 /* ===================== TYPES ===================== */
 interface FirebaseBook {
@@ -35,6 +37,7 @@ interface FirebaseBook {
   license?: string;
   views?: number;
   downloads?: number;
+  coverUrl?: string;
 }
 
 interface FirebaseUser {
@@ -63,18 +66,30 @@ const EditModal: React.FC<EditModalProps> = ({ book, onClose, onSave }) => {
     license: book.license || 'Licensed',
   });
   const [saving, setSaving] = useState(false);
+  const [newCoverFile, setNewCoverFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleSave = async () => {
     setSaving(true);
-    await onSave(book.id, {
-      title: form.title,
-      author: form.author,
-      category: form.category,
-      price: parseFloat(form.price) || 0,
-      publicationYear: form.publicationYear,
-      description: form.description,
-      license: form.license,
-    });
+    try {
+      let updatedCoverUrl = book.coverUrl;
+      if (newCoverFile) {
+        updatedCoverUrl = await uploadToSupabase(newCoverFile, 'covers', (p) => setUploadProgress(p));
+      }
+      await onSave(book.id, {
+        title: form.title,
+        author: form.author,
+        category: form.category,
+        price: parseFloat(form.price) || 0,
+        publicationYear: form.publicationYear,
+        description: form.description,
+        license: form.license,
+        ...(updatedCoverUrl && { coverUrl: updatedCoverUrl })
+      });
+    } catch (e: any) {
+      console.error(e);
+      alert('حدث خطأ أثناء رفع الصورة: ' + e.message);
+    }
     setSaving(false);
     onClose();
   };
@@ -186,6 +201,34 @@ const EditModal: React.FC<EditModalProps> = ({ book, onClose, onSave }) => {
               placeholder="وصف مفصّل عن محتوى الكتاب..."
               className="w-full bg-white/5 border border-gold-900/20 rounded-2xl px-5 py-4 text-white font-medium focus:outline-none focus:border-gold-500/50 transition-all text-right resize-none leading-relaxed"
             />
+          </div>
+          
+          {/* Cover Edit */}
+          <div className="space-y-4 pt-4 border-t border-gold-900/20">
+            <label className="text-sm font-black text-slate-400">تغيير غلاف الكتاب (اختياري)</label>
+            <div className={`border-2 border-dashed ${newCoverFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-gold-900/30'} rounded-2xl p-6 text-center hover:border-gold-500/50 transition-all group relative cursor-pointer flex flex-col items-center justify-center`}>
+              <AddPhotoAlternateIcon className={`text-4xl ${newCoverFile ? 'text-emerald-500' : 'text-gold-900 group-hover:text-gold-500'} transition-colors mb-2`} />
+              <p className={`font-bold text-sm ${newCoverFile ? 'text-emerald-400' : 'text-slate-400'}`}>
+                {newCoverFile ? newCoverFile.name : 'اسحب صورة الغلاف الجديدة هنا أو انقر للاختيار'}
+              </p>
+              <input type="file" accept="image/*" onChange={(e) => setNewCoverFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer" />
+            </div>
+            
+            {(book.coverUrl || newCoverFile) && (
+              <div className="mt-4 flex flex-col items-start gap-2">
+                <p className="text-xs text-slate-500 font-bold">{newCoverFile ? 'الصورة الجديدة:' : 'الغلاف الحالي للمجلد:'}</p>
+                {newCoverFile ? (
+                  <img src={URL.createObjectURL(newCoverFile)} alt="New Cover Preview" className="h-32 object-contain rounded-lg border border-gold-900/20 shadow-md bg-white/5 p-1" />
+                ) : (
+                  <img src={book.coverUrl} alt="Cover" className="h-32 object-contain rounded-lg border border-gold-900/20 shadow-md bg-white/5 p-1" />
+                )}
+              </div>
+            )}
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="mt-2 w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full bg-gold-500 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+              </div>
+            )}
           </div>
         </div>
 
