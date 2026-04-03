@@ -199,61 +199,110 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="bg-surface min-h-screen text-slate-100 font-jakarta rtl" dir="rtl">
+    <div className="bg-surface min-h-screen text-slate-100 font-jakarta rtl relative overflow-hidden" dir="rtl">
+      {/* Royal Background Elements */}
+      <div className="particles-bg">
+        {[...Array(20)].map((_, i) => (
+          <div 
+            key={i} 
+            className="particle" 
+            style={{ 
+              left: `${Math.random() * 100}%`, 
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${5 + Math.random() * 10}s`
+            }} 
+          />
+        ))}
+      </div>
+      <div className="section-glow section-glow-gold top-0 left-1/4 w-[500px] h-[500px]"></div>
+      <div className="section-glow section-glow-gold bottom-0 right-1/4 w-[600px] h-[600px] opacity-[0.03]"></div>
+
       <Navbar />
       
       <main className="container mx-auto px-6 pt-40 pb-24">
         {/* User Header */}
         <section className="mb-20">
-           <div className="bg-gradient-to-br from-gold-900/20 to-surface-container-low p-12 rounded-[4rem] border border-gold-900/20 flex flex-col md:flex-row-reverse items-center justify-between gap-12 relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-64 h-64 bg-gold-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+           <div className="relative group perspective-1000">
+             {/* Glowing backing for the entire header */}
+             <div className="absolute inset-0 bg-gradient-to-r from-gold-500/20 via-gold-600/5 to-purple-900/20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none rounded-[4rem]"></div>
              
-             <div className="flex flex-col md:flex-row-reverse items-center gap-8">
-                {/* Logout Button */}
-                <button 
-                  onClick={handleLogout}
-                  className="absolute top-8 left-8 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-4 py-2 rounded-xl border border-red-500/20 transition-all font-black text-xs"
-                >
-                  تسجيل الخروج
-                </button>
-                <div className="w-32 h-32 rounded-full border-4 border-gold-500/30 p-1 shadow-2xl relative group cursor-pointer" onClick={() => setShowAvatarModal(true)}>
-                   <img src={user.avatar} alt="صورة المستخدم الشخصية" loading="lazy" className="w-full h-full rounded-full bg-surface-container-low object-cover" />
-                   <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <EditIcon className="text-gold-500" />
-                   </div>
-                   <div className="absolute -bottom-2 -right-2 bg-gold-500 w-10 h-10 rounded-full flex items-center justify-center border-4 border-surface shadow-lg">
-                      <VerifiedIcon className="text-surface text-xl" />
-                   </div>
-                </div>
-                <div className="text-center md:text-right">
-                   <h1 className="text-4xl font-amiri font-black gold-text mb-2">{user.name}</h1>
-                   <p className="text-slate-500 font-bold mb-4">{user.email}</p>
-                   <span className="px-6 py-2 bg-gold-900/10 border border-gold-900/20 rounded-full text-gold-500 text-sm font-black uppercase tracking-widest">
-                     {user.tier}
-                   </span>
-                </div>
-             </div>
-
-             <div className="grid grid-cols-2 gap-8 w-full md:w-auto">
-                <div className="bg-surface/50 p-6 rounded-3xl border border-gold-900/10 text-center">
-                   <p className="text-3xl font-amiri font-black gold-text">{ownedBooks.length}</p>
-                   <p className="text-slate-500 text-[10px] font-black uppercase">كتاب في الخزانة</p>
-                </div>
-                <div className="bg-surface/50 p-6 rounded-3xl border border-gold-900/10 text-center">
-                   <p className="text-3xl font-amiri font-black gold-text">12</p>
-                   <p className="text-slate-500 text-[10px] font-black uppercase">ساعة قراءة</p>
-                </div>
+             <div className="bg-gradient-to-br from-[#1a1712]/90 to-surface-container-low/95 p-12 rounded-[4rem] border-2 border-gold-900/30 flex flex-col md:flex-row-reverse items-center justify-between gap-12 relative overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.05)] backdrop-blur-xl">
+               {/* Premium decorative shapes */}
+               <div className="absolute top-0 right-0 w-96 h-96 bg-gold-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+               <div className="absolute -bottom-32 left-0 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+               
+               {/* Golden corner accents */}
+               <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-gold-500/30 rounded-tr-[4rem] m-2 opacity-50"></div>
+               <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-gold-500/30 rounded-bl-[4rem] m-2 opacity-50"></div>
+               
+               <div className="flex flex-col md:flex-row-reverse items-center gap-10 w-full md:w-auto z-10">
+                  {/* Logout Button */}
+                  <button 
+                    onClick={handleLogout}
+                    className="absolute top-8 left-8 bg-red-500/5 hover:bg-red-500 text-red-400 hover:text-white px-5 py-2.5 rounded-2xl border border-red-500/20 hover:border-red-500 transition-all font-black text-xs shadow-lg hover:shadow-red-500/20"
+                  >
+                    تسجيل الخروج
+                  </button>
+                  
+                  {/* Avatar wrapper with double rings */}
+                  <div className="relative group/avatar cursor-pointer" onClick={() => setShowAvatarModal(true)}>
+                    <div className="absolute -inset-2 bg-gradient-to-r from-gold-500 via-yellow-200 to-gold-600 rounded-full blur-md opacity-20 group-hover/avatar:opacity-60 transition duration-1000 group-hover/avatar:duration-200"></div>
+                    <div className="w-40 h-40 rounded-full border-[6px] border-surface-container-lowest p-1 shadow-2xl relative bg-gradient-to-br from-gold-900/50 to-surface overflow-hidden">
+                       <img src={user.avatar} alt="صورة المستخدم الشخصية" loading="lazy" className="w-full h-full rounded-full bg-surface-container-lowest object-cover ring-2 ring-gold-500/30 transform group-hover/avatar:scale-110 transition-transform duration-700" />
+                       <div className="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all duration-300">
+                          <EditIcon className="text-gold-400 text-3xl drop-shadow-lg mb-1" />
+                          <span className="text-[10px] text-gold-200 font-black tracking-widest uppercase">تعديل</span>
+                       </div>
+                       <div className="absolute -bottom-1 -right-1 bg-gradient-to-br from-gold-400 to-gold-600 w-12 h-12 rounded-full flex items-center justify-center border-4 border-surface shadow-[0_0_20px_rgba(212,175,55,0.4)] z-20">
+                          <VerifiedIcon className="text-slate-900 text-2xl" />
+                       </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center md:text-right">
+                     <h1 className="text-5xl font-amiri font-black text-transparent bg-clip-text bg-gradient-to-b from-gold-300 via-gold-500 to-gold-700 drop-shadow-sm mb-3">
+                       {user.name}
+                     </h1>
+                     <p className="text-slate-400 font-bold mb-6 tracking-wide text-sm bg-surface-container-lowest/50 py-1.5 px-4 rounded-full inline-block border border-gold-900/10">
+                       {user.email}
+                     </p>
+                     <div>
+                       <span className="px-8 py-2.5 bg-gradient-to-r from-gold-900/40 to-gold-800/10 border border-gold-500/30 rounded-full text-gold-400 text-sm font-black uppercase tracking-widest shadow-[inset_0_0_20px_rgba(212,175,55,0.1)] inline-flex items-center gap-2">
+                         <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
+                         {user.tier}
+                       </span>
+                     </div>
+                  </div>
+               </div>
+  
+               <div className="grid grid-cols-2 gap-6 w-full md:w-[380px] z-10">
+                  <div className="stat-card group/stat">
+                     <p className="text-5xl font-amiri font-black text-white group-hover/stat:text-gold-400 transition-colors drop-shadow-md mb-2">{ownedBooks.length}</p>
+                     <p className="text-gold-500/70 text-[11px] font-black uppercase tracking-[0.2em]">كتاب في الخزانة</p>
+                     <div className="rank-badge absolute bottom-0 left-0 -translate-x-1/4 translate-y-1/4 pointer-events-none">#1</div>
+                  </div>
+                  <div className="stat-card group/stat">
+                     <p className="text-5xl font-amiri font-black text-white group-hover/stat:text-gold-400 transition-colors drop-shadow-md mb-2">12</p>
+                     <p className="text-gold-500/70 text-[11px] font-black uppercase tracking-[0.2em]">ساعة قراءة</p>
+                     <div className="rank-badge absolute bottom-0 left-0 -translate-x-1/4 translate-y-1/4 pointer-events-none">PRO</div>
+                  </div>
+               </div>
              </div>
            </div>
         </section>
 
+        {/* Decorative Separator */}
+        <div className="ornament-separator opacity-40">
+           <div className="w-3 h-3 rounded-full border border-gold-500 animate-pulse"></div>
+        </div>
+
         {/* Library Section */}
         <section>
-          <div className="flex items-center justify-between mb-16 px-4">
-             <h2 className="text-4xl font-amiri font-black gold-text">مكتبتك الخاصة</h2>
-             <div className="flex gap-4">
-                <button className="bg-gold-500/10 text-gold-500 px-6 py-2 rounded-full text-sm font-black border border-gold-500/20">الكل</button>
-             </div>
+          <div className="flex flex-col items-center mb-20">
+             <h2 className="text-6xl font-amiri font-black gold-text mb-4">مكتبتك الخاصة</h2>
+             <div className="h-1 w-24 bg-gradient-to-r from-transparent via-gold-500 to-transparent"></div>
+             <p className="text-slate-500 mt-6 font-medium tracking-widest uppercase text-xs">مجموعة الكتب النادرة والمقتنيات الملكية</p>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
@@ -263,10 +312,22 @@ const ProfilePage = () => {
                    <div key={i} className="aspect-[3/4.5] bg-surface-container-low animate-pulse rounded-[2rem] border border-gold-900/10" />
                  ))
               ) : ownedBooks.length === 0 ? (
-                <div className="col-span-full py-32 text-center opacity-30">
-                   <Inventory2Icon className="text-8xl mb-6" />
-                   <p className="text-3xl font-amiri font-black">خزانتك لا تزال بانتظر كنوزها الأولى</p>
-                   <button onClick={() => navigate('/search')} className="mt-8 text-gold-500 font-black border-b border-gold-500 pb-1">ابدأ الاقتناء الآن</button>
+                <div className="col-span-full py-40 text-center relative group">
+                   <div className="absolute inset-0 bg-gold-500/5 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                   <div className="relative z-10 transition-transform duration-500 group-hover:-translate-y-2">
+                      <div className="w-24 h-24 bg-surface-container-low border border-gold-900/20 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl transform -rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                        <Inventory2Icon className="text-5xl text-gold-500/30 group-hover:text-gold-500/60 transition-colors" />
+                      </div>
+                      <p className="text-4xl font-amiri font-black text-slate-300 mb-4 tracking-tight">خزانتك لا تزال بانتظار كنوزها الأولى</p>
+                      <p className="text-slate-500 mb-10 max-w-md mx-auto leading-relaxed font-medium">اكتشف مجموعتنا الحصرية من المخطوطات والكتب النادرة وابدأ في بناء إرثك الثقافي اليوم.</p>
+                      <button 
+                        onClick={() => navigate('/search')} 
+                        className="gold-button scale-95 hover:scale-105 transition-transform inline-flex items-center gap-3"
+                      >
+                        <span>تصفح الخزانة الملكية</span>
+                        <div className="w-6 h-6 rounded-full bg-slate-950/20 flex items-center justify-center">→</div>
+                      </button>
+                   </div>
                 </div>
               ) : (
                 ownedBooks.map((book: any) => (
@@ -278,12 +339,9 @@ const ProfilePage = () => {
                     className="relative group"
                   >
                     <BookCard book={book} />
-                    <button 
-                      onClick={() => handleDownload(book)}
-                      className="absolute bottom-24 left-8 right-8 bg-surface/90 backdrop-blur-xl border border-gold-500/30 py-3 rounded-2xl text-gold-500 font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 shadow-2xl flex items-center justify-center gap-2 hover:bg-gold-500 hover:text-surface"
-                    >
-                      <DownloadIcon className="text-sm" />
-                      تحميل النسخة الملكية
+                      <DownloadIcon className="text-sm group-hover:animate-bounce" />
+                      <span>اقتناء النسخة الملكية</span>
+                      <div className="absolute inset-0 rounded-2xl border border-gold-500/50 opacity-0 group-hover:opacity-100 animate-pulse pointer-events-none"></div>
                     </button>
                   </motion.div>
                 ))
@@ -312,25 +370,33 @@ const ProfilePage = () => {
             className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-6"
             onClick={() => { setShowAvatarModal(false); setUploadPreview(null); }}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 20 }}
-              className="bg-surface-container-low border border-gold-900/20 rounded-[3rem] p-10 w-full max-w-xl shadow-2xl"
-              onClick={e => e.stopPropagation()}
-              dir="rtl"
-            >
-              <div className="flex flex-row-reverse items-center justify-between mb-8">
-                <h2 className="text-3xl font-amiri font-black gold-text">تغيير صورة البروفيل</h2>
-                <button aria-label="إغلاق النافذة" onClick={() => { setShowAvatarModal(false); setUploadPreview(null); }} className="w-10 h-10 rounded-full bg-surface flex items-center justify-center hover:bg-gold-500/10 transition-colors">
-                  <CloseIcon className="text-slate-400" />
-                </button>
-              </div>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="bg-surface-container-low border-2 border-gold-900/30 rounded-[3.5rem] p-12 w-full max-w-2xl shadow-[0_40px_100px_rgba(0,0,0,0.8)] relative overflow-hidden"
+                onClick={e => e.stopPropagation()}
+                dir="rtl"
+              >
+                {/* Decorative background for modal */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/5 blur-[100px] pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 blur-[100px] pointer-events-none"></div>
+                
+                <div className="flex flex-row-reverse items-center justify-between mb-10 relative z-10">
+                  <h2 className="text-4xl font-amiri font-black gold-text">اختيار الرمز الملكي</h2>
+                  <button aria-label="إغلاق النافذة" onClick={() => { setShowAvatarModal(false); setUploadPreview(null); }} className="w-12 h-12 rounded-2xl bg-surface border border-gold-900/20 flex items-center justify-center hover:bg-red-500/10 hover:border-red-500/30 transition-all hover:rotate-90">
+                    <CloseIcon className="text-slate-400 group-hover:text-red-400" />
+                  </button>
+                </div>
 
-              {/* Upload from device */}
-              <div className="mb-8">
-                <p className="text-slate-400 font-bold mb-4 text-right">رفع صورة من جهازك</p>
+                <div className="relative z-10">
+                  {/* Upload from device */}
+                  <div className="mb-12">
+                    <p className="text-slate-300 font-black mb-6 text-right flex items-center gap-2 justify-end">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+                      رفع صورة مخصصة
+                    </p>
                 {uploadPreview ? (
                   <div className="flex flex-col items-center gap-4">
                     <img src={uploadPreview} alt="معاينة الصورة" loading="lazy" className="w-24 h-24 rounded-full object-cover border-4 border-gold-500/50 shadow-xl" />
@@ -364,20 +430,30 @@ const ProfilePage = () => {
 
               {/* Preset avatars */}
               <div>
-                <p className="text-slate-400 font-bold mb-4 text-right">أو اختر صورة جاهزة</p>
-                <div className="grid grid-cols-6 gap-3">
-                  {PRESET_AVATARS.map((src, i) => (
-                    <button
-                      key={i}
-                      onClick={() => applyAvatar(src)}
-                      className={`w-full aspect-square rounded-2xl overflow-hidden border-2 transition-all hover:scale-110 ${
-                        user.avatar === src ? 'border-gold-500 shadow-[0_0_12px_rgba(212,175,55,0.5)]' : 'border-gold-900/20 hover:border-gold-500/50'
-                      }`}
-                    >
-                      <img src={src} alt={`صورة رمزية مستعارة ${i}`} loading="lazy" className="w-full h-full object-cover bg-surface-container-lowest" />
-                    </button>
-                  ))}
-                </div>
+                  <p className="text-slate-300 font-black mb-6 text-right flex items-center gap-2 justify-end">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+                    المعرض الملكي
+                  </p>
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-4">
+                    {PRESET_AVATARS.map((src, i) => (
+                      <button
+                        key={i}
+                        onClick={() => applyAvatar(src)}
+                        className={`group/av-item relative aspect-square rounded-[1.5rem] overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 ${
+                          user.avatar === src ? 'border-gold-500 shadow-[0_0_25px_rgba(212,175,55,0.3)] scale-105' : 'border-gold-900/10 hover:border-gold-500/50'
+                        }`}
+                      >
+                        <img src={src} alt={`صورة رمزية مستعارة ${i}`} loading="lazy" className="w-full h-full object-cover bg-surface-container-lowest transition-transform duration-500 group-hover/av-item:scale-125" />
+                        {user.avatar === src && (
+                          <div className="absolute inset-0 bg-gold-500/10 flex items-center justify-center">
+                            <div className="bg-gold-500 text-slate-950 p-1 rounded-full">
+                              <CheckCircleIcon className="text-xs" />
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
               </div>
             </motion.div>
           </motion.div>
