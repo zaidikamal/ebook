@@ -3,10 +3,10 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import SecurityIcon from '@mui/icons-material/Security';
-import SearchIcon from '@mui/icons-material/Search';
+import Search from '@mui/icons-material/Search';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
-import HomeIcon from '@mui/icons-material/Home';
+import Home from '@mui/icons-material/Home';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CloseIcon from '@mui/icons-material/Close';
@@ -34,7 +34,7 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { to: '/', label: 'الرئيسية', icon: <HomeIcon className="text-base" />, exact: true },
+    { to: '/', label: 'الرئيسية', icon: <Home className="text-base" />, exact: true },
     { to: '/search', label: 'تصفح الكتب', icon: <AutoStoriesIcon className="text-base" /> },
     ...(user ? [{ to: '/profile', label: 'مكتبتي', icon: <AccountBalanceIcon className="text-base" /> }] : []),
   ];
@@ -106,7 +106,7 @@ const Navbar = () => {
               border: '1px solid rgba(212,175,55,0.1)',
             }}
           >
-            <SearchIcon className="text-slate-600 text-sm group-focus-within:text-gold-500 transition-colors flex-shrink-0" />
+            <Search className="text-slate-600 text-sm group-focus-within:text-gold-500 transition-colors flex-shrink-0" />
             <input
               type="text"
               placeholder="ابحث عن كتاب..."

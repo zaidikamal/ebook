@@ -25,13 +25,17 @@ const initSentry = () => {
   });
 };
 
-if (typeof window !== 'undefined') {
-  if (window.requestIdleCallback) {
-    window.requestIdleCallback(() => initSentry());
-  } else {
-    setTimeout(initSentry, 2000);
-  }
-}
+setTimeout(() => {
+  initSentry();
+  
+  // Dynamically load Google AdSense to prevent early-render TBT
+  const adsense = document.createElement('script');
+  // Google AdSense and Sentry are deferred to improve initial load performance
+  adsense.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX";
+  adsense.async = true;
+  adsense.crossOrigin = "anonymous";
+  document.head.appendChild(adsense);
+}, 3000);
 
 const queryClient = new QueryClient();
 

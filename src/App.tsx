@@ -1,7 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import NewsletterPopup from './components/NewsletterPopup';
+const NewsletterPopup = lazy(() => import('./components/NewsletterPopup'));
 
 const Home = lazy(() => import('./pages/Home'));
 const SearchPage = lazy(() => import('./pages/Search'));
@@ -77,7 +77,9 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </Suspense>
-        <NewsletterPopup />
+        <Suspense fallback={null}>
+          <NewsletterPopup />
+        </Suspense>
       </div>
     </Router>
   );

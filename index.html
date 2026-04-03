@@ -7,8 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- CSP is handled by vercel.json for better security and flexibility -->
     
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+    <!-- Google AdSense and Sentry are deferred to improve initial load performance -->
     
     <!-- Preconnects to improve network dependency tree and render-blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,11 +15,11 @@
     <link rel="preconnect" href="https://images.unsplash.com" />
     <link rel="preload" as="image" href="/royal-hero.png" fetchpriority="high" />
     
-    <!-- Optimized Font Loading with Preload & Swap to eliminate Render-Blocking -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=IBM+Plex+Sans+Arabic:wght@100..700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=IBM+Plex+Sans+Arabic:wght@100..700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" media="print" onload="this.onload=null;this.media='all';" />
+    <!-- Optimized Font Loading: Consolidating to essential Royal-aesthetic families -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300..700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300..700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" media="print" onload="this.onload=null;this.media='all';" />
     <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=IBM+Plex+Sans+Arabic:wght@100..700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300..700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
     </noscript>
     
     <style>
