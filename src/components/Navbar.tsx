@@ -14,6 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../lib/firebase';
 import { signOut } from 'firebase/auth';
+import NotificationCenter from './NotificationCenter';
 
 const Navbar = () => {
   const { user, loading } = useAuth();
@@ -35,7 +36,8 @@ const Navbar = () => {
 
   const navLinks = [
     { to: '/', label: 'الرئيسية', icon: <Home className="text-base" />, exact: true },
-    { to: '/search', label: 'تصفح الكتب', icon: <AutoStoriesIcon className="text-base" /> },
+    { to: '/library', label: 'الخزانة الملكية', icon: <AutoStoriesIcon className="text-base" /> },
+    { to: '/search', label: 'البحث', icon: <Search className="text-base" /> },
     ...(user ? [{ to: '/profile', label: 'مكتبتي', icon: <AccountBalanceIcon className="text-base" /> }] : []),
   ];
 
@@ -126,21 +128,24 @@ const Navbar = () => {
               <div className="w-7 h-7 rounded-full border-2 border-gold-500/20 border-t-gold-500/80 animate-spin" />
             ) : user ? (
               <>
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-2.5 px-4 py-2 rounded-2xl transition-all duration-300 group"
-                  style={{
-                    background: 'rgba(15,12,25,0.7)',
-                    border: '1px solid rgba(212,175,55,0.1)',
-                  }}
-                >
-                  <div className="w-7 h-7 rounded-full border border-gold-500/40 overflow-hidden bg-gold-900/30 flex items-center justify-center text-gold-400 font-black text-sm flex-shrink-0 group-hover:border-gold-500/80 transition-colors">
-                    {user.name?.[0]?.toUpperCase() || 'U'}
-                  </div>
-                  <span className="text-slate-400 group-hover:text-gold-400 font-black text-xs transition-colors">
-                    {user.role === 'admin' ? '👑 المدير' : (user.name || 'عضو ملكي')}
-                  </span>
-                </Link>
+                <div className="flex items-center gap-4">
+                  <NotificationCenter />
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2.5 px-4 py-2 rounded-2xl transition-all duration-300 group"
+                    style={{
+                      background: 'rgba(15,12,25,0.7)',
+                      border: '1px solid rgba(212,175,55,0.1)',
+                    }}
+                  >
+                    <div className="w-7 h-7 rounded-full border border-gold-500/40 overflow-hidden bg-gold-900/30 flex items-center justify-center text-gold-400 font-black text-sm flex-shrink-0 group-hover:border-gold-500/80 transition-colors">
+                      {user.name?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                    <span className="text-slate-400 group-hover:text-gold-400 font-black text-xs transition-colors">
+                      {user.role === 'admin' ? '👑 المدير' : (user.name || 'عضو ملكي')}
+                    </span>
+                  </Link>
+                </div>
 
                 <button
                   onClick={handleLogout}

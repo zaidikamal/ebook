@@ -23,6 +23,10 @@ const Payment = lazy(() => import('./pages/Payment'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+
+import CommandPalette from './components/CommandPalette';
+import AIAdvisor from './components/AIAdvisor';
 
 function App() {
   const { user, loading } = useAuth();
@@ -38,9 +42,12 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-surface selection:bg-indigo-500/30">
+        <CommandPalette />
+        <AIAdvisor />
         <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center text-gold-500 font-black" dir="rtl">...جاري جلب المجلدات</div>}>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/library" element={<Home />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/book/:id" element={<BookDetails />} />
             <Route path="/login" element={<LoginPage />} />
