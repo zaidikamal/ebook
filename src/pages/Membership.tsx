@@ -3,14 +3,12 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { Check, Star, Crown, Shield, Zap, Gem, Award } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Check, Star, Crown, Shield, Zap, Gem, Award, Search } from 'lucide-react';
 
 const MembershipTier = ({ tier, idx }: { tier: any; idx: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 50 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
+    animate={{ opacity: 1, y: 0 }}
     transition={{ delay: idx * 0.1, duration: 0.8 }}
     className={`relative group rounded-[3rem] p-10 border transition-all duration-500 hover:scale-[1.02] ${
       tier.highlight ? 'bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.1)]' : 'bg-white/[0.02] border-white/10 hover:border-white/20'
@@ -210,12 +208,12 @@ const Membership = () => {
               <h2 className="text-4xl md:text-5xl font-amiri font-black mb-6">هل لديك استفسار خاص؟</h2>
               <p className="text-black/80 text-lg mb-10 font-bold">فريق الدعم الملكي مخصص لخدمة الأعضاء والباحثين على مدار الساعة.</p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Button className="bg-black text-white hover:bg-zinc-900 px-10 py-6 rounded-2xl text-lg font-black">
+                <button className="bg-black text-white hover:bg-zinc-900 px-10 py-6 rounded-2xl text-lg font-black transition-all">
                   تواصل معنا
-                </Button>
-                <Button variant="outline" className="border-black text-black hover:bg-black/5 px-10 py-6 rounded-2xl text-lg font-black">
+                </button>
+                <button className="border-2 border-black text-black hover:bg-black/5 px-10 py-6 rounded-2xl text-lg font-black transition-all">
                   الأسئلة الشائعة
-                </Button>
+                </button>
               </div>
             </div>
           </motion.div>
