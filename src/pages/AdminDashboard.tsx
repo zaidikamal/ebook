@@ -46,6 +46,7 @@ interface FirebaseUser {
   email: string;
   role: string;
   createdAt: string;
+  avatar?: string;
 }
 
 /* ===================== EDIT MODAL ===================== */
@@ -317,25 +318,47 @@ const EditModal: React.FC<EditModalProps> = ({ book, onClose, onSave }) => {
 
 const AnalyticsSection = ({ books }: { books: FirebaseBook[] }) => (
   <div className="space-y-12 relative z-10 text-right">
-    <h3 className="text-4xl font-amiri font-black gold-text">تحليلات الأداء الملكي</h3>
-    <div className="overflow-x-auto">
-      <table className="w-full text-right" dir="rtl">
+    <div className="relative pb-4">
+      <h3 className="text-5xl font-amiri font-black gold-text mb-2">تحليلات الأداء الملكي</h3>
+      <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em] opacity-60">مؤشرات الرواج والتفاعل للمجلدات الإمبراطورية</p>
+      <div className="absolute bottom-0 right-0 w-24 h-1 bg-gradient-to-l from-gold-500 to-transparent"></div>
+    </div>
+
+    <div className="overflow-x-auto pb-6 custom-scrollbar">
+      <table className="w-full text-right border-separate border-spacing-y-4" dir="rtl">
         <thead>
-          <tr className="border-b border-gold-900/10 text-slate-500 text-xs font-black uppercase tracking-widest">
-            <th className="pb-6 pr-4">المجلد</th>
-            <th className="pb-6">المشاهدات</th>
-            <th className="pb-6">التحميلات</th>
-            <th className="pb-6">معدل التحويل</th>
+          <tr className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+            <th className="pb-4 pr-10 text-right">المجلد الإمبراطوري</th>
+            <th className="pb-4 text-center">المشاهدات الملكية</th>
+            <th className="pb-4 text-center">التحميلات المعتمدة</th>
+            <th className="pb-4 text-left pl-10">معدل الانذياع التام</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gold-900/5">
-          {books.map(book => (
-            <tr key={book.id} className="hover:bg-gold-500/5 transition-colors">
-              <td className="py-5 pr-4 font-black text-white">{book.title}</td>
-              <td className="py-5 font-bold text-slate-400">{book.views || 0}</td>
-              <td className="py-5 font-bold text-emerald-500">{book.downloads || 0}</td>
-              <td className="py-5 font-black text-gold-500">
-                {book.views ? Math.round(((book.downloads || 0) / book.views) * 100) : 0}%
+        <tbody>
+          {books.map((book, idx) => (
+            <tr 
+              key={book.id} 
+              className="group/row transition-all duration-500 hover:-translate-y-0.5"
+              style={{ transitionDelay: `${idx * 40}ms` }}
+            >
+              <td className="py-5 pr-10 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] rounded-r-[2.5rem] border-r border-y border-gold-500/10 group-hover/row:border-gold-500/30 transition-all">
+                <div className="flex items-center gap-5">
+                   <div className="w-10 h-14 bg-gold-500/10 rounded overflow-hidden border border-white/5">
+                      <img src={book.coverUrl || "https://i.imgur.com/8K9f6V2.png"} className="w-full h-full object-cover grayscale group-hover/row:grayscale-0 transition-all" alt="" />
+                   </div>
+                   <p className="font-playfair font-black text-white group-hover/row:text-gold-400 transition-colors text-lg">{book.title}</p>
+                </div>
+              </td>
+              <td className="py-5 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 text-center transition-all">
+                <span className="text-slate-400 font-bold text-lg">{book.views || 0}</span>
+              </td>
+              <td className="py-5 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 text-center transition-all">
+                <span className="text-emerald-500 font-black text-lg">{book.downloads || 0}</span>
+              </td>
+              <td className="py-5 pl-10 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] rounded-l-[2.5rem] border-l border-y border-gold-500/10 group-hover/row:border-gold-500/30 text-left transition-all">
+                <span className="px-5 py-2 bg-gold-900/20 border border-gold-500/20 rounded-full text-gold-500 font-black font-mono">
+                  {book.views ? Math.round(((book.downloads || 0) / book.views) * 100) : 0}%
+                </span>
               </td>
             </tr>
           ))}
@@ -347,38 +370,57 @@ const AnalyticsSection = ({ books }: { books: FirebaseBook[] }) => (
 
 const OverviewSection = ({ recentBooks }: { recentBooks: FirebaseBook[] }) => (
   <div className="space-y-12 relative z-10 text-right">
-    <div className="flex flex-row-reverse items-center justify-between">
-      <h3 className="text-4xl font-amiri font-black gold-text">آخر الإضافات الملكية</h3>
+    <div className="relative pb-4">
+      <h3 className="text-5xl font-amiri font-black gold-text mb-2">آخر الإضافات الملكية</h3>
+      <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em] opacity-60">التحديثات الأخيرة في سجلات الإمبراطورية</p>
+      <div className="absolute bottom-0 right-0 w-24 h-1 bg-gradient-to-l from-gold-500 to-transparent"></div>
     </div>
-    <div className="overflow-x-auto">
-      <table className="w-full text-right" dir="rtl">
+
+    <div className="overflow-x-auto pb-6 custom-scrollbar">
+      <table className="w-full text-right border-separate border-spacing-y-4" dir="rtl">
         <thead>
-          <tr className="border-b border-gold-900/10 text-slate-500 text-xs font-black uppercase tracking-widest">
-            <th className="pb-6 pr-4">الكتاب</th>
-            <th className="pb-6">المؤلف</th>
-            <th className="pb-6">السعر</th>
-            <th className="pb-6">الحالة</th>
-            <th className="pb-6 pl-4">التاريخ</th>
+          <tr className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+            <th className="pb-4 pr-10 text-right">الكتاب المستجد</th>
+            <th className="pb-4 text-right">المؤلف</th>
+            <th className="pb-4 text-center">القيمة الإمبراطورية</th>
+            <th className="pb-4 text-center">الرتبة</th>
+            <th className="pb-4 text-left pl-10">تاريخ الإيداع</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gold-900/5">
-          {recentBooks.map(book => (
-            <tr key={book.id} className="hover:bg-gold-500/5 transition-colors">
-              <td className="py-5 pr-4 font-black text-white">{book.title}</td>
-              <td className="py-5 font-bold text-slate-400">{book.author}</td>
-              <td className="py-5 text-gold-500 font-black">${book.price}</td>
-              <td className="py-5">
-                <span className={`px-3 py-1 rounded-full text-xs font-black ${
-                  book.status === 'approved' ? 'bg-emerald-900/20 text-emerald-400' : 'bg-gold-900/20 text-gold-400'
+        <tbody>
+          {recentBooks.map((book, idx) => (
+            <tr 
+              key={book.id} 
+              className="group/row transition-all duration-500"
+              style={{ transitionDelay: `${idx * 40}ms` }}
+            >
+              <td className="py-5 pr-10 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] rounded-r-[2.5rem] border-r border-y border-gold-500/10 group-hover/row:border-gold-500/30 transition-all">
+                <p className="font-playfair font-black text-white group-hover/row:text-gold-400 transition-colors text-lg tracking-tight">{book.title}</p>
+              </td>
+              <td className="py-5 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 transition-all">
+                <span className="text-slate-400 font-bold text-sm">{book.author}</span>
+              </td>
+              <td className="py-5 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 text-center transition-all">
+                <span className="text-gold-500 font-black text-lg font-mono">${book.price}</span>
+              </td>
+              <td className="py-5 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 text-center transition-all">
+                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                  book.status === 'approved' ? 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20' : 'bg-gold-900/20 text-gold-400 border-gold-500/20'
                 }`}>
-                  {book.status === 'approved' ? 'تم النشر' : 'قيد المراجعة'}
+                  {book.status === 'approved' ? 'معتمد' : 'مراجعة'}
                 </span>
               </td>
-              <td className="py-5 pl-4 text-slate-500 text-sm">{book.uploadDate}</td>
+              <td className="py-5 pl-10 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] rounded-l-[2.5rem] border-l border-y border-gold-500/10 group-hover/row:border-gold-500/30 text-left transition-all">
+                <p className="text-slate-500 font-bold text-xs font-mono">{book.uploadDate}</p>
+              </td>
             </tr>
           ))}
           {recentBooks.length === 0 && (
-            <tr><td colSpan={5} className="py-10 text-center text-slate-500">لا توجد إضافات حديثة حالياً</td></tr>
+            <tr>
+              <td colSpan={5} className="py-24 text-center bg-white/[0.02] rounded-[3rem] border border-dashed border-white/10">
+                <p className="text-slate-600 font-bold">لا توجد سجلات حديثة في الأرشيف.</p>
+              </td>
+            </tr>
           )}
         </tbody>
       </table>
@@ -399,6 +441,18 @@ const BooksSection = ({
   onApprove: (id: string) => void;
   onEdit: (book: FirebaseBook) => void;
   onAdd: () => void;
+const BooksSection = ({
+  books,
+  onDelete,
+  onApprove,
+  onEdit,
+  onAdd,
+}: {
+  books: FirebaseBook[];
+  onDelete: (id: string) => void;
+  onApprove: (id: string) => void;
+  onEdit: (book: FirebaseBook) => void;
+  onAdd: () => void;
 }) => {
   const [search, setSearch] = useState('');
   const filtered = books.filter(
@@ -407,96 +461,136 @@ const BooksSection = ({
       b.author.toLowerCase().includes(search.toLowerCase())
   );
   return (
-    <div className="space-y-10 relative z-10 text-right">
-      <div className="flex flex-row-reverse items-center justify-between gap-4">
-        <h3 className="text-4xl font-amiri font-black gold-text">إدارة الخزانة</h3>
-        <div className="flex gap-4 flex-row-reverse">
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="بحث في الكتب..."
-            className="bg-surface-container-lowest border border-gold-900/20 rounded-2xl px-6 py-3 text-white font-bold text-sm focus:outline-none focus:border-gold-500/50 w-56 text-right"
-          />
-          <button onClick={onAdd} className="gold-button px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2">
-            <AddIcon className="text-lg" /> إضافة كتاب
+    <div className="space-y-12 relative z-10 text-right">
+      <div className="flex flex-col md:flex-row-reverse items-center justify-between gap-8 pb-8 border-b border-gold-500/10">
+        <div className="relative">
+          <h3 className="text-5xl font-amiri font-black gold-text mb-2">إدارة الخزانة الملكية</h3>
+          <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em] opacity-60">الأرشيف الكامل للمجلدات المنشورة والمؤرشفة</p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4 flex-row-reverse">
+          <div className="relative group w-full md:w-64">
+            <div className="absolute inset-0 bg-gold-500/5 blur-xl group-hover:bg-gold-500/10 transition-all rounded-full"></div>
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="ابحث في الأرشيف..."
+              className="w-full bg-black/40 border border-gold-500/20 rounded-full px-6 py-3.5 text-white font-bold text-sm focus:outline-none focus:border-gold-500/50 relative z-10 backdrop-blur-md transition-all"
+              dir="rtl"
+            />
+          </div>
+          <button 
+            onClick={onAdd} 
+            className="gold-button px-8 py-3.5 rounded-2xl font-black text-sm flex items-center gap-3 shadow-[0_10px_30px_rgba(212,175,55,0.2)] hover:-translate-y-1 transition-all"
+          >
+            <AddIcon className="text-xl" /> إضافة مجلد ملكي
           </button>
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-right" dir="rtl">
+
+      <div className="overflow-x-auto pb-6 custom-scrollbar">
+        <table className="w-full text-right border-separate border-spacing-y-4" dir="rtl">
           <thead>
-            <tr className="border-b border-gold-900/10 text-slate-500 text-xs font-black uppercase tracking-widest">
-              <th className="pb-5 pr-4 text-right">العنوان</th>
-              <th className="pb-5 text-right">المؤلف</th>
-              <th className="pb-5 text-right">سنة الإصدار</th>
-              <th className="pb-5 text-right">السعر</th>
-              <th className="pb-5 text-right">الحالة</th>
-              <th className="pb-5 text-center">الإجراءات</th>
+            <tr className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+              <th className="pb-4 pr-10 text-right">المجلد / العنوان</th>
+              <th className="pb-4 text-right">المؤلف</th>
+              <th className="pb-4 text-right">التاريخ / التصنيف</th>
+              <th className="pb-4 text-right">القيمة</th>
+              <th className="pb-4 text-center">الحالة الإمبراطورية</th>
+              <th className="pb-4 text-left pl-10">التحكم</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gold-900/5">
-            {filtered.map(book => (
-              <tr key={book.id} className="hover:bg-gold-500/5 transition-colors group">
-                <td className="py-5 pr-4 font-black text-white">{book.title}</td>
-                <td className="py-5 text-slate-400 font-bold">{book.author}</td>
-                <td className="py-5 text-slate-500 font-bold text-sm">{book.publicationYear || '—'}</td>
-                <td className="py-5 text-gold-500 font-black">${book.price}</td>
-                <td className="py-5">
-                  <span className={`px-3 py-1 rounded-full text-xs font-black ${
+          <tbody>
+            {filtered.map((book, idx) => (
+              <tr 
+                key={book.id} 
+                className="group/row transition-all duration-500 hover:z-10 relative"
+                style={{ transitionDelay: `${idx * 40}ms` }}
+              >
+                <td className="py-4 pr-10 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] rounded-r-[2.5rem] border-r border-y border-gold-500/10 group-hover/row:border-gold-500/30 transition-all">
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-20 relative flex-shrink-0 group/img">
+                      <div className="absolute inset-0 bg-gold-500/20 blur-md opacity-0 group-hover/img:opacity-100 transition-opacity"></div>
+                      <img 
+                        src={book.coverUrl || "https://i.imgur.com/8K9f6V2.png"} 
+                        className="w-full h-full object-cover rounded shadow-lg border border-white/10 relative z-10" 
+                        alt="" 
+                      />
+                    </div>
+                    <div>
+                      <p className="font-playfair font-black text-white group-hover/row:text-gold-400 transition-colors text-lg tracking-tight leading-tight">{book.title}</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">ID: {book.id.slice(0, 8)}</p>
+                    </div>
+                  </div>
+                </td>
+
+                <td className="py-4 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 transition-all">
+                  <span className="text-slate-400 font-bold text-sm">{book.author}</span>
+                </td>
+
+                <td className="py-4 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 transition-all">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-slate-500 text-[10px] font-black">{book.publicationYear || "—"}</span>
+                    <span className="text-gold-600/60 font-black text-[10px] uppercase tracking-widest">{book.category}</span>
+                  </div>
+                </td>
+
+                <td className="py-4 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 transition-all">
+                   <div className="text-emerald-500 font-black text-lg font-mono">
+                     <span className="text-xs opacity-50 mr-1">$</span>{book.price}
+                   </div>
+                </td>
+
+                <td className="py-4 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] border-y border-gold-500/10 group-hover/row:border-gold-500/30 text-center transition-all">
+                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                     book.status === 'approved'
-                      ? 'bg-emerald-900/20 text-emerald-400'
-                      : 'bg-gold-900/20 text-gold-400'
+                      ? 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
+                      : 'bg-gold-900/20 text-gold-400 border-gold-500/20 animate-pulse'
                   }`}>
-                    {book.status === 'approved' ? 'منشور' : 'قيد المراجعة'}
+                    {book.status === 'approved' ? 'منشور ملكي' : 'قيد المراجعة'}
                   </span>
                 </td>
-                <td className="py-5 text-center">
-                  <div className="flex gap-2 justify-center">
-                    {/* Edit — always available for all books */}
+
+                <td className="py-4 pl-10 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.05] rounded-l-[2.5rem] border-l border-y border-gold-500/10 group-hover/row:border-gold-500/30 transition-all">
+                  <div className="flex gap-2 justify-end">
                     <button
                       onClick={() => onEdit(book)}
-                      title="تعديل"
-                      className="p-2 rounded-xl hover:bg-gold-500/10 text-slate-500 hover:text-gold-400 transition-all"
+                      className="p-2.5 rounded-xl bg-white/5 hover:bg-gold-500/10 text-slate-500 hover:text-gold-400 transition-all border border-transparent hover:border-gold-500/20"
                     >
-                      <EditIcon className="text-base" />
+                      <EditIcon className="text-lg" />
                     </button>
-                    {/* Approve — only for pending books */}
                     {book.status !== 'approved' && (
                       <button
                         onClick={() => onApprove(book.id)}
-                        title="موافقة"
-                        className="p-2 rounded-xl hover:bg-emerald-500/10 text-slate-500 hover:text-emerald-400 transition-all"
+                        className="p-2.5 rounded-xl bg-emerald-500/5 hover:bg-emerald-500/20 text-slate-500 hover:text-emerald-400 transition-all border border-transparent hover:border-emerald-500/20"
                       >
-                        <CheckCircleIcon className="text-base" />
+                        <CheckCircleIcon className="text-lg" />
                       </button>
                     )}
-                    {/* Delete — always available */}
                     <button
                       onClick={() => onDelete(book.id)}
-                      title="حذف"
-                      className="p-2 rounded-xl hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 transition-all"
+                      className="p-2.5 rounded-xl bg-red-500/5 hover:bg-red-500/20 text-slate-500 hover:text-red-400 transition-all border border-transparent hover:border-red-500/20"
                     >
-                      <DeleteIcon className="text-base" />
+                      <DeleteIcon className="text-lg" />
                     </button>
                   </div>
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={6} className="py-12 text-center text-slate-500 font-bold">
-                  لا توجد كتب تطابق البحث.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
+        
+        {filtered.length === 0 && (
+          <div className="py-24 text-center bg-white/[0.02] rounded-[3rem] border border-dashed border-white/10">
+            <p className="text-slate-500 font-bold text-xl">لا توجد كتب تطابق هذا البحث في الأرشيف الإمبراطوري.</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-/* ===================== REVIEW SECTION with Edit/Approve/Delete ===================== */
+/* ===================== REVIEW SECTION with Premium Royal Banners ===================== */
 const ReviewSection = ({
   pendingBooks,
   onApprove,
@@ -508,85 +602,286 @@ const ReviewSection = ({
   onDelete: (id: string) => void;
   onEdit: (book: FirebaseBook) => void;
 }) => (
-  <div className="space-y-10 relative z-10 text-right">
-    <h3 className="text-4xl font-amiri font-black gold-text">مراجعة المجلدات الجديدة</h3>
-    <div className="grid gap-6">
-      {pendingBooks.map(book => (
+  <div className="space-y-12 relative z-10 text-right">
+    <div className="relative pb-4">
+      <h3 className="text-5xl font-amiri font-black gold-text mb-2">مراجعة المجلدات الجديدة</h3>
+      <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em] opacity-60">مخطوطات تنتظر الختم الملكي للنشر</p>
+      <div className="absolute bottom-0 right-0 w-24 h-1 bg-gradient-to-l from-emerald-500 to-transparent"></div>
+    </div>
+
+    <div className="grid gap-8">
+      {pendingBooks.map((book, idx) => (
         <div
           key={book.id}
-          className="bg-surface-container-lowest p-6 rounded-3xl border border-gold-500/20 flex flex-col md:flex-row-reverse items-start md:items-center justify-between gap-4"
+          className="group relative bg-[#0c0c0d] border border-gold-500/10 rounded-[2.5rem] overflow-hidden hover:border-gold-500/30 transition-all duration-700 hover:-translate-y-1 shadow-2xl"
+          style={{ transitionDelay: `${idx * 50}ms` }}
         >
-          <div className="text-right flex-1">
-            <h4 className="text-xl font-black text-white">{book.title}</h4>
-            <p className="text-slate-500 font-bold mt-1">
-              {book.author}
-              {book.publicationYear && <span className="text-gold-600 mx-2">• {book.publicationYear}</span>}
-              <span className="mx-2">• {book.category}</span>
-              <span className="text-emerald-500">${book.price}</span>
-            </p>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            {/* Edit */}
-            <button
-              onClick={() => onEdit(book)}
-              className="flex items-center gap-2 bg-gold-500/10 text-gold-400 border border-gold-500/20 px-4 py-2 rounded-xl font-black text-sm hover:bg-gold-500/20 transition-all"
-            >
-              <EditIcon className="text-sm" /> تعديل
-            </button>
-            {/* Approve */}
-            <button
-              onClick={() => onApprove(book.id)}
-              className="flex items-center gap-2 bg-emerald-500 text-slate-950 px-5 py-2 rounded-xl font-black text-sm hover:bg-emerald-400 transition-all"
-            >
-              <CheckCircleIcon className="text-sm" /> موافقة ملكية
-            </button>
-            {/* Delete/Reject */}
-            <button
-              onClick={() => onDelete(book.id)}
-              className="flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-2 rounded-xl font-bold text-sm hover:bg-red-500/20 transition-all"
-            >
-              <DeleteIcon className="text-sm" /> رفض وحذف
-            </button>
+          {/* Background Decorative Gradient */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          
+          <div className="p-8 flex flex-col lg:flex-row-reverse items-center justify-between gap-8">
+            <div className="flex flex-col lg:flex-row-reverse items-center gap-8 flex-1">
+              {/* Book Cover Thumbnail */}
+              <div className="relative flex-shrink-0 group/cover">
+                <div className="absolute -inset-2 bg-gold-500/10 rounded-2xl blur-lg opacity-0 group-hover/cover:opacity-100 transition-opacity"></div>
+                <div className="w-32 h-44 relative z-10 rounded-xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.5)] border border-white/10 group-hover/cover:border-gold-500/30 transition-all">
+                  <img 
+                    src={book.coverUrl || "https://i.imgur.com/8K9f6V2.png"} 
+                    className="w-full h-full object-cover transform scale-105 group-hover/cover:scale-110 transition-transform duration-700" 
+                    alt={book.title} 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                     <span className="text-[10px] text-white font-black uppercase tracking-widest bg-gold-500/20 backdrop-blur-md px-2 py-1 rounded border border-white/10 w-full text-center">معاينة الغلاف</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Book Details */}
+              <div className="text-center lg:text-right flex-1 space-y-3">
+                <div className="flex flex-col lg:flex-row-reverse items-center gap-3">
+                  <h4 className="text-3xl font-playfair font-black text-white group-hover:text-gold-400 transition-colors tracking-tight">{book.title}</h4>
+                  <span className="px-3 py-1 bg-gold-900/20 border border-gold-500/30 rounded-full text-gold-500 text-[10px] font-black uppercase tracking-widest">مجلد جديد</span>
+                </div>
+                
+                <div className="flex flex-wrap justify-center lg:justify-end gap-x-6 gap-y-2 text-slate-500 font-bold text-sm uppercase tracking-wider">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold-600"></span>
+                    {book.author}
+                  </span>
+                  {book.publicationYear && (
+                    <span className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                      {book.publicationYear}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-700 shadow-[0_0_10px_rgba(16,185,129,0.3)]"></span>
+                    {book.category}
+                  </span>
+                  <span className="text-emerald-400 font-black text-lg ml-2 font-mono">${book.price}</span>
+                </div>
+                
+                <p className="text-slate-600 text-xs font-bold leading-relaxed max-w-xl lg:ml-auto">
+                   هذا المجلد قيد المراجعة حالياً. يرجى التحقق من صحة البيانات وجودة الغلاف قبل إصدار الختم الملكي بالموافقة.
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-row md:flex-row lg:flex-col gap-4 w-full lg:w-auto mt-4 lg:mt-0 relative z-10">
+              {/* Approve */}
+              <button
+                onClick={() => onApprove(book.id)}
+                className="flex-1 flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-8 py-4 rounded-[1.5rem] font-black text-sm transition-all duration-500 shadow-xl shadow-emerald-500/10 hover:shadow-emerald-500/30 hover:-translate-y-1 active:scale-95"
+              >
+                <CheckCircleIcon className="text-xl" /> موافقة ملكية
+              </button>
+              
+              <div className="flex gap-4">
+                {/* Edit */}
+                <button
+                  onClick={() => onEdit(book)}
+                  className="flex-1 flex items-center justify-center gap-2 bg-white/5 hover:bg-gold-500/10 text-gold-400 border border-gold-500/20 px-6 py-3 rounded-2xl font-black text-xs transition-all hover:border-gold-500/50"
+                >
+                  <EditIcon className="text-sm" /> تعديل البيانات
+                </button>
+                
+                {/* Delete/Reject */}
+                <button
+                  onClick={() => onDelete(book.id)}
+                  className="flex-1 flex items-center justify-center gap-2 bg-red-950/20 hover:bg-red-600 transition-all text-red-500 hover:text-white px-6 py-3 rounded-2xl border border-red-500/20 font-black text-xs"
+                >
+                  <DeleteIcon className="text-sm" /> رفض وحذف
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       ))}
+
       {pendingBooks.length === 0 && (
-        <div className="p-20 text-center text-slate-500 font-bold bg-gold-500/5 rounded-[3rem]">
-          لا توجد مجلدات تنتظر المراجعة حالياً. الخزانة في أمان. 🏛️
+        <div className="relative py-32 rounded-[4rem] overflow-hidden group">
+          <div className="absolute inset-0 bg-emerald-500/5 border-2 border-dashed border-emerald-500/10 rounded-[4rem] group-hover:bg-emerald-500/[0.08] transition-all"></div>
+          <div className="relative z-10 text-center space-y-6">
+            <div className="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border-2 border-emerald-500/20 text-emerald-500 animate-pulse">
+               <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04c0 4.833 1.833 9.333 5.405 12.662L12 21l3.213-2.358c3.572-3.329 5.405-7.829 5.405-12.662z" />
+               </svg>
+            </div>
+            <div>
+              <p className="text-slate-500 font-playfair font-black text-3xl uppercase tracking-widest text-white/80">الخزانة الملكية في أمان تام</p>
+              <p className="text-emerald-500/60 text-sm mt-3 font-bold uppercase tracking-[0.3em]">جميع المخطوطات تم فحصها واعتمادها بنجاح</p>
+            </div>
+          </div>
         </div>
       )}
     </div>
   </div>
 );
 
-const MembersSection = ({ members }: { members: FirebaseUser[] }) => (
-  <div className="space-y-10 relative z-10 text-right">
-    <h3 className="text-4xl font-amiri font-black gold-text">قاعدة الأعضاء</h3>
-    <div className="overflow-x-auto">
-      <table className="w-full text-right" dir="rtl">
-        <thead>
-          <tr className="border-b border-gold-900/10 text-slate-500 text-xs font-black uppercase tracking-widest">
-            <th className="pb-5 pr-4 text-right">العضو</th>
-            <th className="pb-5 text-right">البريد</th>
-            <th className="pb-5 text-right">الدور</th>
-            <th className="pb-5 text-left pl-4">التاريخ</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gold-900/5">
-          {members.map(m => (
-            <tr key={m.id} className="hover:bg-gold-500/5 transition-colors">
-              <td className="py-5 pr-4 font-black text-white">{m.name}</td>
-              <td className="py-5 text-slate-400 font-bold text-sm">{m.email}</td>
-              <td className="py-5">
-                <span className={`px-3 py-1 rounded-full text-xs font-black text-white ${m.role === 'admin' ? 'bg-gold-500 text-slate-950' : 'bg-slate-700'}`}>
-                  {m.role === 'admin' ? 'مسؤول' : 'عضو'}
-                </span>
-              </td>
-              <td className="py-5 pl-4 text-left text-slate-500 text-sm">{m.createdAt?.split('T')[0] || 'قديم'}</td>
+const MembersSection = ({ members }: { members: FirebaseUser[] }) => {
+  const [search, setSearch] = useState('');
+  const filtered = members.filter(
+    m => m.name.toLowerCase().includes(search.toLowerCase()) || m.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-12 relative z-10 text-right">
+      <div className="flex flex-col md:flex-row-reverse items-center justify-between gap-8 pb-8 border-b border-gold-500/10">
+        <div className="relative">
+          <h3 className="text-5xl font-amiri font-black gold-text mb-2">قاعدة الأعضاء</h3>
+          <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em] opacity-60">النخبة المختارة من مجتمع كتبي الملكي</p>
+        </div>
+
+        <div className="relative group w-full md:w-80">
+          <div className="absolute inset-0 bg-gold-500/5 blur-xl group-hover:bg-gold-500/10 transition-all rounded-full"></div>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="بحث عن عضو ملكي..."
+            className="w-full bg-black/40 border border-gold-500/20 rounded-full px-8 py-4 text-white font-bold text-sm focus:outline-none focus:border-gold-500/50 relative z-10 backdrop-blur-md transition-all placeholder:text-slate-600"
+            dir="rtl"
+          />
+          <div className="absolute left-6 top-1/2 -translate-y-1/2 z-10">
+            <svg className="w-5 h-5 text-gold-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto custom-scrollbar pb-6">
+        <table className="w-full text-right border-separate border-spacing-y-4" dir="rtl">
+          <thead>
+            <tr className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+              <th className="pb-4 pr-10 text-right">العضو المستنير</th>
+              <th className="pb-4 text-right">المراسلات الملكية</th>
+              <th className="pb-4 text-center">الرتبة / المقام</th>
+              <th className="pb-4 text-left pl-10">تاريخ الانتساب</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filtered.map((m, idx) => (
+              <tr 
+                key={m.id} 
+                className="group/row transition-all duration-700 hover:-translate-y-1"
+                style={{ transitionDelay: `${idx * 50}ms` }}
+              >
+                <td className="py-5 pr-10 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.07] rounded-r-[2.5rem] border-r border-y border-gold-500/10 group-hover/row:border-gold-500/40 transition-all">
+                  <div className="flex items-center gap-5">
+                    <div className="relative flex-shrink-0">
+                      <div className="absolute -inset-1.5 bg-gold-500/20 rounded-full blur-md opacity-0 group-hover/row:opacity-100 transition-opacity"></div>
+                      <div className="relative z-10 w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-gold-600 to-amber-200">
+                        <img 
+                          src={m.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${m.name}`} 
+                          className="w-full h-full rounded-full border-2 border-black object-cover shadow-2xl"
+                          alt=""
+                        />
+                      </div>
+                      {m.role === 'admin' && (
+                        <div className="absolute -top-1 -right-1 z-20 bg-gold-500 text-black p-1 rounded-full shadow-lg scale-75 border-2 border-black">
+                           <StarIcon fontSize="inherit" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-playfair font-black text-white group-hover/row:text-gold-400 transition-colors text-xl tracking-tight leading-tight">{m.name}</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
+                        <span className="w-1 h-1 bg-gold-600 rounded-full"></span>
+                        ID: {m.id.slice(0, 10)}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                
+                <td className="py-5 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.07] border-y border-gold-500/10 group-hover/row:border-gold-500/40 transition-all">
+                  <span className="text-slate-400 font-bold text-sm bg-black/50 px-5 py-2 rounded-full border border-white/5 group-hover/row:border-gold-500/20 transition-all">
+                    {m.email}
+                  </span>
+                </td>
+                
+                <td className="py-5 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.07] border-y border-gold-500/10 group-hover/row:border-gold-500/40 text-center transition-all">
+                  {m.role === 'admin' ? (
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="px-6 py-2 bg-gradient-to-r from-gold-900/60 to-gold-600/30 border border-gold-500/50 rounded-full text-gold-300 text-[10px] font-black uppercase tracking-[.25em] shadow-[0_0_20px_rgba(212,175,55,0.15)] inline-flex items-center gap-3">
+                        <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse ring-4 ring-gold-500/20"></span>
+                        مسؤول الإدارة الملكية
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="px-6 py-2 bg-white/[0.03] border border-white/10 rounded-full text-slate-500 text-[10px] font-black uppercase tracking-[.25em] inline-flex items-center gap-3 group-hover/row:border-slate-400/30 transition-all">
+                      <span className="w-2 h-2 rounded-full bg-slate-700"></span>
+                      قارئ معتمد للمجموعة
+                    </span>
+                  )}
+                </td>
+                
+                <td className="py-5 pl-10 bg-[#0c0c0d] group-hover/row:bg-gold-500/[0.07] rounded-l-[2.5rem] border-l border-y border-gold-500/10 group-hover/row:border-gold-500/40 text-left transition-all">
+                  <div className="flex flex-col items-start gap-1">
+                    <p className="text-gold-500/60 font-black text-[10px] uppercase tracking-widest">تاريخ المجلد</p>
+                    <p className="text-slate-400 font-bold text-xs font-mono">{m.createdAt?.split('T')[0] || 'أرشيفي'}</p>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        {filtered.length === 0 && (
+          <div className="py-24 text-center">
+            <div className="w-20 h-20 bg-gold-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-gold-500/20 text-gold-500/30">
+               <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+               </svg>
+            </div>
+            <p className="text-slate-500 font-bold text-xl uppercase tracking-widest">لم يتم العثور على أي ك سجل ملكي</p>
+            <p className="text-slate-600 text-sm mt-2 font-bold antialiased">جرب استخدام مصطلحات أخرى للبحث</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const SettingsSection = () => (
+  <div className="space-y-12 relative z-10 text-right">
+    <div className="relative pb-4">
+      <h3 className="text-5xl font-amiri font-black gold-text mb-2">الإعدادات الملكية</h3>
+      <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em] opacity-60">تخصيص معايير الإمبراطورية الرقمية</p>
+      <div className="absolute bottom-0 right-0 w-24 h-1 bg-gradient-to-l from-gold-500 to-transparent"></div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="bg-[#0c0c0d] p-8 rounded-[2.5rem] border border-gold-500/10 hover:border-gold-500/30 transition-all group">
+         <h4 className="text-xl font-black text-white mb-6 flex items-center justify-between gap-3 flex-row-reverse text-right">
+            <span>تخصيص الهوية الملكية</span>
+            <SettingsIcon className="text-gold-500 text-lg" />
+         </h4>
+         <div className="space-y-6">
+            <div className="space-y-2">
+               <label className="text-xs font-black text-slate-500 uppercase tracking-widest block pr-2">لون السمة الرئيسي</label>
+               <div className="flex gap-3 justify-end">
+                  <div className="w-8 h-8 rounded-full bg-gold-500 border-2 border-white cursor-pointer ring-4 ring-gold-500/20"></div>
+                  <div className="w-8 h-8 rounded-full bg-emerald-500 border-2 border-transparent cursor-pointer hover:border-white transition-all"></div>
+                  <div className="w-8 h-8 rounded-full bg-blue-500 border-2 border-transparent cursor-pointer hover:border-white transition-all"></div>
+               </div>
+            </div>
+            <div className="pt-4 border-t border-white/5 text-right">
+                <button className="w-full gold-button py-3 rounded-xl font-black text-sm">حفظ تغييرات الهوية</button>
+            </div>
+         </div>
+      </div>
+
+      <div className="bg-[#0c0c0d] p-8 rounded-[2.5rem] border border-gold-500/10 hover:border-gold-500/30 transition-all group opacity-50 relative overflow-hidden">
+         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-20 flex items-center justify-center">
+            <span className="bg-gold-500 text-slate-950 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest rotate-12 shadow-2xl">Coming Soon</span>
+         </div>
+         <h4 className="text-xl font-black text-white mb-6 flex items-center justify-between gap-3 flex-row-reverse opacity-20 text-right">
+            <span>مركز الصيانة المتقدم</span>
+            <SettingsIcon className="text-red-500 text-lg" />
+         </h4>
+         <p className="text-slate-500 text-sm font-bold opacity-20 text-right">خصائص الإعدادات المتقدمة قادمة في التحديث الإمبراطوري القادم... ⏳</p>
+      </div>
     </div>
   </div>
 );
@@ -718,13 +1013,51 @@ const AdminDashboard: React.FC = () => {
   const pendingBooks = books.filter(b => b.status === 'pending');
   const approvedBooks = books.filter(b => b.status === 'approved');
   const totalDownloads = approvedBooks.reduce((acc, b) => acc + (b.downloads || 0), 0);
+  const totalViews = approvedBooks.reduce((acc, b) => acc + (b.views || 0), 0);
+  const avgConversion = totalViews ? Math.round((totalDownloads / totalViews) * 100) : 0;
+
+  const handleApproveAll = async () => {
+    if (pendingBooks.length === 0) return;
+    if (!window.confirm(`هل أنت متأكد من تفعيل "الختم الملكي" والموافقة على جميع المجلدات (${pendingBooks.length}) دفعة واحدة؟ 🏛️`)) return;
+    
+    try {
+      showToast('جاري تفعيل الموافقة الجماعية...', 'info');
+      const batch = writeBatch(db);
+      pendingBooks.forEach(b => {
+        batch.update(doc(db, 'books', b.id), { status: 'approved' });
+      });
+      await batch.commit();
+      showToast('تمت الموافقة على جميع المجلدات بنجاح! 👑', 'success');
+    } catch (error) {
+      showToast('خطأ في الموافقة الجماعية', 'error');
+    }
+  };
 
   const statsList = [
-    { label: 'إجمالي المجلدات', value: books.length, icon: MenuBookIcon, color: 'from-gold-700 to-gold-400' },
-    { label: 'إجمالي التحميلات', value: totalDownloads, icon: CloudUploadIcon, color: 'from-emerald-700 to-teal-400' },
-    { label: 'تنتظر المراجعة', value: pendingBooks.length, icon: PendingActionsIcon, color: 'from-gold-600 to-gold-300' },
-    { label: 'تم النشر', value: approvedBooks.length, icon: CheckCircleIcon, color: 'from-emerald-600 to-teal-400' },
+    { label: 'الأصول العريقة', value: books.length, icon: MenuBookIcon, color: 'from-gold-700 to-gold-400' },
+    { label: 'التحويلات الملكية', value: totalDownloads, icon: CloudUploadIcon, color: 'from-emerald-700 to-teal-400' },
+    { label: 'قيد التمحيص', value: pendingBooks.length, icon: PendingActionsIcon, color: 'from-gold-600 to-gold-300' },
+    { label: 'مقام الأعضاء', value: members.length, icon: PeopleIcon, color: 'from-slate-700 to-slate-400' },
   ];
+
+  const QuickActions = () => (
+    <div className="flex flex-wrap gap-4 mb-8 bg-gold-500/5 p-4 rounded-3xl border border-gold-500/10">
+      <p className="w-full text-[10px] font-black uppercase tracking-[0.3em] text-gold-500/50 mb-2 pr-4">مركز الأوامر السريعة (Quick Actions)</p>
+      <button 
+        onClick={handleApproveAll}
+        disabled={pendingBooks.length === 0}
+        className="flex-1 min-w-[150px] bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-slate-950 border border-emerald-500/20 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all disabled:opacity-30 flex items-center justify-center gap-3"
+      >
+        <CheckCircleIcon fontSize="small" /> اعتماد الكل ({pendingBooks.length})
+      </button>
+      <button className="flex-1 min-w-[150px] bg-white/5 hover:bg-white/10 text-white/50 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-3">
+        <LibraryBooksIcon fontSize="small" /> تقرير المخزون
+      </button>
+      <button className="flex-1 min-w-[150px] bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all border border-blue-500/20 flex items-center justify-center gap-3">
+        <DashboardIcon fontSize="small" /> تحديث البيانات
+      </button>
+    </div>
+  );
 
   const navItems = [
     { id: 'overview', label: 'نظرة عامة', icon: DashboardIcon },
@@ -795,17 +1128,23 @@ const AdminDashboard: React.FC = () => {
             {/* Welcome Banner */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-surface-container-low p-10 rounded-[3rem] border border-gold-900/10 shadow-2xl relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-r from-gold-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-              <div className="text-right flex-1">
+              <div className="text-right flex-1 relative z-10">
                 <h1 className="text-5xl font-amiri font-black gold-text mb-4">أهلاً بك، السيّد المدير العام 👑</h1>
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">مرحباً بك في قمرة القيادة الملكية لمنصة كتبي. الخزانة تحت إشرافك.</p>
+                <div className="flex items-center gap-4 flex-wrap justify-end">
+                   <span className="px-4 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[10px] font-black uppercase tracking-widest">معدل التحويل: {avgConversion}%</span>
+                   <span className="px-4 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-[10px] font-black uppercase tracking-widest">إجمالي المشاهدات: {totalViews}</span>
+                </div>
               </div>
-              <div className="bg-surface-container-lowest p-6 rounded-3xl border border-gold-900/10 text-center min-w-[200px]">
+              <div className="bg-surface-container-lowest p-6 rounded-3xl border border-gold-900/10 text-center min-w-[200px] relative z-10">
                 <p className="text-white font-black text-lg">
                   {new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </p>
                 <p className="text-gold-500 text-[10px] font-black uppercase tracking-tighter">التوقيت الملكي للمنصة</p>
               </div>
             </div>
+
+            {/* Quick Actions Bar */}
+            <QuickActions />
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
               {statsList.map(stat => (
@@ -821,14 +1160,23 @@ const AdminDashboard: React.FC = () => {
               ))}
             </div>
 
-            <div className={`p-10 rounded-[3rem] ${activeTab === 'analytics' ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-surface-container-lowest'} border transition-all`}>
-              <div className="flex justify-between items-center mb-6">
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">نظام الإدارة</p>
+            <div className={`p-10 md:p-14 rounded-[4rem] relative overflow-hidden transition-all duration-700 ${activeTab === 'analytics' ? 'bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]' : 'bg-[#0a0a0b] border border-gold-500/20 shadow-[0_0_100px_rgba(0,0,0,0.8)]'}`}>
+              {/* Cinematic Arcs for the container */}
+              <div className="absolute top-0 right-0 w-64 h-64 border-t border-r border-gold-500/10 rounded-tr-[4rem] -mr-10 -mt-10 pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 border-b border-l border-gold-500/10 rounded-bl-[4rem] -ml-10 -mb-10 pointer-events-none"></div>
+              
+              <div className="flex flex-col md:flex-row-reverse justify-between items-center mb-12 gap-6 relative z-10">
+                <div className="flex items-center gap-3">
+                   <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
+                   <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">نظام الإدارة الملكي</p>
+                </div>
+                
                 <button
                   onClick={cleanupRegistry}
-                  className="text-xs bg-red-500/10 text-red-500 px-4 py-2 rounded-xl font-black border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
+                  className="bg-red-950/30 hover:bg-red-600 transition-all text-red-500 hover:text-white px-6 py-2.5 rounded-2xl border border-red-500/20 flex items-center gap-3 text-[10px] font-black tracking-widest uppercase shadow-lg hover:shadow-red-500/20 backdrop-blur-md"
                 >
-                  تنظيف السجلات التجريبية 🛡️
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                  تنظيف السجلات التجريبية
                 </button>
               </div>
               {activeTab === 'overview' && <OverviewSection recentBooks={books.slice(0, 5)} />}
@@ -851,9 +1199,7 @@ const AdminDashboard: React.FC = () => {
                 />
               )}
               {activeTab === 'users' && <MembersSection members={members} />}
-              {activeTab === 'settings' && (
-                <div className="text-center py-20 opacity-40">خصائص الإعدادات الملكية قادمة قريباً... ⏳</div>
-              )}
+              {activeTab === 'settings' && <SettingsSection />}
             </div>
           </div>
         </div>
