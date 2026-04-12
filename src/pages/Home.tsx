@@ -12,6 +12,7 @@ import AdUnit from '../components/AdUnit';
 import { Link } from 'react-router-dom';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { formattedAuthor } from '../utils/formatters';
+import { Search } from 'lucide-react';
 
 const KUTUBI_ORIGINALS = [
   { id: 'original-1', title: 'مقدمة ابن خلدون', author: 'ابن خلدون', coverImage: 'https://images.unsplash.com/photo-1589998059171-d88d664a2a0f?auto=format&fit=crop&q=80&w=400', rating: 5.0, price: 45.00 },
@@ -178,6 +179,24 @@ const HomePage = () => {
             >
               اكتشف خبايا المعرفة في أفخم منصة عربية. ملايين العناوين العالمية والمحلية برؤية ملكية فريدة.
             </motion.p>
+
+            {/* 🔎 Integrated Search Bar (Classic Style) */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }}
+              className="max-w-3xl mx-auto mb-12 relative group"
+            >
+              <div className="absolute inset-0 bg-gold-500/10 blur-2xl group-hover:bg-gold-500/15 transition-all duration-500 rounded-3xl" />
+              <div className="relative flex items-center bg-[#0d0d12]/80 backdrop-blur-3xl border border-gold-500/20 rounded-3xl p-2 pl-4 shadow-2xl overflow-hidden group-focus-within:border-gold-500/40 transition-all">
+                <input 
+                  type="text" 
+                  placeholder="ابحث عن كتاب، مؤلف، أو مخطوطة نادرة..." 
+                  className="w-full bg-transparent border-none outline-none py-4 px-6 text-xl text-white placeholder:text-slate-600 font-bold text-right"
+                  dir="rtl"
+                />
+                <button className="gold-button h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <Search className="text-black" />
+                </button>
+              </div>
+            </motion.div>
 
             {/* CTAs */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1, duration: 0.6 }}
