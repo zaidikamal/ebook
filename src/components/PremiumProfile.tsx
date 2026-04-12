@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, BookOpen, Flame, LogOut, Verified } from "lucide-react";
+import { Star, BookOpen, Flame, LogOut, Verified, Settings } from "lucide-react";
 
 interface PremiumProfileProps {
   user?: {
@@ -57,11 +57,29 @@ export default function PremiumProfile({
             {/* Logout Button (Positioned as in Image) */}
             <button 
               onClick={onLogout}
-              className="absolute top-0 left-0 md:-top-4 md:-left-4 bg-red-950/30 hover:bg-red-600 transition-all text-red-500 hover:text-white px-4 py-2 rounded-2xl border border-red-500/20 flex items-center gap-2 text-[10px] font-black tracking-widest uppercase z-50 backdrop-blur-md"
+              className="absolute top-0 left-0 md:-top-4 md:-left-4 bg-red-950/30 hover:bg-red-600 transition-all text-red-500 hover:text-white px-4 py-2 rounded-2xl border border-red-500/20 flex items-center gap-2 text-[10px] font-black tracking-widest uppercase z-50 backdrop-blur-md shadow-lg hover:shadow-red-500/20"
             >
               <LogOut size={12} />
               تسجيل الخروج
             </button>
+
+            {/* Royal Settings Placeholder */}
+            <div className="absolute top-0 right-0 md:-top-4 md:-right-4 group/settings z-50">
+              <button 
+                className="bg-gold-950/30 hover:bg-gold-600/20 transition-all text-gold-500 px-4 py-2 rounded-2xl border border-gold-500/20 flex items-center gap-2 text-[10px] font-black tracking-widest uppercase backdrop-blur-md cursor-help overflow-hidden relative"
+              >
+                <Settings size={12} className="group-hover/settings:rotate-90 transition-transform duration-500" />
+                <span>الإعدادات الملكية</span>
+                <div className="absolute inset-0 bg-gold-500/10 translate-x-full group-hover/settings:translate-x-0 transition-transform duration-300"></div>
+              </button>
+              
+              {/* Coming Soon Tooltip-like popup */}
+              <div className="absolute top-full mt-2 right-0 opacity-0 group-hover/settings:opacity-100 transition-all translate-y-2 group-hover/settings:translate-y-0 pointer-events-none">
+                 <div className="bg-black/80 backdrop-blur-xl border border-gold-500/20 px-4 py-2 rounded-xl whitespace-nowrap">
+                   <p className="text-[10px] text-gold-400 font-bold tracking-widest">قادمة قريباً... ⏳</p>
+                 </div>
+              </div>
+            </div>
 
             <div className="relative">
               {/* Outer Golden Rings */}
