@@ -20,6 +20,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import PremiumProfile from '../components/PremiumProfile';
 
 const PRESET_AVATARS = [
   '/avatars/royal-user.png',
@@ -221,75 +222,23 @@ const ProfilePage = () => {
       <Navbar />
       
       <main className="container mx-auto px-6 pt-40 pb-24">
-        {/* User Header */}
+        {/* Premium Cinematic Header */}
         <section className="mb-20">
-           <div className="relative group perspective-1000">
-             {/* Glowing backing for the entire header */}
-             <div className="absolute inset-0 bg-gradient-to-r from-gold-500/20 via-gold-600/5 to-purple-900/20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none rounded-[4rem]"></div>
-             
-             <div className="bg-gradient-to-br from-[#1a1712]/90 to-surface-container-low/95 p-12 rounded-[4rem] border-2 border-gold-900/30 flex flex-col md:flex-row-reverse items-center justify-between gap-12 relative overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.05)] backdrop-blur-xl">
-               {/* Premium decorative shapes */}
-               <div className="absolute top-0 right-0 w-96 h-96 bg-gold-600/10 rounded-full blur-[120px] pointer-events-none"></div>
-               <div className="absolute -bottom-32 left-0 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-               
-               {/* Golden corner accents */}
-               <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-gold-500/30 rounded-tr-[4rem] m-2 opacity-50"></div>
-               <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-gold-500/30 rounded-bl-[4rem] m-2 opacity-50"></div>
-               
-               <div className="flex flex-col md:flex-row-reverse items-center gap-10 w-full md:w-auto z-10">
-                  {/* Logout Button */}
-                  <button 
-                    onClick={handleLogout}
-                    className="absolute top-8 left-8 bg-red-500/5 hover:bg-red-500 text-red-400 hover:text-white px-5 py-2.5 rounded-2xl border border-red-500/20 hover:border-red-500 transition-all font-black text-xs shadow-lg hover:shadow-red-500/20"
-                  >
-                    تسجيل الخروج
-                  </button>
-                  
-                  {/* Avatar wrapper with double rings */}
-                  <div className="relative group/avatar cursor-pointer" onClick={() => setShowAvatarModal(true)}>
-                    <div className="absolute -inset-2 bg-gradient-to-r from-gold-500 via-yellow-200 to-gold-600 rounded-full blur-md opacity-20 group-hover/avatar:opacity-60 transition duration-1000 group-hover/avatar:duration-200"></div>
-                    <div className="w-40 h-40 rounded-full border-[6px] border-surface-container-lowest p-1 shadow-2xl relative bg-gradient-to-br from-gold-900/50 to-surface overflow-hidden">
-                       <img src={user.avatar} alt="صورة المستخدم الشخصية" loading="lazy" className="w-full h-full rounded-full bg-surface-container-lowest object-cover ring-2 ring-gold-500/30 transform group-hover/avatar:scale-110 transition-transform duration-700" />
-                       <div className="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all duration-300">
-                          <EditIcon className="text-gold-400 text-3xl drop-shadow-lg mb-1" />
-                          <span className="text-[10px] text-gold-200 font-black tracking-widest uppercase">تعديل</span>
-                       </div>
-                       <div className="absolute -bottom-1 -right-1 bg-gradient-to-br from-gold-400 to-gold-600 w-12 h-12 rounded-full flex items-center justify-center border-4 border-surface shadow-[0_0_20px_rgba(212,175,55,0.4)] z-20">
-                          <VerifiedIcon className="text-slate-900 text-2xl" />
-                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="text-center md:text-right">
-                     <h1 className="text-5xl font-amiri font-black text-transparent bg-clip-text bg-gradient-to-b from-gold-300 via-gold-500 to-gold-700 drop-shadow-sm mb-3">
-                       {user.name}
-                     </h1>
-                     <p className="text-slate-400 font-bold mb-6 tracking-wide text-sm bg-surface-container-lowest/50 py-1.5 px-4 rounded-full inline-block border border-gold-900/10">
-                       {user.email}
-                     </p>
-                     <div>
-                       <span className="px-8 py-2.5 bg-gradient-to-r from-gold-900/40 to-gold-800/10 border border-gold-500/30 rounded-full text-gold-400 text-sm font-black uppercase tracking-widest shadow-[inset_0_0_20px_rgba(212,175,55,0.1)] inline-flex items-center gap-2">
-                         <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
-                         {user.tier}
-                       </span>
-                     </div>
-                  </div>
-               </div>
-  
-               <div className="grid grid-cols-2 gap-6 w-full md:w-[380px] z-10">
-                  <div className="stat-card group/stat">
-                     <p className="text-5xl font-amiri font-black text-white group-hover/stat:text-gold-400 transition-colors drop-shadow-md mb-2">{ownedBooks.length}</p>
-                     <p className="text-gold-500/70 text-[11px] font-black uppercase tracking-[0.2em]">كتاب في الخزانة</p>
-                     <div className="rank-badge absolute bottom-0 left-0 -translate-x-1/4 translate-y-1/4 pointer-events-none">#1</div>
-                  </div>
-                  <div className="stat-card group/stat">
-                     <p className="text-5xl font-amiri font-black text-white group-hover/stat:text-gold-400 transition-colors drop-shadow-md mb-2">12</p>
-                     <p className="text-gold-500/70 text-[11px] font-black uppercase tracking-[0.2em]">ساعة قراءة</p>
-                     <div className="rank-badge absolute bottom-0 left-0 -translate-x-1/4 translate-y-1/4 pointer-events-none">PRO</div>
-                  </div>
-               </div>
-             </div>
-           </div>
+          <PremiumProfile 
+            user={{
+              name: user.name.toUpperCase(), // Forcing high-end cinematic feel
+              email: user.email,
+              avatar: user.avatar,
+              tier: "👑 PRO MEMBER",
+              roleBadge: user.tier
+            }}
+            stats={{
+              readingHours: 12, // Placeholder or fetch from real stats if available
+              booksInLibrary: ownedBooks.length,
+              streak: 5
+            }}
+            onLogout={handleLogout}
+          />
         </section>
 
         {/* Decorative Separator */}
