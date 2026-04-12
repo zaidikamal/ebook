@@ -9,6 +9,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import Home from '@mui/icons-material/Home';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useAuth } from '../contexts/AuthContext';
@@ -37,6 +38,7 @@ const Navbar = () => {
   const navLinks = [
     { to: '/', label: 'الرئيسية', icon: <Home className="text-base" />, exact: true },
     { to: '/library', label: 'الخزانة الملكية', icon: <AutoStoriesIcon className="text-base" /> },
+    { to: '/membership', label: 'العضوية الملكية', icon: <WorkspacePremiumIcon className="text-base" /> },
     { to: '/search', label: 'البحث', icon: <Search className="text-base" /> },
     ...(user ? [{ to: '/profile', label: 'مكتبتي', icon: <AccountBalanceIcon className="text-base" /> }] : []),
   ];

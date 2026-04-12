@@ -24,6 +24,7 @@ const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const Membership = lazy(() => import('./pages/Membership'));
 
 import CommandPalette from './components/CommandPalette';
 import AIAdvisor from './components/AIAdvisor';
@@ -81,6 +82,7 @@ function App() {
             <Route path="/payment" element={<Payment />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/membership" element={<Membership />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </Suspense>
