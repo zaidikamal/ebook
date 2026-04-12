@@ -68,12 +68,16 @@ const EditModal: React.FC<EditModalProps> = ({ book, onClose, onSave }) => {
   const [saving, setSaving] = useState(false);
   const [newCoverFile, setNewCoverFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
     setSaving(true);
+    setError(null);
     try {
       let updatedCoverUrl = book.coverUrl;
       if (newCoverFile) {
+        setUploadProgress(0);
         updatedCoverUrl = await uploadToSupabase(newCoverFile, 'covers', (p) => setUploadProgress(p));
       }
       await onSave(book.id, {
@@ -86,24 +90,27 @@ const EditModal: React.FC<EditModalProps> = ({ book, onClose, onSave }) => {
         license: form.license,
         ...(updatedCoverUrl && { coverUrl: updatedCoverUrl })
       });
+      onClose();
     } catch (e: any) {
       console.error(e);
-      alert('حدث خطأ أثناء رفع الصورة: ' + e.message);
+      setError(e.message || 'حدث خطأ غير متوقع أثناء الحفظ');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    onClose();
   };
+
+  const previewUrl = newCoverFile ? URL.createObjectURL(newCoverFile) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir="rtl">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={!saving ? onClose : undefined} />
 
       {/* Modal */}
       <div className="relative bg-[#0d1117] border border-gold-500/20 rounded-[2.5rem] shadow-[0_40px_80px_rgba(0,0,0,0.8)] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-8 border-b border-gold-900/20">
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white">
+          <button onClick={onClose} disabled={saving} className="p-2 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white disabled:opacity-40">
             <CloseIcon />
           </button>
           <div className="text-right">
@@ -205,28 +212,76 @@ const EditModal: React.FC<EditModalProps> = ({ book, onClose, onSave }) => {
           
           {/* Cover Edit */}
           <div className="space-y-4 pt-4 border-t border-gold-900/20">
-            <label className="text-sm font-black text-slate-400">تغيير غلاف الكتاب (اختياري)</label>
-            <div className={`border-2 border-dashed ${newCoverFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-gold-900/30'} rounded-2xl p-6 text-center hover:border-gold-500/50 transition-all group relative cursor-pointer flex flex-col items-center justify-center`}>
-              <AddPhotoAlternateIcon className={`text-4xl ${newCoverFile ? 'text-emerald-500' : 'text-gold-900 group-hover:text-gold-500'} transition-colors mb-2`} />
-              <p className={`font-bold text-sm ${newCoverFile ? 'text-emerald-400' : 'text-slate-400'}`}>
-                {newCoverFile ? newCoverFile.name : 'اسحب صورة الغلاف الجديدة هنا أو انقر للاختيار'}
-              </p>
-              <input type="file" accept="image/*" onChange={(e) => setNewCoverFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer" />
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-black text-slate-400">تغيير غلاف الكتاب</label>
+              {newCoverFile && (
+                <button
+                  type="button"
+                  onClick={() => { setNewCoverFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                  className="text-xs text-red-400 hover:text-red-300 font-black border border-red-500/20 px-3 py-1 rounded-xl hover:bg-red-500/10 transition-all"
+                >
+                  ✕ إلغاء الصورة الجديدة
+                </button>
+              )}
             </div>
-            
-            {(book.coverUrl || newCoverFile) && (
-              <div className="mt-4 flex flex-col items-start gap-2">
-                <p className="text-xs text-slate-500 font-bold">{newCoverFile ? 'الصورة الجديدة:' : 'الغلاف الحالي للمجلد:'}</p>
-                {newCoverFile ? (
-                  <img src={URL.createObjectURL(newCoverFile)} alt="New Cover Preview" className="h-32 object-contain rounded-lg border border-gold-900/20 shadow-md bg-white/5 p-1" />
-                ) : (
-                  <img src={book.coverUrl} alt="Cover" className="h-32 object-contain rounded-lg border border-gold-900/20 shadow-md bg-white/5 p-1" />
-                )}
+
+            {/* Current Cover Preview */}
+            {book.coverUrl && (
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-gold-900/10">
+                <img 
+                  src={book.coverUrl} 
+                  alt="الغلاف الحالي"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  className="h-20 w-14 object-cover rounded-lg border border-gold-900/20 shadow-md flex-shrink-0" 
+                />
+                <div className="text-right">
+                  <p className="text-xs text-slate-500 font-black">الغلاف الحالي</p>
+                  <p className="text-xs text-slate-600 mt-1 truncate max-w-[200px]">{book.coverUrl.split('/').pop()}</p>
+                  {newCoverFile && (
+                    <p className="text-xs text-gold-500 font-bold mt-1">سيتم استبداله بالصورة الجديدة</p>
+                  )}
+                </div>
               </div>
             )}
-            {uploadProgress > 0 && uploadProgress < 100 && (
-              <div className="mt-2 w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-gold-500 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+
+            {/* Drop Zone for New Cover */}
+            <div className={`border-2 border-dashed ${newCoverFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-gold-900/30 hover:border-gold-500/50'} rounded-2xl p-6 text-center transition-all group relative cursor-pointer flex flex-col items-center justify-center`}>
+              <AddPhotoAlternateIcon className={`text-4xl ${newCoverFile ? 'text-emerald-500' : 'text-gold-900 group-hover:text-gold-500'} transition-colors mb-2`} />
+              <p className={`font-bold text-sm ${newCoverFile ? 'text-emerald-400' : 'text-slate-400'}`}>
+                {newCoverFile ? `✓ ${newCoverFile.name}` : 'اسحب صورة الغلاف الجديدة هنا أو انقر للاختيار'}
+              </p>
+              {!newCoverFile && <p className="text-xs text-slate-600 mt-1">JPG, PNG, WebP · الحد الأقصى 10MB</p>}
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => setNewCoverFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer" />
+            </div>
+
+            {/* New Cover Preview */}
+            {previewUrl && (
+              <div className="flex items-center gap-3 p-3 bg-emerald-500/5 rounded-2xl border border-emerald-500/20">
+                <img src={previewUrl} alt="الغلاف الجديد" className="h-20 w-14 object-cover rounded-lg border border-emerald-500/20 shadow-md flex-shrink-0" />
+                <div className="text-right">
+                  <p className="text-xs text-emerald-400 font-black">الغلاف الجديد (قبل الحفظ)</p>
+                  <p className="text-xs text-slate-500 mt-1">{(newCoverFile!.size / 1024).toFixed(0)} KB</p>
+                </div>
+              </div>
+            )}
+
+            {/* Upload Progress */}
+            {saving && newCoverFile && uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="mt-2 space-y-1">
+                <div className="flex justify-between text-xs text-gold-500 font-black">
+                  <span>جاري رفع الصورة...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-gold-700 to-gold-400 transition-all duration-300 rounded-full" style={{ width: `${uploadProgress}%` }} />
+                </div>
+              </div>
+            )}
+
+            {/* Error */}
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-right">
+                <p className="text-red-400 font-bold text-sm">⚠️ {error}</p>
               </div>
             )}
           </div>
@@ -236,7 +291,8 @@ const EditModal: React.FC<EditModalProps> = ({ book, onClose, onSave }) => {
         <div className="flex gap-4 p-8 border-t border-gold-900/20">
           <button
             onClick={onClose}
-            className="flex-1 bg-white/5 border border-gold-900/20 py-4 rounded-2xl font-black text-slate-400 hover:text-white transition-all"
+            disabled={saving}
+            className="flex-1 bg-white/5 border border-gold-900/20 py-4 rounded-2xl font-black text-slate-400 hover:text-white transition-all disabled:opacity-40"
           >
             إلغاء
           </button>

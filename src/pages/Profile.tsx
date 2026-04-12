@@ -339,10 +339,14 @@ const ProfilePage = () => {
                     className="relative group"
                   >
                     <BookCard book={book} />
+                    <button
+                      onClick={() => handleDownload(book)}
+                      className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gold-500 text-slate-950 px-4 py-2 rounded-xl font-black text-xs flex items-center gap-2 shadow-lg hover:bg-gold-400 whitespace-nowrap"
+                    >
                       <DownloadIcon className="text-sm group-hover:animate-bounce" />
                       <span>اقتناء النسخة الملكية</span>
-                      <div className="absolute inset-0 rounded-2xl border border-gold-500/50 opacity-0 group-hover:opacity-100 animate-pulse pointer-events-none"></div>
                     </button>
+                    <div className="absolute inset-0 rounded-2xl border border-gold-500/50 opacity-0 group-hover:opacity-100 animate-pulse pointer-events-none"></div>
                   </motion.div>
                 ))
               )}
@@ -397,36 +401,36 @@ const ProfilePage = () => {
                       <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
                       رفع صورة مخصصة
                     </p>
-                {uploadPreview ? (
-                  <div className="flex flex-col items-center gap-4">
-                    <img src={uploadPreview} alt="معاينة الصورة" loading="lazy" className="w-24 h-24 rounded-full object-cover border-4 border-gold-500/50 shadow-xl" />
-                    <div className="flex gap-3">
+                    {uploadPreview ? (
+                      <div className="flex flex-col items-center gap-4">
+                        <img src={uploadPreview} alt="معاينة الصورة" loading="lazy" className="w-24 h-24 rounded-full object-cover border-4 border-gold-500/50 shadow-xl" />
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => applyAvatar(uploadPreview)}
+                            className="gold-button px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2"
+                          >
+                            <CheckCircleIcon className="text-lg" />
+                            تطبيق هذه الصورة
+                          </button>
+                          <button
+                            onClick={() => setUploadPreview(null)}
+                            className="bg-surface-container-lowest border border-gold-900/20 px-6 py-3 rounded-2xl font-black text-sm text-slate-400"
+                          >
+                            إلغاء
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
                       <button
-                        onClick={() => applyAvatar(uploadPreview)}
-                        className="gold-button px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full border-2 border-dashed border-gold-900/30 hover:border-gold-500/50 rounded-3xl py-8 flex flex-col items-center gap-3 transition-all hover:bg-gold-500/5 group"
                       >
-                        <CheckCircleIcon className="text-lg" />
-                        تطبيق هذه الصورة
+                        <AddPhotoAlternateIcon className="text-4xl text-gold-900/50 group-hover:text-gold-500 transition-colors" />
+                        <span className="text-slate-500 font-bold">اضغط لرفع صورة</span>
+                        <span className="text-slate-600 text-xs">JPG, PNG, GIF مقبولة</span>
                       </button>
-                      <button
-                        onClick={() => setUploadPreview(null)}
-                        className="bg-surface-container-lowest border border-gold-900/20 px-6 py-3 rounded-2xl font-black text-sm text-slate-400"
-                      >
-                        إلغاء
-                      </button>
-                    </div>
+                    )}
                   </div>
-                ) : (
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-gold-900/30 hover:border-gold-500/50 rounded-3xl py-8 flex flex-col items-center gap-3 transition-all hover:bg-gold-500/5 group"
-                  >
-                    <AddPhotoAlternateIcon className="text-4xl text-gold-900/50 group-hover:text-gold-500 transition-colors" />
-                    <span className="text-slate-500 font-bold">اضغط لرفع صورة</span>
-                    <span className="text-slate-600 text-xs">JPG, PNG, GIF مقبولة</span>
-                  </button>
-                )}
-              </div>
 
               {/* Preset avatars */}
               <div>
@@ -454,6 +458,7 @@ const ProfilePage = () => {
                       </button>
                     ))}
                   </div>
+              </div>
               </div>
             </motion.div>
           </motion.div>

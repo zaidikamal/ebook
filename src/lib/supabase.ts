@@ -19,7 +19,14 @@ export const uploadToSupabase = async (
   onProgress?: (progress: number) => void
 ): Promise<string> => {
   if (!supabase) {
-    throw new Error('Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.');
+    throw new Error('لم يتم تهيئة Supabase. يرجى التحقق من إعدادات البيئة VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY.');
+  }
+
+  // Validate file size (max 50MB for books, 10MB for covers)
+  const maxSize = bucket === 'books' ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+  if (file.size > maxSize) {
+    const maxMB = bucket === 'books' ? 50 : 10;
+    throw new Error(`حجم الملف كبير جداً. الحد الأقصى هو ${maxMB}MB.`);
   }
 
   // Extract extension safely
@@ -30,18 +37,30 @@ export const uploadToSupabase = async (
   const fileName = `${Date.now()}_${safeName}${ext}`;
   const filePath = `${fileName}`;
 
-  // Supabase doesn't have native progress, so we simulate it
+  // Signal upload start
   onProgress?.(10);
 
   const { error } = await supabase.storage
     .from(bucket)
     .upload(filePath, file, {
       cacheControl: '3600',
-      upsert: false,
+      upsert: true, // Allow overwrite to avoid conflicts
+      contentType: file.type || undefined,
     });
 
   if (error) {
-    throw new Error(`Upload failed: ${error.message}`);
+    console.error('Supabase upload error:', error);
+    // Provide user-friendly Arabic error messages
+    if (error.message?.includes('not found') || error.message?.includes('Bucket not found')) {
+      throw new Error(`مجلد التخزين "${bucket}" غير موجود. تواصل مع الدعم التقني.`);
+    }
+    if (error.message?.includes('security')) {
+      throw new Error('خطأ في الصلاحيات. يرجى التأكد من تسجيل الدخول أولاً.');
+    }
+    if (error.message?.includes('Payload too large') || error.message?.includes('too large')) {
+      throw new Error('حجم الملف أكبر من المسموح به.');
+    }
+    throw new Error(`فشل الرفع: ${error.message}`);
   }
 
   onProgress?.(90);
@@ -51,9 +70,10 @@ export const uploadToSupabase = async (
     .getPublicUrl(filePath);
 
   if (!urlData?.publicUrl) {
-    throw new Error('Could not get public URL for uploaded file.');
+    throw new Error('لم يتم الحصول على رابط الملف المرفوع.');
   }
 
   onProgress?.(100);
   return urlData.publicUrl;
 };
+
