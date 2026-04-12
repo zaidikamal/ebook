@@ -37,7 +37,6 @@ const Navbar = () => {
 
   const navLinks = [
     { to: '/', label: 'الرئيسية', icon: <Home className="text-base" />, exact: true },
-    { to: '/library', label: 'الخزانة الملكية', icon: <AutoStoriesIcon className="text-base" /> },
     { to: '/membership', label: 'العضوية الملكية', icon: <WorkspacePremiumIcon className="text-base" /> },
     { to: '/search', label: 'البحث', icon: <Search className="text-base" /> },
     ...(user ? [{ to: '/profile', label: 'مكتبتي', icon: <AccountBalanceIcon className="text-base" /> }] : []),

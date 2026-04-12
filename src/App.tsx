@@ -47,8 +47,8 @@ function App() {
         <AIAdvisor />
         <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center text-gold-500 font-black" dir="rtl">...جاري جلب المجلدات</div>}>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/library" element={<Home />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/welcome" element={<LandingPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/book/:id" element={<BookDetails />} />
             <Route path="/login" element={<LoginPage />} />
