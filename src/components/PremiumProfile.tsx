@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, BookOpen, Flame, LogOut, Verified, Settings } from "lucide-react";
+import { Star, LogOut, Verified, Settings } from "lucide-react";
 
 interface PremiumProfileProps {
   user?: {

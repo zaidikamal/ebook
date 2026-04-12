@@ -8,8 +8,7 @@ import {
   Settings, 
   Home, 
   ShieldCheck, 
-  Zap,
-  Command as CommandIcon 
+  Zap
 } from 'lucide-react';
 
 export default function CommandPalette() {

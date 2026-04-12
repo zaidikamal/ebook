@@ -13,8 +13,6 @@ import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { formattedAuthor } from '../utils/formatters';
 import { supabase } from '../lib/supabase';
-import EditIcon from '@mui/icons-material/Edit';
-import VerifiedIcon from '@mui/icons-material/Verified';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import DownloadIcon from '@mui/icons-material/Download';
 import CloseIcon from '@mui/icons-material/Close';

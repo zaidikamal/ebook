@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   MenuBook, 
-  Security, 
   AutoStories, 
   Star, 
   ArrowForward, 

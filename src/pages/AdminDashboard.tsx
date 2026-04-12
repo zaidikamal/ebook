@@ -17,6 +17,7 @@ import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
+import StarIcon from '@mui/icons-material/Star';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, getDocs, where, writeBatch } from 'firebase/firestore';
 import { useToast } from '../components/Toast';
@@ -429,18 +430,6 @@ const OverviewSection = ({ recentBooks }: { recentBooks: FirebaseBook[] }) => (
 );
 
 /* ===================== BOOKS SECTION with Edit/Delete/Approve ===================== */
-const BooksSection = ({
-  books,
-  onDelete,
-  onApprove,
-  onEdit,
-  onAdd,
-}: {
-  books: FirebaseBook[];
-  onDelete: (id: string) => void;
-  onApprove: (id: string) => void;
-  onEdit: (book: FirebaseBook) => void;
-  onAdd: () => void;
 const BooksSection = ({
   books,
   onDelete,

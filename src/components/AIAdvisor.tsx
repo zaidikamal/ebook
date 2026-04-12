@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Sparkles, Send, X, BrainCircuit, Quote } from 'lucide-react';
+import { Sparkles, Send, X, BrainCircuit } from 'lucide-react';
 
 export default function AIAdvisor() {
   const [isOpen, setIsOpen] = useState(false);
