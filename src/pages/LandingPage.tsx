@@ -2,11 +2,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   MenuBook, 
-  AutoStories, 
   Star, 
   ArrowForward, 
-  SmartToy,
-  AutoGraph
 } from '@mui/icons-material';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';

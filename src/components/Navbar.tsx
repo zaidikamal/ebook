@@ -7,7 +7,6 @@ import Search from '@mui/icons-material/Search';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import Home from '@mui/icons-material/Home';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import CloseIcon from '@mui/icons-material/Close';
