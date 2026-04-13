@@ -10,6 +10,8 @@ import BookCard from '../components/BookCard';
 import TrendingBookCard from '../components/TrendingBookCard';
 import AdUnit from '../components/AdUnit';
 import { Link } from 'react-router-dom';
+import TranslateIcon from '@mui/icons-material/Translate';
+import ComputerIcon from '@mui/icons-material/Computer';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { formattedAuthor } from '../utils/formatters';
 import { Search } from 'lucide-react';
@@ -29,6 +31,8 @@ const HomePage = () => {
   const [mustReads, setMustReads] = useState<any[]>([]);
   const [newArrivals, setNewArrivals] = useState<any[]>([]);
   const [trendingBooks, setTrendingBooks] = useState<any[]>([]);
+  const [officeBooks, setOfficeBooks] = useState<any[]>([]);
+  const [langBooks, setLangBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,6 +54,11 @@ const HomePage = () => {
             axios.get('https://www.googleapis.com/books/v1/volumes?q=subject:history&maxResults=8&langRestrict=ar'),
             timeout(3000)
           ]) as any;
+          const respOffice = await axios.get('https://www.googleapis.com/books/v1/volumes?q=subject:"office+skills"&maxResults=4&langRestrict=ar');
+          const respLang = await axios.get('https://www.googleapis.com/books/v1/volumes?q=subject:languages&maxResults=4&langRestrict=ar');
+          
+          if (respOffice.data.items) setOfficeBooks(formatBooks(respOffice.data.items, 'gb'));
+          if (respLang.data.items) setLangBooks(formatBooks(respLang.data.items, 'gb'));
         } catch (apiErr) {
           console.warn('Google Books throttled or slow.');
         }
@@ -307,6 +316,54 @@ const HomePage = () => {
               {newArrivals.map((book) => <BookCard key={book._id} book={book} />)}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ════ OFFICE SKILLS SECTION ════ */}
+      <section className="py-24 px-6 relative">
+        <div className="container mx-auto">
+          <div className="flex items-end justify-between mb-14 px-2">
+            <div className="text-right flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-500/10 border border-blue-500/20">
+                <ComputerIcon className="text-blue-400" />
+              </div>
+              <div>
+                <motion.h2 initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+                  className="text-4xl md:text-5xl font-amiri font-black gold-text mb-1">المهارات المكتبية</motion.h2>
+                <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">✦ اتقن أدوات العصر الحديث ✦</p>
+              </div>
+            </div>
+            <Link to="/search?category=office-skills" className="hidden md:flex items-center gap-1 text-sm text-slate-500 hover:text-gold-400 transition-colors font-black">عرض الكل ←</Link>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10">
+            {officeBooks.length > 0 ? officeBooks.map((book) => <BookCard key={book._id} book={book} />) : (
+               [...Array(4)].map((_, i) => <div key={i} className="aspect-[3/4.6] rounded-[2rem] border border-gold-900/10 img-shimmer" />)
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ════ FOREIGN LANGUAGES SECTION ════ */}
+      <section className="py-24 px-6 relative">
+        <div className="container mx-auto">
+          <div className="flex items-end justify-between mb-14 px-2">
+            <div className="text-right flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-purple-500/10 border border-purple-500/20">
+                <TranslateIcon className="text-purple-400" />
+              </div>
+              <div>
+                <motion.h2 initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+                  className="text-4xl md:text-5xl font-amiri font-black gold-text mb-1">اللغات الأجنبية</motion.h2>
+                <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">✦ افتح آفاقاً عالمية جديدة ✦</p>
+              </div>
+            </div>
+            <Link to="/search?category=foreign-languages" className="hidden md:flex items-center gap-1 text-sm text-slate-500 hover:text-gold-400 transition-colors font-black">عرض الكل ←</Link>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10">
+            {langBooks.length > 0 ? langBooks.map((book) => <BookCard key={book._id} book={book} />) : (
+               [...Array(4)].map((_, i) => <div key={i} className="aspect-[3/4.6] rounded-[2rem] border border-gold-900/10 img-shimmer" />)
+            )}
+          </div>
         </div>
       </section>
 

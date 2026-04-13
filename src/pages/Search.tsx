@@ -232,6 +232,8 @@ const SearchPage = () => {
               <option value="politics">السياسة والاقتصاد</option>
               <option value="self-help">تطوير الذات</option>
               <option value="poetry">الشعر</option>
+              <option value="office-skills">المهارات المكتبية</option>
+              <option value="foreign-languages">اللغات الأجنبية</option>
             </select>
             <select
               value={filterPrice}
