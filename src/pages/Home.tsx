@@ -236,8 +236,8 @@ const HomePage = () => {
         <section className="py-24 px-6 relative z-10 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 50%, rgba(212,175,55,0.04) 0%, transparent 70%)' }} />
           <div className="container mx-auto relative z-10">
-            <div className="flex flex-row-reverse items-center justify-between gap-4 mb-14">
-              <div className="flex flex-row-reverse items-center gap-4">
+            <div className="flex items-center justify-between gap-4 mb-14">
+              <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
                   style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(234,88,12,0.1))', border: '1px solid rgba(212,175,55,0.25)', boxShadow: '0 0 30px rgba(212,175,55,0.15)' }}>
                   <LocalFireDepartmentIcon className="text-orange-400" style={{ fontSize: '28px' }} />
