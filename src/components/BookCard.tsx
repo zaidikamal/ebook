@@ -76,12 +76,18 @@ const BookCard = ({ book, isPriority = false }: { book: Book, isPriority?: boole
             </div>
 
             {/* Title */}
-            <h3 className="text-lg md:text-xl font-amiri font-black text-white leading-tight line-clamp-2 drop-shadow-lg mb-1 translate-y-2 group-hover:translate-y-0 transition-transform duration-400">
+            <h3 
+              title={book.title}
+              className="text-lg md:text-xl font-amiri font-black text-white leading-[1.3] line-clamp-2 drop-shadow-lg mb-1 translate-y-2 group-hover:translate-y-0 transition-transform duration-400"
+            >
               {book.title}
             </h3>
 
             {/* Author */}
-            <p className="text-gold-500/70 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-500 line-clamp-1">
+            <p 
+              title={book.author}
+              className="text-gold-500/70 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-500 line-clamp-1"
+            >
               {book.author}
             </p>
           </div>

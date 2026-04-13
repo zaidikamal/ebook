@@ -77,7 +77,7 @@ const BookPreviewModal: React.FC<BookPreviewModalProps> = ({ isOpen, onClose, fi
           {/* Header */}
           <div className="bg-gradient-to-r from-gold-900/20 to-transparent p-6 border-b border-gold-900/10 flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-amiri font-black gold-text mb-1">{title}</h2>
+              <h2 className="text-2xl font-amiri font-black gold-text mb-1 leading-relaxed">{title}</h2>
               <span className="text-[10px] bg-gold-500/10 text-gold-500 px-3 py-1 rounded-full font-bold uppercase tracking-widest border border-gold-500/20">
                 قراءة مجانية (الفصل الأول)
               </span>

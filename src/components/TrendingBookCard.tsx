@@ -85,12 +85,18 @@ const TrendingBookCard: React.FC<TrendingBookCardProps> = ({ book, rank }) => {
           </div>
 
           {/* Title */}
-          <h3 className="font-amiri font-black text-white text-xl leading-tight line-clamp-1 group-hover:text-gold-300 transition-colors duration-400 mb-1">
+          <h3 
+            title={book.title}
+            className="font-amiri font-black text-white text-lg md:text-xl leading-[1.3] line-clamp-2 group-hover:text-gold-300 transition-colors duration-400 mb-0.5"
+          >
             {book.title}
           </h3>
 
           {/* Author */}
-          <p className="text-slate-500 text-xs font-bold line-clamp-1 mb-3 group-hover:text-slate-400 transition-colors">
+          <p 
+            title={book.author}
+            className="text-slate-500 text-[11px] font-bold line-clamp-1 mb-1 group-hover:text-slate-400 transition-colors"
+          >
             {book.author}
           </p>
 
